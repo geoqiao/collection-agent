@@ -30,6 +30,17 @@ class Tool(ABC):
     async def execute(self, **kwargs: Any) -> ToolResult:
         pass
 
+    def _validate_params(self, **kwargs: Any) -> tuple[bool, str]:
+        """Validate parameters against schema. Returns (valid, error_message)."""
+        for param in self.parameters:
+            if param.required and param.name not in kwargs:
+                return False, f"Missing required parameter: {param.name}"
+            if param.enum and param.name in kwargs:
+                value = kwargs[param.name]
+                if value not in param.enum:
+                    return False, f"Invalid value for {param.name}: {value}. Must be one of: {param.enum}"
+        return True, ""
+
     def to_schema(self) -> dict[str, Any]:
         """Return JSON Schema for LLM function calling."""
         return {

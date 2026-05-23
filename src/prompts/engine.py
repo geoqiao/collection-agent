@@ -14,13 +14,20 @@ class PromptEngine:
 
     def __init__(self, template_dir: Path | None = None):
         self.template_dir = template_dir or TEMPLATE_DIR
+        self._cache: dict[str, str] = {}
 
     def load_fragment(self, name: str) -> str:
-        """Load a template file by relative path."""
+        """Load a template file by relative path (cached)."""
+        if name in self._cache:
+            return self._cache[name]
         path = self.template_dir / name
-        if path.exists():
-            return path.read_text(encoding="utf-8")
-        return ""
+        content = path.read_text(encoding="utf-8") if path.exists() else ""
+        self._cache[name] = content
+        return content
+
+    def clear_cache(self) -> None:
+        """Clear the template cache."""
+        self._cache.clear()
 
     def assemble_skill_prompt(self, skill_name: str, context: dict[str, Any]) -> str:
         """Assemble full prompt for a skill execution."""

@@ -33,6 +33,9 @@ class SendMessageTool(Tool):
     ]
 
     async def execute(self, **kwargs: Any) -> ToolResult:
+        valid, error = self._validate_params(**kwargs)
+        if not valid:
+            return ToolResult(success=False, error=error)
         user_id = kwargs.get("user_id", "unknown")
         channel = kwargs.get("channel", "sms")
         message = kwargs.get("message", "")
@@ -67,6 +70,9 @@ class SendPaymentLinkTool(Tool):
     ]
 
     async def execute(self, **kwargs: Any) -> ToolResult:
+        valid, error = self._validate_params(**kwargs)
+        if not valid:
+            return ToolResult(success=False, error=error)
         user_id = kwargs.get("user_id", "unknown")
         amount = kwargs.get("amount", 2580.00)
         return ToolResult(

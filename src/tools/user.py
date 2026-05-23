@@ -20,6 +20,9 @@ class QueryUserHistoryTool(Tool):
     ]
 
     async def execute(self, **kwargs: Any) -> ToolResult:
+        valid, error = self._validate_params(**kwargs)
+        if not valid:
+            return ToolResult(success=False, error=error)
         user_id = kwargs.get("user_id", "unknown")
         return ToolResult(
             success=True,
@@ -54,6 +57,9 @@ class AddToDncListTool(Tool):
     ]
 
     async def execute(self, **kwargs: Any) -> ToolResult:
+        valid, error = self._validate_params(**kwargs)
+        if not valid:
+            return ToolResult(success=False, error=error)
         user_id = kwargs.get("user_id", "unknown")
         channel = kwargs.get("channel", "all")
         return ToolResult(
@@ -99,6 +105,9 @@ class ScheduleReminderTool(Tool):
     ]
 
     async def execute(self, **kwargs: Any) -> ToolResult:
+        valid, error = self._validate_params(**kwargs)
+        if not valid:
+            return ToolResult(success=False, error=error)
         user_id = kwargs.get("user_id", "unknown")
         remind_date = kwargs.get("remind_date", "2025-04-15T09:00:00Z")
         channel = kwargs.get("channel", "sms")

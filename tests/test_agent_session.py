@@ -68,6 +68,17 @@ class MockIntentRecognizer(IntentRecognizer):
         )
 
 
+class MockComplianceChecker:
+    def is_within_valid_hours(self, t=None):
+        return True
+
+    def has_forbidden_words(self, content):
+        return False
+
+    def audit_content(self, content):
+        return True, ""
+
+
 def create_session(state="normal"):
     user_state = UserState(
         user_id="u1",
@@ -88,6 +99,7 @@ def create_session(state="normal"):
         prompt_engine=PromptEngine(),
         llm_client=MockLLMClient(),
         storage=MemoryStore(),
+        compliance_checker=MockComplianceChecker(),
     )
 
 

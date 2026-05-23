@@ -50,19 +50,23 @@ class SkillResult:
     thinking: str = ""
 
 
-class Skill(ABC):
+class Skill:
+    """A skill defines configuration for the ReAct executor.
+
+    Skills do NOT contain hard-coded execution logic.
+    Execution is fully delegated to SkillExecutor, which drives an LLM
+    through a ReAct loop using the skill's system prompt and available tools.
+    """
+
     name: str = ""
     description: str = ""
     triggers: list[str] = field(default_factory=list)
     is_one_way_door: bool = False
     max_react_steps: int = 5
+    prompt_template: str = ""  # Filename under prompts/templates/skills/
 
     def __init__(self, tools: list[Tool] | None = None):
         self.tools = tools or []
-
-    @abstractmethod
-    async def execute(self, ctx: SkillContext) -> SkillResult:
-        pass
 
     def get_available_tools(self) -> list[Tool]:
         return self.tools

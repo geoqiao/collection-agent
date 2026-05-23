@@ -20,6 +20,9 @@ class QueryBillTool(Tool):
     ]
 
     async def execute(self, **kwargs: Any) -> ToolResult:
+        valid, error = self._validate_params(**kwargs)
+        if not valid:
+            return ToolResult(success=False, error=error)
         user_id = kwargs.get("user_id", "unknown")
         return ToolResult(
             success=True,
@@ -58,6 +61,9 @@ class CreatePaymentPlanTool(Tool):
     ]
 
     async def execute(self, **kwargs: Any) -> ToolResult:
+        valid, error = self._validate_params(**kwargs)
+        if not valid:
+            return ToolResult(success=False, error=error)
         user_id = kwargs.get("user_id", "unknown")
         installments = kwargs.get("installments", 3)
         amount = kwargs.get("amount", 2580.00)

@@ -18,6 +18,7 @@ from src.session.enhanced_state_machine import (
 from src.skills.base import Skill, SkillContext, SkillResult, SkillResultStatus
 from src.skills.executor import SkillExecutor
 from src.skills.registry import SkillRegistry
+from src.compliance.checker import ComplianceChecker
 from src.storage.memory_store import MemoryStore
 from src.tools.registry import ToolRegistry
 
@@ -45,6 +46,7 @@ class AgentSession:
         prompt_engine: PromptEngine,
         llm_client: LLMClient,
         storage: MemoryStore,
+        compliance_checker: ComplianceChecker | None = None,
     ) -> None:
         self.user_id = user_id
         self.user_state = user_state
@@ -56,9 +58,23 @@ class AgentSession:
         self.prompt_engine = prompt_engine
         self.llm_client = llm_client
         self.storage = storage
+        self.compliance_checker = compliance_checker or ComplianceChecker()
 
     async def handle_event(self, event: Event) -> SkillResult | None:
         """Handle an incoming event and return a skill result."""
+        # Compliance check for outbound/outreach events
+        if event.type in {
+            EventType.SCHEDULED_OUTREACH,
+            EventType.REMINDER_DUE,
+            EventType.SILENCE_TIMEOUT,
+        }:
+            if not self.compliance_checker.is_within_valid_hours():
+                return SkillResult(
+                    status=SkillResultStatus.ERROR,
+                    response_text="",
+                    thinking="Outreach blocked: outside valid hours",
+                )
+
         if event.type in (EventType.USER_REPLIED, EventType.CALL_CONNECTED):
             return await self._handle_user_event(event)
 

@@ -115,12 +115,13 @@ async def test_stop_skill_executes_tools():
 
 @pytest.mark.asyncio
 async def test_one_way_door_skills_with_missing_tools():
-    """Skills should handle missing tools gracefully."""
+    """Skills should return ERROR when critical tools are missing."""
     skill = StopSkill(tools=[])
     ctx = SkillContext(
         user_id="u5",
         user_profile=UserProfile(user_id="u5", name="Test"),
     )
     result = await skill.execute(ctx)
-    assert result.status == SkillResultStatus.SUCCESS
+    assert result.status == SkillResultStatus.ERROR
     assert result.new_session_state == "stopped"
+    assert "Critical tool" in result.thinking

@@ -32,6 +32,9 @@ class RecordPromiseTool(Tool):
     ]
 
     async def execute(self, **kwargs: Any) -> ToolResult:
+        valid, error = self._validate_params(**kwargs)
+        if not valid:
+            return ToolResult(success=False, error=error)
         user_id = kwargs.get("user_id", "unknown")
         promised_date = kwargs.get("promised_date", "2025-04-15")
         amount = kwargs.get("amount", 2580.00)
@@ -60,6 +63,9 @@ class CheckPaymentStatusTool(Tool):
     ]
 
     async def execute(self, **kwargs: Any) -> ToolResult:
+        valid, error = self._validate_params(**kwargs)
+        if not valid:
+            return ToolResult(success=False, error=error)
         user_id = kwargs.get("user_id", "unknown")
         return ToolResult(
             success=True,

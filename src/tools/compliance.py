@@ -32,6 +32,9 @@ class PauseCollectionTool(Tool):
     ]
 
     async def execute(self, **kwargs: Any) -> ToolResult:
+        valid, error = self._validate_params(**kwargs)
+        if not valid:
+            return ToolResult(success=False, error=error)
         user_id = kwargs.get("user_id", "unknown")
         days = kwargs.get("days", 7)
         reason = kwargs.get("reason", "user request")
@@ -66,6 +69,9 @@ class EscalateToHumanTool(Tool):
     ]
 
     async def execute(self, **kwargs: Any) -> ToolResult:
+        valid, error = self._validate_params(**kwargs)
+        if not valid:
+            return ToolResult(success=False, error=error)
         user_id = kwargs.get("user_id", "unknown")
         reason = kwargs.get("reason", "user request")
         return ToolResult(
@@ -98,6 +104,9 @@ class WelfareAlertTool(Tool):
     ]
 
     async def execute(self, **kwargs: Any) -> ToolResult:
+        valid, error = self._validate_params(**kwargs)
+        if not valid:
+            return ToolResult(success=False, error=error)
         user_id = kwargs.get("user_id", "unknown")
         details = kwargs.get("details", "")
         return ToolResult(

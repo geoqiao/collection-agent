@@ -6,17 +6,24 @@ import xml.etree.ElementTree as ET
 from typing import Any
 
 from src.llm.base import LLMClient
+from src.prompts.engine import PromptEngine
 from src.skills.base import Skill, SkillContext, SkillResult, SkillResultStatus, ToolCallRecord
 from src.tools.base import Tool
 from src.tools.registry import ToolRegistry
 
 
 class SkillExecutor:
-    """Executes skills using a ReAct (Reasoning + Acting) loop."""
+    """Executes skills using a ReAct (Reasoning + Acting) loop driven by an LLM."""
 
-    def __init__(self, llm_client: LLMClient, tool_registry: ToolRegistry) -> None:
+    def __init__(
+        self,
+        llm_client: LLMClient,
+        tool_registry: ToolRegistry,
+        prompt_engine: PromptEngine | None = None,
+    ) -> None:
         self.llm_client = llm_client
         self.tool_registry = tool_registry
+        self.prompt_engine = prompt_engine or PromptEngine()
 
     async def execute(self, skill: Skill, ctx: SkillContext) -> SkillResult:
         """Execute a skill using the ReAct loop.
@@ -152,7 +159,53 @@ class SkillExecutor:
         return messages
 
     def _build_system_prompt(self, skill: Skill, ctx: SkillContext) -> str:
-        """Build system prompt for the ReAct loop."""
+        """Build system prompt for the ReAct loop.
+
+        If the skill has a prompt_template, use PromptEngine to assemble
+        the full prompt from template fragments. Otherwise fall back to
+        a minimal default prompt.
+        """
+        if skill.prompt_template and self.prompt_engine:
+            context = {
+                "skill_name": skill.name,
+                "skill_description": skill.description,
+                "user_id": ctx.user_id,
+                "user_profile": ctx.user_profile,
+                "session_state": ctx.session_state,
+                "intent_category": ctx.current_intent,
+                "conversation_history": ctx.conversation_history,
+                "bill_facts": ctx.bill_facts,
+                "available_tools": skill.get_available_tools(),
+            }
+            assembled = self.prompt_engine.assemble_skill_prompt(
+                skill.prompt_template.replace(".xml", "").replace(".md", ""),
+                context,
+            )
+            if assembled.strip():
+                # Append the XML action schema since templates may not include it
+                assembled += (
+                    "\n\n## ReAct 动作格式\n"
+                    "你必须用 XML 格式输出思考过程和动作：\n"
+                    "<action>\n"
+                    "  <type>reply|tool_call|escalate|end</type>\n"
+                    "  <!-- reply: 直接回复用户 -->\n"
+                    "  <text>回复内容</text>\n"
+                    "  <!-- tool_call: 调用一个或多个工具 -->\n"
+                    "  <tool_calls>\n"
+                    "    <tool_call>\n"
+                    "      <name>tool_name</name>\n"
+                    "      <parameters>\n"
+                    "        <param_name>value</param_name>\n"
+                    "      </parameters>\n"
+                    "    </tool_call>\n"
+                    "  </tool_calls>\n"
+                    "  <!-- escalate: 升级人工 -->\n"
+                    "  <text>升级原因</text>\n"
+                    "</action>"
+                )
+                return assembled
+
+        # Fallback minimal prompt
         lines = [
             f"You are a debt collection agent skill: {skill.name}",
             f"Description: {skill.description}",
