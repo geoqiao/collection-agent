@@ -13,3 +13,7 @@ class QuotaProfile(BaseModel):
     min_call_interval_seconds: int = 600
     min_chat_interval_unanswered: int = 1800
     min_chat_interval_answered: int = 120
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "QuotaProfile":
+        return cls(**{k: v for k, v in data.items() if k in cls.model_fields})

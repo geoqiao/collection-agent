@@ -1,6 +1,14 @@
+import asyncio
+import os
+
 import httpx
+from dotenv import load_dotenv
 
 from src.llm.base import LLMClient, LLMResponse
+from src.llm.prompts import INTENT_SYSTEM_PROMPT, STRATEGY_SYSTEM_PROMPT
+from src.llm.retry import RetryConfig
+
+load_dotenv()
 
 
 class MockLLMClient(LLMClient):
@@ -23,19 +31,6 @@ class MockLLMClient(LLMClient):
     async def generate_strategy_response(self, strategy: dict, context: dict) -> str:
         name = context.get("user_name", "用户")
         return f"您好{name}，请尽快处理您的逾期账单。"
-
-
-_INTENT_SYSTEM_PROMPT = (
-    "You are an intent classifier for a debt collection system. "
-    "Classify the user's message into exactly one of these categories: "
-    "willing_to_pay, unwilling_to_pay, ineffective_contact, request_info, complaint. "
-    "Respond with only the category name, nothing else."
-)
-
-_STRATEGY_SYSTEM_PROMPT = (
-    "You are a debt collection assistant. Generate a polite, professional response "
-    "based on the provided strategy and context. Be concise and respectful."
-)
 
 
 class ClaudeClient(LLMClient):
@@ -70,16 +65,21 @@ class ClaudeClient(LLMClient):
             "content-type": "application/json",
         }
 
+        retry_config = RetryConfig()
+
         async with httpx.AsyncClient(timeout=self.timeout) as client:
-            try:
-                response = await client.post(url, json=payload, headers=headers)
-                response.raise_for_status()
-                data = response.json()
-            except httpx.HTTPStatusError:
-                # Retry once
-                response = await client.post(url, json=payload, headers=headers)
-                response.raise_for_status()
-                data = response.json()
+            for attempt in range(retry_config.max_retries + 1):
+                try:
+                    response = await client.post(url, json=payload, headers=headers)
+                    response.raise_for_status()
+                    data = response.json()
+                    break
+                except httpx.HTTPStatusError as e:
+                    status_code = e.response.status_code
+                    if not retry_config.should_retry(status_code, attempt):
+                        raise
+                    delay = retry_config.get_delay(attempt)
+                    await asyncio.sleep(delay)
 
         content = data["content"][0]["text"]
         usage = data.get("usage", {})
@@ -94,7 +94,7 @@ class ClaudeClient(LLMClient):
 
     async def detect_intent(self, user_message: str, context: dict) -> str:
         messages = [
-            {"role": "system", "content": _INTENT_SYSTEM_PROMPT},
+            {"role": "system", "content": INTENT_SYSTEM_PROMPT},
             {"role": "user", "content": user_message},
         ]
         resp = await self.chat(messages, temperature=0.0, max_tokens=64)
@@ -103,7 +103,7 @@ class ClaudeClient(LLMClient):
     async def generate_strategy_response(self, strategy: dict, context: dict) -> str:
         strategy_text = f"Strategy: {strategy}\nContext: {context}"
         messages = [
-            {"role": "system", "content": _STRATEGY_SYSTEM_PROMPT},
+            {"role": "system", "content": STRATEGY_SYSTEM_PROMPT},
             {"role": "user", "content": strategy_text},
         ]
         resp = await self.chat(messages, temperature=0.7, max_tokens=1024)
@@ -141,15 +141,21 @@ class OpenAIClient(LLMClient):
             "content-type": "application/json",
         }
 
+        retry_config = RetryConfig()
+
         async with httpx.AsyncClient(timeout=self.timeout) as client:
-            try:
-                response = await client.post(url, json=payload, headers=headers)
-                response.raise_for_status()
-                data = response.json()
-            except httpx.HTTPStatusError:
-                response = await client.post(url, json=payload, headers=headers)
-                response.raise_for_status()
-                data = response.json()
+            for attempt in range(retry_config.max_retries + 1):
+                try:
+                    response = await client.post(url, json=payload, headers=headers)
+                    response.raise_for_status()
+                    data = response.json()
+                    break
+                except httpx.HTTPStatusError as e:
+                    status_code = e.response.status_code
+                    if not retry_config.should_retry(status_code, attempt):
+                        raise
+                    delay = retry_config.get_delay(attempt)
+                    await asyncio.sleep(delay)
 
         content = data["choices"][0]["message"]["content"]
         usage = data.get("usage", {})
@@ -165,7 +171,7 @@ class OpenAIClient(LLMClient):
 
     async def detect_intent(self, user_message: str, context: dict) -> str:
         messages = [
-            {"role": "system", "content": _INTENT_SYSTEM_PROMPT},
+            {"role": "system", "content": INTENT_SYSTEM_PROMPT},
             {"role": "user", "content": user_message},
         ]
         resp = await self.chat(messages, temperature=0.0, max_tokens=64)
@@ -174,7 +180,7 @@ class OpenAIClient(LLMClient):
     async def generate_strategy_response(self, strategy: dict, context: dict) -> str:
         strategy_text = f"Strategy: {strategy}\nContext: {context}"
         messages = [
-            {"role": "system", "content": _STRATEGY_SYSTEM_PROMPT},
+            {"role": "system", "content": STRATEGY_SYSTEM_PROMPT},
             {"role": "user", "content": strategy_text},
         ]
         resp = await self.chat(messages, temperature=0.7, max_tokens=1024)
@@ -212,15 +218,21 @@ class DeepSeekClient(LLMClient):
             "content-type": "application/json",
         }
 
+        retry_config = RetryConfig()
+
         async with httpx.AsyncClient(timeout=self.timeout) as client:
-            try:
-                response = await client.post(url, json=payload, headers=headers)
-                response.raise_for_status()
-                data = response.json()
-            except httpx.HTTPStatusError:
-                response = await client.post(url, json=payload, headers=headers)
-                response.raise_for_status()
-                data = response.json()
+            for attempt in range(retry_config.max_retries + 1):
+                try:
+                    response = await client.post(url, json=payload, headers=headers)
+                    response.raise_for_status()
+                    data = response.json()
+                    break
+                except httpx.HTTPStatusError as e:
+                    status_code = e.response.status_code
+                    if not retry_config.should_retry(status_code, attempt):
+                        raise
+                    delay = retry_config.get_delay(attempt)
+                    await asyncio.sleep(delay)
 
         content = data["choices"][0]["message"]["content"]
         usage = data.get("usage", {})
@@ -236,7 +248,7 @@ class DeepSeekClient(LLMClient):
 
     async def detect_intent(self, user_message: str, context: dict) -> str:
         messages = [
-            {"role": "system", "content": _INTENT_SYSTEM_PROMPT},
+            {"role": "system", "content": INTENT_SYSTEM_PROMPT},
             {"role": "user", "content": user_message},
         ]
         resp = await self.chat(messages, temperature=0.0, max_tokens=64)
@@ -245,7 +257,7 @@ class DeepSeekClient(LLMClient):
     async def generate_strategy_response(self, strategy: dict, context: dict) -> str:
         strategy_text = f"Strategy: {strategy}\nContext: {context}"
         messages = [
-            {"role": "system", "content": _STRATEGY_SYSTEM_PROMPT},
+            {"role": "system", "content": STRATEGY_SYSTEM_PROMPT},
             {"role": "user", "content": strategy_text},
         ]
         resp = await self.chat(messages, temperature=0.7, max_tokens=1024)
@@ -254,23 +266,31 @@ class DeepSeekClient(LLMClient):
 
 def create_llm_client(config: dict) -> LLMClient:
     provider = config.get("provider", "mock")
+
+    # Try env var first, then config
+    api_key = (
+        os.getenv("DEEPSEEK_API_KEY")
+        or os.getenv("LLM_API_KEY")
+        or config.get("api_key", "")
+    )
+
     if provider == "mock":
         return MockLLMClient()
     elif provider == "claude":
         return ClaudeClient(
-            api_key=config["api_key"],
+            api_key=api_key or config.get("api_key", ""),
             model=config.get("model", "claude-sonnet-4-6"),
             base_url=config.get("base_url", "https://api.anthropic.com"),
         )
     elif provider == "openai":
         return OpenAIClient(
-            api_key=config["api_key"],
+            api_key=api_key or config.get("api_key", ""),
             model=config.get("model", "gpt-4o"),
             base_url=config.get("base_url", "https://api.openai.com/v1"),
         )
     elif provider == "deepseek":
         return DeepSeekClient(
-            api_key=config["api_key"],
+            api_key=api_key or config.get("api_key", ""),
             model=config.get("model", "deepseek-chat"),
             base_url=config.get("base_url", "https://api.deepseek.com/v1"),
         )

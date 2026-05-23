@@ -1,3 +1,5 @@
+import asyncio
+
 from src.core.constants import ChannelType
 from src.orchestrator.lock import InteractionLock
 from src.quota.manager import QuotaManager
@@ -13,16 +15,24 @@ class Orchestrator:
 
     def __init__(self):
         self._locks: dict[str, InteractionLock] = {}
+        self._lock_mutex = asyncio.Lock()
         self._quota = QuotaManager()
         self._compliance = ComplianceChecker()
 
-    def get_lock(self, user_id: str) -> InteractionLock:
-        if user_id not in self._locks:
-            self._locks[user_id] = InteractionLock()
-        return self._locks[user_id]
+    async def get_lock(self, user_id: str) -> InteractionLock:
+        async with self._lock_mutex:
+            if user_id not in self._locks:
+                self._locks[user_id] = InteractionLock()
+            return self._locks[user_id]
 
-    def arbitrate(self, user_id: str, channel: ChannelType) -> str:
-        lock = self.get_lock(user_id)
+    def release_and_cleanup_lock(self, user_id: str) -> None:
+        """Release lock and remove from dict to prevent memory leak."""
+        if user_id in self._locks:
+            self._locks[user_id].release()
+            self._locks.pop(user_id, None)
+
+    async def arbitrate(self, user_id: str, channel: ChannelType) -> str:
+        lock = await self.get_lock(user_id)
 
         if not lock.is_locked:
             lock.acquire(channel)
@@ -37,16 +47,12 @@ class Orchestrator:
 
         return "deferred"
 
-    def release_lock(self, user_id: str) -> None:
-        lock = self.get_lock(user_id)
-        lock.release()
-
-    def select_channel(self, user) -> ChannelType | None:
+    async def select_channel(self, user) -> ChannelType | None:
         if not self._compliance.is_within_valid_hours():
             return None
 
-        call_ok, _ = self._quota.check_call_allowed(user.user_id)
-        chat_ok, _ = self._quota.check_chat_allowed(user.user_id)
+        call_ok, _ = await self._quota.check_call_allowed(user.user_id)
+        chat_ok, _ = await self._quota.check_chat_allowed(user.user_id)
 
         if call_ok:
             return ChannelType.VOICE

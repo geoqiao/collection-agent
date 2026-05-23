@@ -1,7 +1,7 @@
 llm:
-  provider: "mock"
-  model: ""
-  api_key: ""
+  provider: "deepseek"
+  model: "deepseek-chat"
+  api_key: ""  # Loaded from DEEPSEEK_API_KEY env var
   temperature: 0.3
   max_tokens: 1024
 

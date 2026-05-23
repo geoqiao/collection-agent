@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from src.core.constants import EventType
 from src.core.models import Event
 from src.session.timeout_tracker import SilenceTimeoutTracker
@@ -17,6 +19,9 @@ class OutreachScheduler:
         """Scan all users and trigger outreach for those who need it."""
         states = self.system.store.load_all()
         for state in states:
+            # Skip paused users
+            if state.paused_until and state.paused_until > datetime.now(timezone.utc):
+                continue
             profile = state.profile
             if profile.overdue_days > 0 and state.session_state != "resolved":
                 event = Event(
@@ -28,8 +33,11 @@ class OutreachScheduler:
     async def check_silence_timeouts(self):
         """Check all sessions for silence timeouts."""
         for user_id, session in self.system.session_manager._sessions.items():
+            # Skip paused users
+            if session.state.paused_until and session.state.paused_until > datetime.now(timezone.utc):
+                continue
             self._ensure_tracker_wired(session)
-            tier_idx = self.tracker.check_timeout(session)
+            tier_idx = await self.tracker.check_timeout(session)
             if tier_idx is not None:
                 event = Event(
                     user_id=user_id,

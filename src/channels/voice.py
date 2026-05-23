@@ -1,3 +1,5 @@
+import asyncio
+
 from src.channels.base import BaseChannel
 from src.core.constants import ChannelType, ChannelState
 
@@ -7,6 +9,7 @@ class VoiceChannel(BaseChannel):
 
     def __init__(self):
         self._states: dict[str, ChannelState] = {}
+        self._mutex = asyncio.Lock()
 
     @property
     def channel_type(self) -> ChannelType:
@@ -15,8 +18,9 @@ class VoiceChannel(BaseChannel):
     def _get_state(self, user_id: str) -> ChannelState:
         return self._states.get(user_id, ChannelState.IDLE)
 
-    def _set_state(self, user_id: str, state: ChannelState) -> None:
-        self._states[user_id] = state
+    async def _set_state(self, user_id: str, state: ChannelState) -> None:
+        async with self._mutex:
+            self._states[user_id] = state
 
     async def send(self, user_id: str, content: str) -> dict:
         return {"status": "sent", "channel": "voice"}
@@ -24,15 +28,15 @@ class VoiceChannel(BaseChannel):
     async def call(self, user_id: str) -> dict:
         state = self._get_state(user_id)
         if state == ChannelState.IDLE:
-            self._set_state(user_id, ChannelState.OUTGOING)
+            await self._set_state(user_id, ChannelState.OUTGOING)
         return {"status": "calling", "channel": "voice"}
 
     async def on_answered(self, user_id: str) -> dict:
         state = self._get_state(user_id)
         if state == ChannelState.OUTGOING:
-            self._set_state(user_id, ChannelState.INTERACTING)
+            await self._set_state(user_id, ChannelState.INTERACTING)
         return {"status": "connected", "channel": "voice"}
 
     async def hangup(self, user_id: str) -> dict:
-        self._set_state(user_id, ChannelState.CLOSED)
+        await self._set_state(user_id, ChannelState.CLOSED)
         return {"status": "closed", "channel": "voice"}

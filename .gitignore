@@ -26,6 +26,10 @@ test_*.db
 *.swp
 *.swo
 
+# Environment variables
+.env
+.env.local
+
 # OS
 .DS_Store
 Thumbs.db

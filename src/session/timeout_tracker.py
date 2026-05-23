@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timezone
 
 from src.session.session import CollectionSession
@@ -8,22 +9,25 @@ class SilenceTimeoutTracker:
 
     def __init__(self):
         self._emitted_tiers: dict[str, set[int]] = {}
+        self._mutex = asyncio.Lock()
 
     def record_interaction(self, user_id: str) -> None:
         self._emitted_tiers.pop(user_id, None)
 
-    def check_timeout(self, session: CollectionSession) -> int | None:
+    async def check_timeout(self, session: CollectionSession) -> int | None:
         user_id = session.user_id
-        last = session.last_interaction_at
+        last = session.last_outreach_at
         if last is None:
             return None
 
         elapsed = (datetime.now(timezone.utc) - last).total_seconds()
-        emitted = self._emitted_tiers.setdefault(user_id, set())
 
-        for idx, tier in enumerate(self.TIERS):
-            if elapsed >= tier and idx not in emitted:
-                emitted.add(idx)
-                return idx
+        async with self._mutex:
+            emitted = self._emitted_tiers.setdefault(user_id, set())
+
+            for idx, tier in enumerate(self.TIERS):
+                if elapsed >= tier and idx not in emitted:
+                    emitted.add(idx)
+                    return idx
 
         return None

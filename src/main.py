@@ -1,9 +1,11 @@
 import yaml
 
 from src.compliance.checker import ComplianceChecker
+from src.compliance.rules import ComplianceRules
 from src.events.router import EventRouter
 from src.llm.clients import create_llm_client
 from src.quota.manager import QuotaManager
+from src.quota.profile import QuotaProfile
 from src.scheduler import OutreachScheduler
 from src.session.manager import SessionManager
 from src.storage.memory_store import MemoryStore
@@ -38,28 +40,12 @@ class CollectAgentSystem:
         llm_client = create_llm_client(llm_config)
 
         # Compliance
-        compliance_checker = ComplianceChecker()
-        if "valid_hours" in compliance_config:
-            compliance_checker.rules.valid_hours = tuple(compliance_config["valid_hours"])
-        if "max_call_per_hour" in compliance_config:
-            compliance_checker.rules.max_call_per_hour = compliance_config["max_call_per_hour"]
-        if "min_call_interval_minutes" in compliance_config:
-            compliance_checker.rules.min_call_interval_minutes = compliance_config["min_call_interval_minutes"]
+        compliance_rules = ComplianceRules.from_dict(compliance_config)
+        compliance_checker = ComplianceChecker(rules=compliance_rules)
 
         # Quota
-        quota_manager = QuotaManager()
-        if "call_self_daily_max" in quota_config:
-            quota_manager._profile.call_self_daily_max = quota_config["call_self_daily_max"]
-        if "call_contact_daily_max" in quota_config:
-            quota_manager._profile.call_contact_daily_max = quota_config["call_contact_daily_max"]
-        if "call_answer_daily_max" in quota_config:
-            quota_manager._profile.call_answer_daily_max = quota_config["call_answer_daily_max"]
-        if "chat_unanswered_daily_max" in quota_config:
-            quota_manager._profile.chat_unanswered_daily_max = quota_config["chat_unanswered_daily_max"]
-        if "chat_answered_daily_max" in quota_config:
-            quota_manager._profile.chat_answered_daily_max = quota_config["chat_answered_daily_max"]
-        if "push_daily_max" in quota_config:
-            quota_manager._profile.push_daily_max = quota_config["push_daily_max"]
+        quota_profile = QuotaProfile.from_dict(quota_config)
+        quota_manager = QuotaManager(profile=quota_profile)
 
         system = cls(
             store=store,

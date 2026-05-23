@@ -58,3 +58,4 @@ class UserState(BaseModel):
     channel_states: dict[str, str] = Field(default_factory=dict)
     conversation: ConversationContext = Field(default_factory=ConversationContext)
     quota_usage: dict[str, Any] = Field(default_factory=dict)
+    paused_until: datetime | None = None

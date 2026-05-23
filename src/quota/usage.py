@@ -49,76 +49,83 @@ class DailyQuotaUsage(BaseModel):
 class QuotaStorage:
     def __init__(self, db_path: str = "collect_agent.db"):
         self._db_path = db_path
+        self._conn = sqlite3.connect(db_path, check_same_thread=False)
+        self._conn.row_factory = sqlite3.Row
         self._init_db()
 
     def _init_db(self) -> None:
-        with sqlite3.connect(self._db_path) as conn:
-            conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS daily_quota (
-                    user_id TEXT,
-                    date TEXT,
-                    call_self_count INTEGER DEFAULT 0,
-                    call_contact_count INTEGER DEFAULT 0,
-                    call_answered_count INTEGER DEFAULT 0,
-                    call_last_timestamp TEXT,
-                    call_timestamps TEXT,
-                    chat_sent_count INTEGER DEFAULT 0,
-                    chat_user_replied INTEGER DEFAULT 0,
-                    chat_last_timestamp TEXT,
-                    push_sent_count INTEGER DEFAULT 0,
-                    PRIMARY KEY (user_id, date)
-                )
-                """
+        self._conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS daily_quota (
+                user_id TEXT,
+                date TEXT,
+                call_self_count INTEGER DEFAULT 0,
+                call_contact_count INTEGER DEFAULT 0,
+                call_answered_count INTEGER DEFAULT 0,
+                call_last_timestamp TEXT,
+                call_timestamps TEXT,
+                chat_sent_count INTEGER DEFAULT 0,
+                chat_user_replied INTEGER DEFAULT 0,
+                chat_last_timestamp TEXT,
+                push_sent_count INTEGER DEFAULT 0,
+                PRIMARY KEY (user_id, date)
             )
-            conn.commit()
+            """
+        )
+        self._conn.commit()
+
+    def close(self) -> None:
+        self._conn.close()
+
+    def __del__(self) -> None:
+        try:
+            self.close()
+        except Exception:
+            pass
 
     def save_usage(self, usage: DailyQuotaUsage) -> None:
         call_timestamps_json = json.dumps(
             [t.isoformat() for t in usage.call_timestamps], ensure_ascii=False
         )
-        with sqlite3.connect(self._db_path) as conn:
-            conn.execute(
-                """
-                INSERT INTO daily_quota (
-                    user_id, date, call_self_count, call_contact_count, call_answered_count,
-                    call_last_timestamp, call_timestamps, chat_sent_count, chat_user_replied,
-                    chat_last_timestamp, push_sent_count
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(user_id, date) DO UPDATE SET
-                    call_self_count = excluded.call_self_count,
-                    call_contact_count = excluded.call_contact_count,
-                    call_answered_count = excluded.call_answered_count,
-                    call_last_timestamp = excluded.call_last_timestamp,
-                    call_timestamps = excluded.call_timestamps,
-                    chat_sent_count = excluded.chat_sent_count,
-                    chat_user_replied = excluded.chat_user_replied,
-                    chat_last_timestamp = excluded.chat_last_timestamp,
-                    push_sent_count = excluded.push_sent_count
-                """,
-                (
-                    usage.user_id,
-                    usage.date,
-                    usage.call_self_count,
-                    usage.call_contact_count,
-                    usage.call_answered_count,
-                    usage.call_last_timestamp.isoformat() if usage.call_last_timestamp else None,
-                    call_timestamps_json,
-                    usage.chat_sent_count,
-                    int(usage.chat_user_replied),
-                    usage.chat_last_timestamp.isoformat() if usage.chat_last_timestamp else None,
-                    usage.push_sent_count,
-                ),
-            )
-            conn.commit()
+        self._conn.execute(
+            """
+            INSERT INTO daily_quota (
+                user_id, date, call_self_count, call_contact_count, call_answered_count,
+                call_last_timestamp, call_timestamps, chat_sent_count, chat_user_replied,
+                chat_last_timestamp, push_sent_count
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(user_id, date) DO UPDATE SET
+                call_self_count = excluded.call_self_count,
+                call_contact_count = excluded.call_contact_count,
+                call_answered_count = excluded.call_answered_count,
+                call_last_timestamp = excluded.call_last_timestamp,
+                call_timestamps = excluded.call_timestamps,
+                chat_sent_count = excluded.chat_sent_count,
+                chat_user_replied = excluded.chat_user_replied,
+                chat_last_timestamp = excluded.chat_last_timestamp,
+                push_sent_count = excluded.push_sent_count
+            """,
+            (
+                usage.user_id,
+                usage.date,
+                usage.call_self_count,
+                usage.call_contact_count,
+                usage.call_answered_count,
+                usage.call_last_timestamp.isoformat() if usage.call_last_timestamp else None,
+                call_timestamps_json,
+                usage.chat_sent_count,
+                int(usage.chat_user_replied),
+                usage.chat_last_timestamp.isoformat() if usage.chat_last_timestamp else None,
+                usage.push_sent_count,
+            ),
+        )
+        self._conn.commit()
 
     def load_usage(self, user_id: str, date: str) -> DailyQuotaUsage | None:
-        with sqlite3.connect(self._db_path) as conn:
-            conn.row_factory = sqlite3.Row
-            row = conn.execute(
-                "SELECT * FROM daily_quota WHERE user_id = ? AND date = ?",
-                (user_id, date),
-            ).fetchone()
+        row = self._conn.execute(
+            "SELECT * FROM daily_quota WHERE user_id = ? AND date = ?",
+            (user_id, date),
+        ).fetchone()
 
         if row is None:
             return None
@@ -126,11 +133,9 @@ class QuotaStorage:
         return self._row_to_usage(row)
 
     def load_all_for_date(self, date: str) -> list[DailyQuotaUsage]:
-        with sqlite3.connect(self._db_path) as conn:
-            conn.row_factory = sqlite3.Row
-            rows = conn.execute(
-                "SELECT * FROM daily_quota WHERE date = ?", (date,)
-            ).fetchall()
+        rows = self._conn.execute(
+            "SELECT * FROM daily_quota WHERE date = ?", (date,)
+        ).fetchall()
 
         return [self._row_to_usage(row) for row in rows]
 

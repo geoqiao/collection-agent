@@ -142,6 +142,20 @@ def test_sqlite_schema_auto_creation():
         os.unlink(path)
 
 
+def test_sqlite_context_manager():
+    fd, path = tempfile.mkstemp(suffix=".db")
+    os.close(fd)
+    try:
+        with SQLiteStore(db_path=path) as store:
+            state = UserState(user_id="u001", profile=UserProfile(user_id="u001", name="张三"))
+            store.save(state)
+            assert store.load("u001") is not None
+        # After exiting context manager, connection is closed
+    finally:
+        if os.path.exists(path):
+            os.unlink(path)
+
+
 # --- QuotaStorage tests ---
 
 

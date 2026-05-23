@@ -1,6 +1,8 @@
 import logging
 from datetime import datetime, timezone
 
+from datetime import timedelta
+
 from src.core.constants import (
     ChannelState,
     ChannelType,
@@ -8,18 +10,25 @@ from src.core.constants import (
     Intent,
     SessionState,
 )
+from src.core.exceptions import (
+    ChannelError,
+    ComplianceViolationError,
+    QuotaExceededError,
+    StorageError,
+)
 from src.core.models import Event, Message, UserState
 from src.channels.registry import create_default_registry
 from src.compliance.checker import ComplianceChecker
 from src.llm.clients import MockLLMClient
 from src.llm.base import LLMClient
-from src.orchestrator.lock import InteractionLock
 from src.orchestrator.orchestrator import Orchestrator
 from src.quota.manager import QuotaManager
 from src.session.state_machine import SessionStateMachine
+from src.context.manager import ContextManager
 from src.storage.sqlite_store import SQLiteStore
 from src.strategy.detector import IntentDetector
 from src.strategy.engine import StrategyEngine
+from src.strategy.strategies import STRATEGIES
 
 logger = logging.getLogger(__name__)
 
@@ -40,9 +49,9 @@ class CollectionSession:
         self.state = state
         self.state_machine = SessionStateMachine()
         self.channels = create_default_registry()
-        self.lock = InteractionLock()
         self.context = {}
         self.last_interaction_at: datetime | None = None
+        self.last_outreach_at: datetime | None = None
 
         self.strategy_engine = strategy_engine or StrategyEngine()
         self.orchestrator = orchestrator or Orchestrator()
@@ -51,6 +60,7 @@ class CollectionSession:
         self.llm_client = llm_client or MockLLMClient()
         self.storage = storage or SQLiteStore()
         self.intent_detector = IntentDetector()
+        self.context_manager = ContextManager(user_id=user_id)
 
     async def handle_event(self, event: Event) -> None:
         try:
@@ -72,6 +82,8 @@ class CollectionSession:
                 await self._handle_silence_timeout(event)
             elif event.type == EventType.USER_PAYMENT_SUCCESS:
                 await self._handle_payment_success(event)
+            elif event.type == EventType.COMPLAINT:
+                await self._handle_complaint(event)
             elif event.type in {
                 EventType.COMPLIANCE_VIOLATION,
                 EventType.QUOTA_EXHAUSTED,
@@ -79,14 +91,25 @@ class CollectionSession:
                 await self._handle_deferred_event(event)
             else:
                 logger.info("Unhandled event type: %s", event.type.value)
+        except ComplianceViolationError as e:
+            logger.warning("Compliance violation for %s: %s", self.user_id, e)
+        except QuotaExceededError as e:
+            logger.info("Quota exceeded for %s: %s", self.user_id, e)
+        except ChannelError as e:
+            logger.error("Channel error for %s: %s", self.user_id, e)
+        except StorageError as e:
+            logger.error("Storage error for %s: %s", self.user_id, e)
         except Exception:
-            logger.exception("Error handling event %s", event.type.value)
+            logger.exception("Unexpected error handling event %s", event.type.value)
 
     def _record_interaction(self) -> None:
         self.last_interaction_at = datetime.now(timezone.utc)
         # Also notify scheduler's tracker if available
         if hasattr(self, '_timeout_tracker') and self._timeout_tracker is not None:
             self._timeout_tracker.record_interaction(self.user_id)
+
+    def _record_outreach(self) -> None:
+        self.last_outreach_at = datetime.now(timezone.utc)
 
     async def _handle_outreach_event(self, event: Event) -> None:
         # 1. Check compliance
@@ -101,35 +124,48 @@ class CollectionSession:
             return
 
         # 3. Select channel
-        channel_type = self.orchestrator.select_channel(self.state.profile)
+        channel_type = await self.orchestrator.select_channel(self.state.profile)
         if channel_type is None:
             logger.info("No channel available for outreach")
             return
 
         # 4. Acquire interaction lock
-        arbitration = self.orchestrator.arbitrate(self.user_id, channel_type)
+        arbitration = await self.orchestrator.arbitrate(self.user_id, channel_type)
         if arbitration != "granted":
             logger.info("Lock not granted for channel %s", channel_type.value)
             return
 
         # 5. Select strategy
-        intent = Intent.INEFFECTIVE_CONTACT
-        strategy = self.strategy_engine.select_strategy(self.state.profile, intent)
+        if self.state.profile.is_sensitive:
+            strategy = STRATEGIES["standard_reminder"]
+        else:
+            intent = Intent.INEFFECTIVE_CONTACT
+            strategy = self.strategy_engine.select_strategy(self.state.profile, intent)
 
         # 6. Generate response
         response_text = await self._generate_response(strategy)
 
-        # 7. Send via selected channel
+        # 7. Content audit before sending
+        is_clean, reason = self.compliance_checker.audit_content(response_text)
+        if not is_clean:
+            logger.warning("Content audit failed: %s", reason)
+            response_text = self.compliance_checker.get_standard_message(self.state.profile)
+
+        # 8. Send via selected channel
         channel = self.channels.get(channel_type)
         if channel is not None:
             await channel.send(self.user_id, response_text)
             self.channels.set_state(channel_type, ChannelState.OUTGOING)
+            self._record_outreach()
 
         # 8. Record quota usage
         if channel_type == ChannelType.VOICE:
-            self.quota_manager.record_call_self(self.user_id)
+            await self.quota_manager.record_call_self(self.user_id)
         elif channel_type == ChannelType.CHATBOT:
-            self.quota_manager.record_chat(self.user_id)
+            await self.quota_manager.record_chat(self.user_id)
+
+        # 8.5. Record contact context
+        self.context_manager.record_contact(channel_type.value, False)
 
         # 9. Update state machine
         if self.state_machine.can_transition(SessionState.OUTREACH_START):
@@ -151,9 +187,10 @@ class CollectionSession:
         # Update channel state
         if event.type == EventType.CALL_CONNECTED:
             self.channels.set_state(channel_type, ChannelState.INTERACTING)
-            arbitration = self.orchestrator.arbitrate(self.user_id, channel_type)
+            arbitration = await self.orchestrator.arbitrate(self.user_id, channel_type)
             if arbitration == "granted":
-                self.lock.acquire(channel_type)
+                lock = await self.orchestrator.get_lock(self.user_id)
+                lock.acquire(channel_type)
             if self.state_machine.can_transition(SessionState.INTENT_DETECTED):
                 self.state_machine.transition(SessionState.INTENT_DETECTED)
         elif event.type == EventType.CALL_NO_ANSWER:
@@ -170,6 +207,10 @@ class CollectionSession:
                     self.channels.set_state(next_channel, ChannelState.OUTGOING)
             self.state.conversation.current_intent = Intent.INEFFECTIVE_CONTACT.value
         elif event.type == EventType.USER_REPLIED:
+            channel = self.channels.get(channel_type)
+            if channel is not None and hasattr(channel, 'receive'):
+                user_message = event.payload.get("content", "")
+                await channel.receive(self.user_id, user_message)
             self.channels.set_state(channel_type, ChannelState.INTERACTING)
             user_message = event.payload.get("content", "")
             # Detect intent
@@ -195,13 +236,47 @@ class CollectionSession:
             )
             self.state.conversation.negotiation_round += 1
 
+            # Record context
+            self.context_manager.record_contact(channel_type.value, True)
+            self.context_manager.record_intent(detected.value)
+
             # Select follow-up strategy
-            strategy = self.strategy_engine.select_strategy(self.state.profile, detected)
+            if self.state.profile.is_sensitive:
+                strategy = STRATEGIES["standard_reminder"]
+            else:
+                strategy = self.strategy_engine.select_strategy(self.state.profile, detected)
+
+                # Check max rounds (only for non-sensitive users in negotiation)
+                max_rounds = strategy.get("max_rounds", 3)
+                if self.state.conversation.negotiation_round >= max_rounds:
+                    # Escalate: switch to standard reminder or pause
+                    logger.info("Max rounds reached for user %s, escalating", self.user_id)
+                    strategy = STRATEGIES.get(Intent.COMPLAINT, STRATEGIES["standard_reminder"])
+
             response_text = await self._generate_response(strategy)
+
+            # Content audit before sending
+            is_clean, reason = self.compliance_checker.audit_content(response_text)
+            if not is_clean:
+                logger.warning("Content audit failed: %s", reason)
+                response_text = self.compliance_checker.get_standard_message(self.state.profile)
+
             channel = self.channels.get(channel_type)
             if channel is not None:
                 await channel.send(self.user_id, response_text)
                 self.channels.set_state(channel_type, ChannelState.WAITING_REPLY)
+                self._record_outreach()
+                # Record outbound message in context window
+                self.context_manager.add_message(
+                    Message(
+                        channel=channel_type.value,
+                        direction="outbound",
+                        content=response_text,
+                    )
+                )
+
+            # Dynamic quota adjustment
+            await self.quota_manager.set_chat_replied(self.user_id)
 
             if self.state_machine.can_transition(SessionState.FOLLOW_UP):
                 self.state_machine.transition(SessionState.FOLLOW_UP)
@@ -220,6 +295,12 @@ class CollectionSession:
         strategy = self.strategy_engine.select_strategy(self.state.profile, intent)
         response_text = await self._generate_response(strategy)
 
+        # Content audit before sending
+        is_clean, reason = self.compliance_checker.audit_content(response_text)
+        if not is_clean:
+            logger.warning("Content audit failed: %s", reason)
+            response_text = self.compliance_checker.get_standard_message(self.state.profile)
+
         # Re-engage: try channels in priority order
         for channel_type in (ChannelType.CHATBOT, ChannelType.PUSH, ChannelType.VOICE):
             channel = self.channels.get(channel_type)
@@ -228,14 +309,15 @@ class CollectionSession:
             can_contact, _ = self.orchestrator.can_contact_user(self.state.profile)
             if not can_contact:
                 continue
-            arbitration = self.orchestrator.arbitrate(self.user_id, channel_type)
+            arbitration = await self.orchestrator.arbitrate(self.user_id, channel_type)
             if arbitration == "granted":
                 await channel.send(self.user_id, response_text)
                 self.channels.set_state(channel_type, ChannelState.OUTGOING)
+                self._record_outreach()
                 if channel_type == ChannelType.VOICE:
-                    self.quota_manager.record_call_self(self.user_id)
+                    await self.quota_manager.record_call_self(self.user_id)
                 elif channel_type == ChannelType.CHATBOT:
-                    self.quota_manager.record_chat(self.user_id)
+                    await self.quota_manager.record_chat(self.user_id)
                 break
 
         if self.state_machine.can_transition(SessionState.FOLLOW_UP):
@@ -248,6 +330,11 @@ class CollectionSession:
         if self.state_machine.can_transition(SessionState.RESOLVED):
             self.state_machine.transition(SessionState.RESOLVED)
 
+        # Mark any pending promises as kept
+        for i, promise in enumerate(self.context_manager.user_context.payment_promises):
+            if promise["status"] == "pending":
+                self.context_manager.user_context.mark_promise_kept(i)
+
         # Send confirmation
         confirmation = "感谢您的还款，您的账单已结清。如有任何问题，请联系客服。"
         channel_type = ChannelType.CHATBOT
@@ -256,8 +343,32 @@ class CollectionSession:
             await channel.send(self.user_id, confirmation)
 
         # Release lock and close session
-        self.orchestrator.release_lock(self.user_id)
-        self.lock.release()
+        self.orchestrator.release_and_cleanup_lock(self.user_id)
+
+        self._sync_state()
+        self.storage.save(self.state)
+
+    async def _handle_complaint(self, event: Event) -> None:
+        # Pause collection for 48 hours
+        self.state.paused_until = datetime.now(timezone.utc) + timedelta(hours=48)
+
+        # Send apology and transfer message
+        strategy = STRATEGIES[Intent.COMPLAINT]
+        response_text = await self._generate_response(strategy)
+
+        # Content audit before sending
+        is_clean, reason = self.compliance_checker.audit_content(response_text)
+        if not is_clean:
+            logger.warning("Content audit failed: %s", reason)
+            response_text = self.compliance_checker.get_standard_message(self.state.profile)
+
+        channel = self.channels.get(ChannelType.CHATBOT)
+        if channel is not None:
+            await channel.send(self.user_id, response_text)
+
+        # Transition to resolved (paused state)
+        if self.state_machine.can_transition(SessionState.RESOLVED):
+            self.state_machine.transition(SessionState.RESOLVED)
 
         self._sync_state()
         self.storage.save(self.state)
@@ -270,6 +381,7 @@ class CollectionSession:
             "round": self.state.conversation.negotiation_round,
             "planned_date": "",
             "user_name": self.state.profile.name,
+            "user_context": self.context_manager.get_user_context_summary(),
         }
         try:
             return await self.llm_client.generate_strategy_response(strategy, context)
@@ -305,3 +417,11 @@ class CollectionSession:
     def _sync_state(self) -> None:
         self.state.session_state = self.state_machine.current.value
         self.state.channel_states = self.channels.get_all_states()
+        # Sync conversation state
+        self.state.conversation.current_intent = getattr(
+            self.state.conversation, 'current_intent', None
+        )
+        # Sync quota usage from manager
+        usage = self.quota_manager._usages.get(f"{self.user_id}:{self.quota_manager._today()}")
+        if usage and hasattr(usage, 'model_dump'):
+            self.state.quota_usage = usage.model_dump()

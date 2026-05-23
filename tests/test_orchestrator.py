@@ -1,4 +1,6 @@
 import pytest
+from unittest.mock import patch
+
 from src.orchestrator.lock import InteractionLock
 from src.orchestrator.orchestrator import Orchestrator
 from src.core.constants import ChannelType
@@ -39,32 +41,49 @@ def orchestrator():
     return Orchestrator()
 
 
-def test_arbitrate_no_holder(orchestrator):
-    result = orchestrator.arbitrate("u001", ChannelType.VOICE)
+@pytest.mark.asyncio
+async def test_arbitrate_no_holder(orchestrator):
+    result = await orchestrator.arbitrate("u001", ChannelType.VOICE)
     assert result == "granted"
-    assert orchestrator.get_lock("u001").holder == ChannelType.VOICE
+    lock = await orchestrator.get_lock("u001")
+    assert lock.holder == ChannelType.VOICE
 
 
-def test_arbitrate_voice_priority(orchestrator):
-    orchestrator.arbitrate("u001", ChannelType.CHATBOT)
-    result = orchestrator.arbitrate("u001", ChannelType.VOICE)
+@pytest.mark.asyncio
+async def test_arbitrate_voice_priority(orchestrator):
+    await orchestrator.arbitrate("u001", ChannelType.CHATBOT)
+    result = await orchestrator.arbitrate("u001", ChannelType.VOICE)
     assert result == "granted"
-    assert orchestrator.get_lock("u001").holder == ChannelType.VOICE
+    lock = await orchestrator.get_lock("u001")
+    assert lock.holder == ChannelType.VOICE
 
 
-def test_arbitrate_lower_priority_denied(orchestrator):
-    orchestrator.arbitrate("u001", ChannelType.VOICE)
-    result = orchestrator.arbitrate("u001", ChannelType.CHATBOT)
+@pytest.mark.asyncio
+async def test_arbitrate_lower_priority_denied(orchestrator):
+    await orchestrator.arbitrate("u001", ChannelType.VOICE)
+    result = await orchestrator.arbitrate("u001", ChannelType.CHATBOT)
     assert result == "deferred"
 
 
-def test_release_lock_orchestrator(orchestrator):
-    orchestrator.arbitrate("u001", ChannelType.VOICE)
-    orchestrator.release_lock("u001")
-    assert orchestrator.get_lock("u001").holder is None
+@pytest.mark.asyncio
+async def test_release_lock_orchestrator(orchestrator):
+    await orchestrator.arbitrate("u001", ChannelType.VOICE)
+    orchestrator.release_and_cleanup_lock("u001")
+    lock = await orchestrator.get_lock("u001")
+    assert lock.holder is None
 
 
-def test_select_channel_considers_quota(orchestrator):
-    user = UserProfile(user_id="u001")
-    channel = orchestrator.select_channel(user)
-    assert channel in [ChannelType.CHATBOT, ChannelType.VOICE, ChannelType.PUSH]
+@pytest.mark.asyncio
+async def test_select_channel_considers_quota(orchestrator):
+    with patch.object(orchestrator._compliance, "is_within_valid_hours", return_value=True):
+        user = UserProfile(user_id="u001")
+        channel = await orchestrator.select_channel(user)
+        assert channel in [ChannelType.CHATBOT, ChannelType.VOICE, ChannelType.PUSH]
+
+
+@pytest.mark.asyncio
+async def test_lock_cleanup_removes_from_dict(orchestrator):
+    await orchestrator.arbitrate("u001", ChannelType.VOICE)
+    assert "u001" in orchestrator._locks
+    orchestrator.release_and_cleanup_lock("u001")
+    assert "u001" not in orchestrator._locks

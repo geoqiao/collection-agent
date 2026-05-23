@@ -15,6 +15,7 @@ class EventType(Enum):
     MESSAGE_SENT = "message_sent"
     MESSAGE_DELIVERED = "message_delivered"
     USER_REPLIED = "user_replied"
+    COMPLAINT = "complaint"
     QUOTA_EXHAUSTED = "quota_exhausted"
     COMPLIANCE_VIOLATION = "compliance_violation"
 
