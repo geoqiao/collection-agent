@@ -1,5 +1,6 @@
 import asyncio
 
+from src.channels._escape import escape_output
 from src.channels.base import BaseChannel
 from src.core.constants import ChannelType, ChannelState
 
@@ -23,7 +24,8 @@ class VoiceChannel(BaseChannel):
             self._states[user_id] = state
 
     async def send(self, user_id: str, content: str) -> dict:
-        return {"status": "sent", "channel": "voice"}
+        safe_content = escape_output(content)
+        return {"status": "sent", "channel": "voice", "content": safe_content}
 
     async def call(self, user_id: str) -> dict:
         state = self._get_state(user_id)

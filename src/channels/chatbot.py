@@ -1,5 +1,6 @@
 import asyncio
 
+from src.channels._escape import escape_output
 from src.channels.base import BaseChannel
 from src.core.constants import ChannelType, ChannelState
 
@@ -23,12 +24,13 @@ class ChatbotChannel(BaseChannel):
             self._states[user_id] = state
 
     async def send(self, user_id: str, content: str) -> dict:
+        safe_content = escape_output(content)
         state = self._get_state(user_id)
         if state == ChannelState.IDLE:
             await self._set_state(user_id, ChannelState.OUTGOING)
         elif state == ChannelState.OUTGOING:
             await self._set_state(user_id, ChannelState.WAITING_REPLY)
-        return {"status": "sent", "channel": "chatbot"}
+        return {"status": "sent", "channel": "chatbot", "content": safe_content}
 
     async def receive(self, user_id: str, content: str) -> None:
         state = self._get_state(user_id)

@@ -53,7 +53,9 @@ def test_get_all_states(registry):
 async def test_chatbot_send_returns_dict():
     ch = ChatbotChannel()
     result = await ch.send("user1", "Hello")
-    assert result == {"status": "sent", "channel": "chatbot"}
+    assert result["status"] == "sent"
+    assert result["channel"] == "chatbot"
+    assert result["content"] == "Hello"
 
 
 @pytest.mark.asyncio
@@ -120,7 +122,9 @@ async def test_voice_channel_type():
 async def test_push_send_returns_dict():
     ch = PushChannel()
     result = await ch.send("user1", "Notification")
-    assert result == {"status": "sent", "channel": "push"}
+    assert result["status"] == "sent"
+    assert result["channel"] == "push"
+    assert result["content"] == "Notification"
 
 
 @pytest.mark.asyncio
