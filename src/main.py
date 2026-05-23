@@ -1,7 +1,6 @@
-import yaml
-
 from src.compliance.checker import ComplianceChecker
 from src.compliance.rules import ComplianceRules
+from src.config import ConfigManager
 from src.events.router import EventRouter
 from src.llm.clients import create_llm_client
 from src.quota.manager import QuotaManager
@@ -29,27 +28,21 @@ class CollectAgentSystem:
 
     @classmethod
     def from_config(cls, config_path: str = "config.yaml"):
-        with open(config_path, encoding="utf-8") as f:
-            config = yaml.safe_load(f)
-
-        llm_config = config.get("llm", {})
-        compliance_config = config.get("compliance", {})
-        quota_config = config.get("quota", {})
-        storage_config = config.get("storage", {})
+        config_mgr = ConfigManager(config_path)
+        cfg = config_mgr.config
 
         # Storage
-        db_path = storage_config.get("db_path", "collect_agent.db")
-        store = SQLiteStore(db_path=db_path)
+        store = SQLiteStore(db_path=cfg.storage.db_path)
 
         # LLM client
-        llm_client = create_llm_client(llm_config)
+        llm_client = create_llm_client(cfg.llm.model_dump())
 
         # Compliance
-        compliance_rules = ComplianceRules.from_dict(compliance_config)
+        compliance_rules = ComplianceRules.from_dict(cfg.compliance.model_dump())
         compliance_checker = ComplianceChecker(rules=compliance_rules)
 
         # Quota
-        quota_profile = QuotaProfile.from_dict(quota_config)
+        quota_profile = QuotaProfile.from_dict(cfg.quota.model_dump())
         quota_manager = QuotaManager(profile=quota_profile)
 
         system = cls(
