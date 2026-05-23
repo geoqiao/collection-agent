@@ -65,8 +65,8 @@ class CreatePaymentPlanTool(Tool):
         if not valid:
             return ToolResult(success=False, error=error)
         user_id = kwargs.get("user_id", "unknown")
-        installments = kwargs.get("installments", 3)
-        amount = kwargs.get("amount", 2580.00)
+        installments = int(kwargs.get("installments", 3))
+        amount = float(kwargs.get("amount", 2580.00))
         per_installment = round(amount / installments, 2)
         return ToolResult(
             success=True,

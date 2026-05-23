@@ -8,7 +8,7 @@ from typing import Any
 from src.llm.base import LLMClient
 from src.prompts.engine import PromptEngine
 from src.skills.base import Skill, SkillContext, SkillResult, SkillResultStatus, ToolCallRecord
-from src.tools.base import Tool
+from src.tools.base import Tool, ToolResult
 from src.tools.registry import ToolRegistry
 
 
