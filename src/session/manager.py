@@ -1,11 +1,12 @@
 from src.session.session import CollectionSession
 from src.core.models import UserState, UserProfile
 from src.storage.memory_store import MemoryStore
+from src.storage.sqlite_store import SQLiteStore
 
 
 class SessionManager:
-    def __init__(self, store: MemoryStore | None = None):
-        self._store = store or MemoryStore()
+    def __init__(self, store: MemoryStore | SQLiteStore | None = None):
+        self._store = store or SQLiteStore()
         self._sessions: dict[str, CollectionSession] = {}
 
     def get_or_create(self, user_id: str) -> CollectionSession:

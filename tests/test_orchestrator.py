@@ -1,6 +1,8 @@
 import pytest
 from src.orchestrator.lock import InteractionLock
+from src.orchestrator.orchestrator import Orchestrator
 from src.core.constants import ChannelType
+from src.core.models import UserProfile
 
 
 @pytest.fixture
@@ -32,10 +34,6 @@ def test_acquire_when_locked(lock):
     assert lock.holder == ChannelType.VOICE
 
 
-from src.orchestrator.orchestrator import Orchestrator
-from src.core.models import UserProfile
-
-
 @pytest.fixture
 def orchestrator():
     return Orchestrator()
@@ -60,7 +58,7 @@ def test_arbitrate_lower_priority_denied(orchestrator):
     assert result == "deferred"
 
 
-def test_release_lock(orchestrator):
+def test_release_lock_orchestrator(orchestrator):
     orchestrator.arbitrate("u001", ChannelType.VOICE)
     orchestrator.release_lock("u001")
     assert orchestrator.get_lock("u001").holder is None

@@ -2,6 +2,18 @@ from src.channels.base import BaseChannel
 from src.core.constants import ChannelType, ChannelState
 
 
+def create_default_registry() -> "ChannelRegistry":
+    registry = ChannelRegistry()
+    from src.channels.chatbot import ChatbotChannel
+    from src.channels.voice import VoiceChannel
+    from src.channels.push import PushChannel
+
+    registry.register(ChatbotChannel())
+    registry.register(VoiceChannel())
+    registry.register(PushChannel())
+    return registry
+
+
 class ChannelRegistry:
     def __init__(self):
         self._channels: dict[ChannelType, BaseChannel] = {}

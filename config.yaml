@@ -1,5 +1,7 @@
 llm:
   provider: "mock"
+  model: ""
+  api_key: ""
   temperature: 0.3
   max_tokens: 1024
 
@@ -15,3 +17,6 @@ quota:
   chat_unanswered_daily_max: 5
   chat_answered_daily_max: 100
   push_daily_max: 1
+
+storage:
+  db_path: "collect_agent.db"

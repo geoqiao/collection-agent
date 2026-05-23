@@ -1,4 +1,5 @@
-from src.core.constants import EventType, ChannelType, Intent, SessionState, ChannelState
+from src.core.constants import EventType, ChannelType, Intent
+from src.core.models import UserProfile, Event, Message
 
 
 def test_event_type_has_required_events():
@@ -21,9 +22,6 @@ def test_intent_values():
     assert Intent.COMPLAINT.value == "complaint"
     assert Intent.PAYMENT_METHOD_INQUIRY.value == "payment_method_inquiry"
     assert Intent.OPERATION_INQUIRY.value == "operation_inquiry"
-
-
-from src.core.models import UserProfile, Event, Message, ConversationContext
 
 
 def test_user_profile_creation():
