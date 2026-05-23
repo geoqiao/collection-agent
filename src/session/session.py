@@ -34,6 +34,13 @@ logger = logging.getLogger(__name__)
 
 
 class CollectionSession:
+    """Legacy session handler using static strategies and keyword intent detection.
+
+    .. deprecated::
+        Use AgentSession (src.agent.session.AgentSession) instead.
+        CollectionSession is kept for backward compatibility during migration.
+    """
+
     def __init__(
         self,
         user_id: str,

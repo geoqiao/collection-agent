@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any
 
 from src.core.constants import EventType
@@ -59,6 +60,13 @@ class AgentSession:
         self.llm_client = llm_client
         self.storage = storage
         self.compliance_checker = compliance_checker or ComplianceChecker()
+        self.last_outreach_at: datetime | None = None
+        self.last_interaction_at: datetime | None = None
+
+    # Backward compatibility alias
+    @property
+    def state(self) -> UserState:
+        return self.user_state
 
     async def handle_event(self, event: Event) -> SkillResult | None:
         """Handle an incoming event and return a skill result."""
@@ -112,6 +120,9 @@ class AgentSession:
                     "history": self.user_state.conversation.messages,
                 },
             )
+
+        # Sync intent to user state for backward compatibility
+        self.user_state.conversation.current_intent = intent_result.category.value
 
         # b. Check one-way door - if locked, return fixed template
         if self.state_machine.is_locked:

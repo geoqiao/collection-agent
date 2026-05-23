@@ -1,5 +1,5 @@
 """Chatbot Agent package."""
 
-from src.chatbot.agent import ChatbotAgent
+from src.chatbot.agent import ChatbotAgent, ChatbotResponse
 
-__all__ = ["ChatbotAgent"]
+__all__ = ["ChatbotAgent", "ChatbotResponse"]

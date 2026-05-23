@@ -64,13 +64,14 @@ class IntentRecognizer:
     async def recognize(self, user_message: str, context: dict) -> IntentResult:
         """Recognize intent using LLM."""
         prompt = self._build_prompt(user_message, context)
-        raw = await self.llm_client.chat(
+        response = await self.llm_client.chat(
             messages=[
                 {"role": "system", "content": _SYSTEM_PROMPT},
                 {"role": "user", "content": prompt},
             ],
             temperature=0.0,
         )
+        raw = response.content if hasattr(response, "content") else str(response)
         return self._parse_response(raw)
 
     async def recognize_with_guardrails(
