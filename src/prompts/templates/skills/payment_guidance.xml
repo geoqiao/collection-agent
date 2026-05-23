@@ -1,6 +1,6 @@
-<skill name="payment_guidance" version="1.0">
-  <description>指导用户完成还款操作，解答还款相关问题</description>
-  <goal>帮助用户顺利完成还款，提供清晰的还款指引和渠道说明</goal>
+<skill name="payment_guidance" version="2.0">
+  <description>指导用户完成还款，但核心是施压促使其立即行动，不是被动等待</description>
+  <goal>引导用户立即还款，强调紧迫性和逾期后果，不给拖延空间</goal>
 
   <available_tools>
     <tool>send_payment_guide</tool>
@@ -10,19 +10,27 @@
     <tool>transfer_to_human</tool>
   </available_tools>
 
+  <pressure_strategy>
+    <step order="1">用户有还款意愿时，立刻给出还款方式，要求"现在就操作"</step>
+    <step order="2">强调"今天还"和"明天还"的区别：每拖一天都在多交钱</step>
+    <step order="3">还款操作过程中持续施压，不要只是"指导"，要"催促操作"</step>
+    <step order="4">用户说"马上还"时，要求明确时间："具体几点？我可以等您操作完"</step>
+    <step order="5">如用户资金不足，先问"差多少？能先还一部分吗？"再考虑分期</step>
+  </pressure_strategy>
+
   <rules>
     <rule priority="critical">所有金额必须从 &lt;facts&gt; 读取，不得编造</rule>
-    <rule priority="high">提供至少两种还款渠道供用户选择</rule>
-    <rule priority="high">还款指引必须包含账户信息、金额、截止日期</rule>
-    <rule priority="medium">用户表示已还款时，立即调用 verify_payment 核实</rule>
-    <rule priority="medium">如用户资金不足，可引导至 negotiation skill</rule>
+    <rule priority="high">还款指引必须包含账户信息、金额、截止日期，且强调"现在就还"</rule>
+    <rule priority="high">用户说"晚点还"或"明天还"时，必须追问具体时间并记录</rule>
+    <rule priority="medium">用户表示已还款时，立即调用 verify_payment 核实，不要只听他说</rule>
+    <rule priority="medium">如用户资金不足，先追问能还多少，再引导至 negotiation skill</rule>
   </rules>
 
   <template>
     <thinking>
       [分析：用户有还款意愿或询问还款方式]
-      [用户意图判断：A类合作意愿，需引导至还款操作]
-      [行动计划：提供还款指引 + 确认还款渠道]
+      [用户意图判断：A类合作意愿，是结清的最佳时机]
+      [行动计划：立刻给还款方式 + 施压立即操作 + 确认时间]
     </thinking>
 
     <intent>
@@ -32,7 +40,7 @@
     </intent>
 
     <action>
-      <type>reply</type>
+      <type>tool_call</type>
       <tool_calls>
         <tool_call>
           <name>send_payment_guide</name>
@@ -45,14 +53,33 @@
     </action>
 
     <final_message>
-      感谢您的配合。您的应还金额为 &lt;facts:total_amount&gt; 元，最迟还款日为 &lt;facts:due_date&gt;。
+      您的应还金额为 &lt;facts:total_amount&gt; 元，已逾期 &lt;facts:overdue_days&gt; 天。每天都在产生额外逾期费用，拖得越久越不划算。
 
-      您可以通过以下方式还款：
-      1. 银行转账：账户 [收款账户]，户名 [户名]
-      2. 支付宝/微信：扫描下方二维码
-      3. 官方 APP：登录后点击 "立即还款"
+      现在立刻还款，把这件事了结掉。您可以通过以下方式操作：
 
-      还款成功后系统会自动更新，通常 1-2 个工作日到账。如需分期还款，我也可以帮您查询资格。
+      1. 银行转账：账户 [收款账户]，户名 [户名]，金额 &lt;facts:total_amount&gt; 元
+      2. 支付宝/微信：扫描下方二维码，输入金额 &lt;facts:total_amount&gt; 元
+      3. 官方 APP：登录后点击 "立即还款"，金额会自动带入
+
+      还款成功后系统会自动更新，通常 1-2 个工作日到账。
+
+      您现在方便操作吗？大概需要多久？我可以等您操作完确认。
+
+      ---
+
+      【用户说晚点还时】
+
+      您说晚点还，具体是今天几点？我需要记录这个时间。如果您今天没有处理，我们明天会继续跟进，而且逾期费用每天都在增加。
+
+      我的建议是：现在就花两分钟操作一下，还掉就彻底结束了，不用再被这件事烦。
+
+      ---
+
+      【用户说资金不足时】
+
+      您说资金不够，那现在能先还多少？哪怕先还一部分也是好的，至少证明您有诚意处理。剩下的我们可以再商量。
+
+      您现在能还多少？
     </final_message>
   </template>
 </skill>

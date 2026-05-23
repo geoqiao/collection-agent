@@ -1,6 +1,6 @@
-<skill name="reengage" version="1.0">
-  <description>对沉默或回避的用户进行再次接触，重新建立沟通</description>
-  <goal>以温和的方式重新联系用户，了解其最新情况，引导回到还款或协商流程</goal>
+<skill name="reengage" version="2.0">
+  <description>对沉默或回避的用户进行再次接触，施压促使其回应</description>
+  <goal>重新建立沟通，强调逾期严重性，不给用户继续回避的空间</goal>
 
   <available_tools>
     <tool>schedule_reengage</tool>
@@ -9,19 +9,26 @@
     <tool>end_session</tool>
   </available_tools>
 
+  <pressure_strategy>
+    <step order="1">直接说明联系目的，不绕弯子</step>
+    <step order="2">强调逾期时间越久后果越严重</step>
+    <step order="3">要求用户今天回应，给出明确选择：全额/协商/说明困难</step>
+    <step order="4">如用户继续回避，告知将采取下一步措施</step>
+  </pressure_strategy>
+
   <rules>
-    <rule priority="critical">再 engagement 频率不得超过每日限制，避免骚扰</rule>
-    <rule priority="high">语气必须温和，不得带有指责或施压</rule>
-    <rule priority="high">如用户再次回避，记录后延长间隔，不持续打扰</rule>
-    <rule priority="medium">根据用户历史意图调整再 engagement 策略</rule>
-    <rule priority="medium">提供便捷的回复方式（如回复数字选择选项）</rule>
+    <rule priority="critical">再 engagement 频率合规，但语气必须催收化</rule>
+    <rule priority="high">不得温和道歉，不是"打扰您了"，是"您欠款需要处理"</rule>
+    <rule priority="high">如用户再次回避，记录后升级施压或调整策略</rule>
+    <rule priority="medium">提供明确的选择项，但每个选择都指向"处理欠款"</rule>
   </rules>
 
   <template>
     <thinking>
       [分析：用户此前沉默或回避，现触发再 engagement]
-      [用户意图判断：未知，需重新评估]
-      [行动计划：温和提醒 → 了解现状 → 引导至合适流程]
+      [用户意图判断：C类回避，可能想拖延]
+      [施压评估：已沉默多久？是否需要升级？]
+      [行动计划：直接施压 → 要求回应 → 给出明确选项]
     </thinking>
 
     <intent>
@@ -35,11 +42,34 @@
     </action>
 
     <final_message>
-      您好，此前我们曾联系您关于账户 [尾号] 的账务事宜。我们理解您可能最近比较忙。
+      【沉默后重新联系：直接施压】
 
-      您的应还金额为 &lt;facts:total_amount&gt; 元。如您已还款，请忽略此消息；如需协商还款方案，回复 "协商"；如需还款指引，回复 "还款"；如现在不方便，回复 "稍后"。
+      [用户姓名]，我们之前多次联系您关于账户 [尾号] 的欠款事宜，但一直没有得到您的回复。
 
-      您也可随时拨打官方客服 400-xxx-xxxx。
+      您的账户已逾期 &lt;facts:overdue_days&gt; 天，应还金额 &lt;facts:total_amount&gt; 元。这件事不会因为您不回复就消失，逾期费用每天都在增加，您的征信记录也在持续恶化。
+
+      我今天再联系您，是希望您能正视这个问题。您现在有三个选择：
+
+      1. 今天全额结清 &lt;facts:total_amount&gt; 元，这件事彻底了结
+      2. 确实有困难，回复"协商"，我们看有没有合适的方案
+      3. 已还款，回复"已还"，我来核实
+
+      但请您不要继续回避，不回应只会导致事情升级。
+
+      ---
+
+      【二次沉默后：升级施压】
+
+      [用户姓名]，您仍然不回复。我必须告诉您，由于您长期回避不处理欠款，我们已将您的情况升级至催收部门。
+
+      接下来可能采取的措施包括：正式征信上报、委托第三方催收、法律诉讼。这些措施一旦启动，您将承担更多额外费用，且征信污点会保留多年。
+
+      在事情进一步升级之前，您还有机会处理。回复以下数字：
+      1 - 现在全额还款
+      2 - 申请协商方案
+      3 - 说明具体困难
+
+      请今天回复，不要拖到明天。
     </final_message>
   </template>
 </skill>

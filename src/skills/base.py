@@ -1,6 +1,5 @@
 """Skill framework base classes."""
 
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
@@ -50,6 +49,7 @@ class SkillResult:
     thinking: str = ""
 
 
+@dataclass
 class Skill:
     """A skill defines configuration for the ReAct executor.
 
@@ -64,9 +64,22 @@ class Skill:
     is_one_way_door: bool = False
     max_react_steps: int = 5
     prompt_template: str = ""  # Filename under prompts/templates/skills/
+    tools: list[Tool] = field(default_factory=list)
 
-    def __init__(self, tools: list[Tool] | None = None):
-        self.tools = tools or []
+    def __post_init__(self) -> None:
+        """Read class-level overrides from subclasses."""
+        cls = self.__class__
+        defaults = {
+            "name": "",
+            "description": "",
+            "triggers": [],
+            "is_one_way_door": False,
+            "max_react_steps": 5,
+            "prompt_template": "",
+        }
+        for attr, default in defaults.items():
+            if attr in cls.__dict__ and getattr(self, attr) == default:
+                object.__setattr__(self, attr, cls.__dict__[attr])
 
     def get_available_tools(self) -> list[Tool]:
         return self.tools

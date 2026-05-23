@@ -3,20 +3,18 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
 
 from src.core.constants import EventType
 from src.core.models import Event, UserState
-from src.intent.models import IntentCategory, IntentResult
+from src.intent.models import IntentResult
 from src.intent.recognizer import IntentRecognizer
 from src.llm.base import LLMClient
 from src.prompts.engine import PromptEngine
 from src.session.enhanced_state_machine import (
-    ONE_WAY_DOOR_STATES,
     AgentSessionState,
     StateMachine,
 )
-from src.skills.base import Skill, SkillContext, SkillResult, SkillResultStatus
+from src.skills.base import SkillContext, SkillResult, SkillResultStatus
 from src.skills.executor import SkillExecutor
 from src.skills.registry import SkillRegistry
 from src.compliance.checker import ComplianceChecker
@@ -252,12 +250,6 @@ class AgentSession:
                 self.state_machine.transition(target_state)
                 self.user_state.session_state = skill_result.new_session_state
 
-        # Save state asynchronously if storage supports it
-        if hasattr(self.storage, "save"):
-            import asyncio
-
-            asyncio.create_task(self._async_save_state())
-
-    async def _async_save_state(self) -> None:
+        # Save state synchronously for data integrity
         if hasattr(self.storage, "save"):
             self.storage.save(self.user_state)

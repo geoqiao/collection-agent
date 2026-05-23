@@ -5,6 +5,7 @@ import xml.etree.ElementTree as ET
 from typing import Any
 
 from src.prompts.schemas import ParsedAction, ParsedIntent, ParsedXMLResponse
+from src.tools._safe_xml import safe_xml_fromstring
 
 
 _INTENT_RE = re.compile(
@@ -94,7 +95,7 @@ class XMLResponseParser:
         try:
             # Wrap in root for valid XML
             wrapped = f"<root>{params_xml}</root>"
-            root = ET.fromstring(wrapped)
+            root = safe_xml_fromstring(wrapped)
             for child in root:
                 text = child.text.strip() if child.text else ""
                 # Try int/float conversion

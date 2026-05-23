@@ -147,6 +147,45 @@ async def test_push_channel_type():
     assert ch.channel_type == ChannelType.PUSH
 
 
+# XSS escape tests
+
+@pytest.mark.asyncio
+async def test_chatbot_escapes_xss():
+    ch = ChatbotChannel()
+    malicious = '<script>alert("xss")</script>'
+    result = await ch.send("user1", malicious)
+    escaped = '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;'
+    assert result["content"] == escaped
+
+
+@pytest.mark.asyncio
+async def test_push_escapes_xss():
+    ch = PushChannel()
+    malicious = "<img src=x onerror=alert(1)>"
+    result = await ch.send("user1", malicious)
+    assert result["content"].startswith("&lt;")
+    assert result["content"].endswith("&gt;")
+    # Angle brackets are escaped, so the tag cannot execute
+    assert "<img" not in result["content"]
+
+
+@pytest.mark.asyncio
+async def test_voice_escapes_xss():
+    ch = VoiceChannel()
+    malicious = "<body onload=alert(1)>"
+    result = await ch.send("user1", malicious)
+    assert result["content"].startswith("&lt;")
+    assert result["content"].endswith("&gt;")
+    assert "<body" not in result["content"]
+
+
+@pytest.mark.asyncio
+async def test_empty_content_not_modified():
+    ch = ChatbotChannel()
+    result = await ch.send("user1", "")
+    assert result["content"] == ""
+
+
 # Factory test
 
 def test_create_default_registry():

@@ -8,7 +8,8 @@ from typing import Any
 from src.llm.base import LLMClient
 from src.prompts.engine import PromptEngine
 from src.skills.base import Skill, SkillContext, SkillResult, SkillResultStatus, ToolCallRecord
-from src.tools.base import Tool, ToolResult
+from src.tools._safe_xml import safe_xml_fromstring
+from src.tools.base import ToolResult
 from src.tools.registry import ToolRegistry
 
 
@@ -259,8 +260,8 @@ class SkillExecutor:
         action_xml = xml_text[start:end + len("</action>")]
 
         try:
-            root = ET.fromstring(action_xml)
-        except ET.ParseError:
+            root = safe_xml_fromstring(action_xml)
+        except (ET.ParseError, ValueError):
             return "unknown", {"raw": xml_text}
 
         action_type_elem = root.find("type")
