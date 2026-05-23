@@ -1,0 +1,67 @@
+<skill name="troubleshoot" version="1.0">
+  <description>处理用户在还款过程中遇到的技术问题或操作困难</description>
+  <goal>帮助用户解决还款过程中的技术障碍，确保还款顺利完成</goal>
+
+  <available_tools>
+    <tool>send_payment_guide</tool>
+    <tool>verify_payment</tool>
+    <tool>transfer_to_human</tool>
+  </available_tools>
+
+  <rules>
+    <rule priority="critical">所有金额必须从 <facts> 读取</rule>
+    <rule priority="high">技术问题需耐心引导，不得催促用户</rule>
+    <rule priority="high">如问题无法解决，提供替代方案（其他还款渠道）</rule>
+    <rule priority="medium">记录常见技术问题，用于优化还款流程</rule>
+    <rule priority="medium">用户多次尝试失败时，主动提供人工协助</rule>
+  </rules>
+
+  <template>
+    <thinking>
+      [分析：用户在还款过程中遇到技术问题]
+      [用户意图判断：A类合作意愿，但存在技术障碍]
+      [行动计划：诊断问题 → 提供解决方案 → 提供替代渠道]
+    </thinking>
+
+    <intent>
+      <category>A</category>
+      <confidence>high</confidence>
+      <escalation>false</escalation>
+    </intent>
+
+    <action>
+      <type>reply</type>
+    </action>
+
+    <final_message>
+      理解您的困扰。让我帮您解决：
+
+      [根据具体问题回复]
+
+      -- 支付失败 --
+      支付失败可能由以下原因导致：
+      1. 银行卡余额不足或限额 - 请确认卡内余额充足
+      2. 银行风控拦截 - 请联系发卡行解除限制
+      3. 网络问题 - 请切换网络后重试
+
+      您也可以尝试：
+      - 更换其他银行卡
+      - 使用支付宝/微信支付
+      - 银行转账至账户 [账户信息]
+
+      -- APP无法打开/登录 --
+      请尝试：
+      1. 清除APP缓存后重新打开
+      2. 卸载后重新下载安装
+      3. 使用网页版：[网址]
+
+      如仍有问题，请拨打技术支持热线 400-xxx-xxxx。
+
+      -- 还款后未到账 --
+      我来为您查询还款状态，请稍等。
+      [调用 verify_payment]
+
+      银行转账通常 1-2 个工作日到账，节假日可能延迟。如超过 3 个工作日仍未到账，请联系客服核实。
+    </final_message>
+  </template>
+</skill>

@@ -1,0 +1,45 @@
+<skill name="reengage" version="1.0">
+  <description>对沉默或回避的用户进行再次接触，重新建立沟通</description>
+  <goal>以温和的方式重新联系用户，了解其最新情况，引导回到还款或协商流程</goal>
+
+  <available_tools>
+    <tool>schedule_reengage</tool>
+    <tool>send_payment_guide</tool>
+    <tool>transfer_to_human</tool>
+    <tool>end_session</tool>
+  </available_tools>
+
+  <rules>
+    <rule priority="critical">再 engagement 频率不得超过每日限制，避免骚扰</rule>
+    <rule priority="high">语气必须温和，不得带有指责或施压</rule>
+    <rule priority="high">如用户再次回避，记录后延长间隔，不持续打扰</rule>
+    <rule priority="medium">根据用户历史意图调整再 engagement 策略</rule>
+    <rule priority="medium">提供便捷的回复方式（如回复数字选择选项）</rule>
+  </rules>
+
+  <template>
+    <thinking>
+      [分析：用户此前沉默或回避，现触发再 engagement]
+      [用户意图判断：未知，需重新评估]
+      [行动计划：温和提醒 → 了解现状 → 引导至合适流程]
+    </thinking>
+
+    <intent>
+      <category>C</category>
+      <confidence>medium</confidence>
+      <escalation>false</escalation>
+    </intent>
+
+    <action>
+      <type>reply</type>
+    </action>
+
+    <final_message>
+      您好，此前我们曾联系您关于账户 [尾号] 的账务事宜。我们理解您可能最近比较忙。
+
+      您的应还金额为 &lt;facts:total_amount&gt; 元。如您已还款，请忽略此消息；如需协商还款方案，回复 "协商"；如需还款指引，回复 "还款"；如现在不方便，回复 "稍后"。
+
+      您也可随时拨打官方客服 400-xxx-xxxx。
+    </final_message>
+  </template>
+</skill>

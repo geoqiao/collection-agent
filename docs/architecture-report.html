@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collect Agent - 架构与实现报告</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #dbeafe;
+            --success: #16a34a;
+            --success-light: #dcfce7;
+            --warning: #ca8a04;
+            --warning-light: #fef9c3;
+            --danger: #dc2626;
+            --danger-light: #fee2e2;
+            --gray: #6b7280;
+            --gray-light: #f3f4f6;
+            --bg: #fafafa;
+            --card: #ffffff;
+            --border: #e5e7eb;
+            --text: #1f2937;
+            --text-secondary: #6b7280;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 24px;
+            align-items: start;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 24px;
+            height: calc(100vh - 48px);
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .main-content {
+            min-width: 0;
+        }
+
+        .hero {
+            grid-column: 1 / -1;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+                gap: 24px;
+                padding: 24px 16px;
+            }
+            .sidebar {
+                position: static;
+                height: auto;
+                order: -1;
+            }
+            .toc {
+                position: static !important;
+            }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 48px 0 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2 .icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 32px 0 16px;
+            color: var(--primary);
+        }
+
+        h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 24px 0 12px;
+        }
+
+        p { margin-bottom: 16px; }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-primary { background: var(--primary-light); color: var(--primary); }
+        .badge-success { background: var(--success-light); color: var(--success); }
+        .badge-warning { background: var(--warning-light); color: var(--warning); }
+        .badge-danger { background: var(--danger-light); color: var(--danger); }
+        .badge-gray { background: var(--gray-light); color: var(--gray); }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
+
+        .mermaid {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--gray-light);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+
+        tr:hover td { background: var(--bg); }
+
+        code {
+            background: var(--gray-light);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            font-size: 0.85em;
+            color: var(--danger);
+        }
+
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin: 16px 0;
+        }
+
+        .highlight-box {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 16px 0;
+            border-left: 4px solid;
+        }
+
+        .highlight-box.info {
+            background: var(--primary-light);
+            border-color: var(--primary);
+        }
+
+        .highlight-box.success {
+            background: var(--success-light);
+            border-color: var(--success);
+        }
+
+        .highlight-box.warning {
+            background: var(--warning-light);
+            border-color: var(--warning);
+        }
+
+        .highlight-box.danger {
+            background: var(--danger-light);
+            border-color: var(--danger);
+        }
+
+        .file-tree {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            background: var(--gray-light);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .file-tree .dir { color: var(--primary); font-weight: 600; }
+        .file-tree .file { color: var(--text-secondary); }
+
+        .metric {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .toc {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .toc a {
+            display: block;
+            padding: 6px 0;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .toc a:hover { color: var(--primary); }
+        .toc a.active { color: var(--primary); font-weight: 600; }
+
+        .flow-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px;
+            background: var(--card);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .flow-step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .flow-step-content h4 {
+            margin: 0 0 4px 0;
+        }
+
+        .flow-step-content p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <div class="hero">
+            <h1>Collect Agent</h1>
+            <p class="subtitle">AI 驱动的智能催收 Agent 系统 — 架构与实现报告</p>
+
+            <!-- Metrics -->
+            <div class="grid-3 card">
+                <div class="metric">
+                    <div class="metric-value">152</div>
+                    <div class="metric-label">测试用例</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">37+</div>
+                    <div class="metric-label">源文件</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">6</div>
+                    <div class="metric-label">LLM 供应商支持</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar TOC -->
+        <aside class="sidebar">
+            <div class="toc">
+                <h3 style="margin-top:0;">目录</h3>
+                <a href="#overview">1. 架构总览</a>
+                <a href="#actor">2. Actor 模型</a>
+                <a href="#event-flow">3. 事件驱动流程</a>
+                <a href="#state-machine">4. 状态机</a>
+                <a href="#orchestrator">5. Orchestrator 调度仲裁</a>
+                <a href="#strategy">6. 意图识别与策略引擎</a>
+                <a href="#compliance">7. 双层合规检查</a>
+                <a href="#quota">8. 配额管理</a>
+                <a href="#context">9. 上下文管理</a>
+                <a href="#llm">10. LLM 抽象层</a>
+                <a href="#storage">11. 持久化</a>
+                <a href="#demo">12. Demo 流程解析</a>
+                <a href="#structure">13. 项目结构</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+        <!-- Section 1: Overview -->
+        <h2 id="overview">
+            <span class="icon" style="background: var(--primary-light);">1</span>
+            架构总览
+        </h2>
+
+        <div class="highlight-box info">
+            <strong>核心设计原则：</strong>每个用户一个独立的 Actor（CollectionSession），事件驱动，分层决策。
+        </div>
+
+        <div class="mermaid">
+graph TB
+    subgraph Sources["事件源"]
+        Cron["定时任务"]
+        User["用户行为"]
+        System["系统事件"]
+    end
+
+    subgraph Router["事件路由层"]
+        ER["EventRouter"]
+    end
+
+    subgraph Sessions["会话层（Actor 模型）"]
+        S1["CollectionSession<br/>User-A"]
+        S2["CollectionSession<br/>User-B"]
+        S3["CollectionSession<br/>User-C"]
+    end
+
+    subgraph Shared["共享基础设施"]
+        Store[("SQLite<br/>Storage")]
+        LLM["LLM Client"]
+        Compliance["Compliance<br/>Checker"]
+        Quota["Quota<br/>Manager"]
+    end
+
+    Cron --> ER
+    User --> ER
+    System --> ER
+    ER --> S1
+    ER --> S2
+    ER --> S3
+    S1 -.-> Store
+    S2 -.-> Store
+    S3 -.-> Store
+    S1 -.-> LLM
+    S2 -.-> LLM
+    S3 -.-> LLM
+    S1 -.-> Compliance
+    S2 -.-> Compliance
+    S3 -.-> Compliance
+    S1 -.-> Quota
+    S2 -.-> Quota
+    S3 -.-> Quota
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <span class="badge badge-primary">分层编排</span>
+                </div>
+                <p><strong>Orchestrator</strong>：决定"现在该不该催收、用什么渠道"</p>
+                <p><strong>Strategy Engine</strong>：根据用户意图选择跟进策略</p>
+                <p><strong>Tool Agents</strong>：只负责生成具体内容，不决策</p>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <span class="badge badge-success">隔离保证</span>
+                </div>
+                <p><strong>状态隔离</strong>：每个用户的逾期天数、对话历史独立存储</p>
+                <p><strong>事件隔离</strong>：EventRouter 严格按 user_id 分发</p>
+                <p><strong>计数隔离</strong>：所有频次限制在每个用户维度独立计算</p>
+            </div>
+        </div>
+
+        <!-- Section 2: Actor Model -->
+        <h2 id="actor">
+            <span class="icon" style="background: var(--success-light);">2</span>
+            Actor 模型
+        </h2>
+
+        <p>每个用户是一个独立的 <code>CollectionSession</code> Actor，包含完整的催收状态和处理能力：</p>
+
+        <div class="mermaid">
+graph LR
+    subgraph Session["CollectionSession"]
+        SM["StateMachine<br/>状态机"]
+        CR["ChannelRegistry<br/>渠道状态"]
+        IL["InteractionLock<br/>交互锁"]
+        CW["ContextWindow<br/>对话窗口"]
+        SE["StrategyEngine<br/>策略引擎"]
+        ID["IntentDetector<br/>意图识别"]
+        CM["ContextManager<br/>上下文管理"]
+        QM["QuotaManager<br/>配额记录"]
+        CC["ComplianceChecker<br/>合规检查"]
+        LC["LLMClient<br/>大模型"]
+    end
+
+    Event["Event"] --> Session
+    Session --> Store[("SQLite")]
+        </div>
+
+        <table>
+            <tr>
+                <th>组件</th>
+                <th>职责</th>
+                <th>关键数据</th>
+            </tr>
+            <tr>
+                <td><code>StateMachine</code></td>
+                <td>管理会话生命周期状态</td>
+                <td>IDLE → OUTREACH_START → INTENT_DETECTED → FOLLOW_UP → RESOLVED</td>
+            </tr>
+            <tr>
+                <td><code>ChannelRegistry</code></td>
+                <td>跟踪各渠道状态</td>
+                <td>IDLE / OUTGOING / INTERACTING / WAITING_REPLY / PAUSED / CLOSED</td>
+            </tr>
+            <tr>
+                <td><code>InteractionLock</code></td>
+                <td>确保同一时间只有一个渠道交互</td>
+                <td>holder: VOICE / CHATBOT / PUSH / None</td>
+            </tr>
+            <tr>
+                <td><code>ContextWindow</code></td>
+                <td>管理对话历史</td>
+                <td>sliding_window / summarize / relevance 三种策略</td>
+            </tr>
+            <tr>
+                <td><code>ContextManager</code></td>
+                <td>用户画像与行为追踪</td>
+                <td>回复率、还款承诺、升级次数、意图历史</td>
+            </tr>
+        </table>
+
+        <!-- Section 3: Event Flow -->
+        <h2 id="event-flow">
+            <span class="icon" style="background: var(--warning-light);">3</span>
+            事件驱动流程
+        </h2>
+
+        <div class="mermaid">
+graph TB
+    subgraph EventTypes["事件类型"]
+        E1["SCHEDULED_OUTREACH<br/>定时催收"]
+        E2["USER_REPLIED<br/>用户回复"]
+        E3["SILENCE_TIMEOUT<br/>静默超时"]
+        E4["USER_PAYMENT_SUCCESS<br/>还款成功"]
+        E5["CALL_CONNECTED<br/>电话接通"]
+        E6["COMPLAINT<br/>投诉"]
+    end
+
+    subgraph Handlers["事件处理器"]
+        H1["_handle_outreach_event"]
+        H2["_handle_interaction_event"]
+        H3["_handle_silence_timeout"]
+        H4["_handle_payment_success"]
+        H5["_handle_complaint"]
+    end
+
+    E1 --> H1
+    E2 --> H2
+    E3 --> H3
+    E4 --> H4
+    E5 --> H2
+    E6 --> H5
+        </div>
+
+        <h3> outreach 事件处理流程（最复杂的路径）</h3>
+
+        <div class="flow-step">
+            <div class="flow-step-num">1</div>
+            <div class="flow-step-content">
+                <h4>合规时间检查（Layer 1）</h4>
+                <p>检查当前是否在 8:00-20:00 合规窗口内。不在则直接拒绝。</p>
+            </div>
+        </div>
+
+        <div class="flow-step">
+            <div class="flow-step-num">2</div>
+            <div class="flow-step-content">
+                <h4>配额检查</h4>
+                <p>检查当日电话/Chatbot/Push 配额是否已耗尽。</p>
+            </div>
+        </div>
+
+        <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <div class="flow-step-content">
+                <h4>渠道选择</h4>
+                <p>Orchestrator 根据配额和优先级选择最佳渠道：VOICE > CHATBOT > PUSH。</p>
+            </div>
+        </div>
+
+        <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <div class="flow-step-content">
+                <h4>交互锁仲裁</h4>
+                <p>检查是否有其他渠道正在交互。高优先级可抢占低优先级。</p>
+            </div>
+        </div>
+
+        <div class="flow-step">
+            <div class="flow-step-num">5</div>
+            <div class="flow-step-content">
+                <h4>策略选择</h4>
+                <p>StrategyEngine 根据用户意图选择策略。敏感职业用户强制使用标准话术。</p>
+            </div>
+        </div>
+
+        <div class="flow-step">
+            <div class="flow-step-num">6</div>
+            <div class="flow-step-content">
+                <h4>话术生成</h4>
+                <p>优先调用 LLM 生成个性化回复，失败时降级到模板话术。</p>
+            </div>
+        </div>
+
+        <div class="flow-step">
+            <div class="flow-step-num">7</div>
+            <div class="flow-step-content">
+                <h4>内容审核（Layer 2）</h4>
+                <p>检查生成的话术是否包含威胁、侮辱等禁用词汇。不通过则替换为标准话术。</p>
+            </div>
+        </div>
+
+        <div class="flow-step">
+            <div class="flow-step-num">8</div>
+            <div class="flow-step-content">
+                <h4>发送与记录</h4>
+                <p>通过选定渠道发送消息，记录配额使用，更新状态机，持久化状态。</p>
+            </div>
+        </div>
+
+        <!-- Section 4: State Machine -->
+        <h2 id="state-machine">
+            <span class="icon" style="background: var(--danger-light);">4</span>
+            状态机
+        </h2>
+
+        <div class="mermaid">
+stateDiagram-v2
+    [*] --> IDLE
+    IDLE --> OUTREACH_START: SCHEDULED_OUTREACH
+    IDLE --> OUTREACH_START: USER_LOGIN
+    OUTREACH_START --> INTENT_DETECTED: 消息发送成功
+    OUTREACH_START --> IDLE: 渠道全部失败
+    INTENT_DETECTED --> FOLLOW_UP: 用户回复
+    INTENT_DETECTED --> RESOLVED: 还款成功
+    INTENT_DETECTED --> IDLE: 用户明确拒绝
+    FOLLOW_UP --> FOLLOW_UP: 继续跟进
+    FOLLOW_UP --> RESOLVED: 还款成功
+    FOLLOW_UP --> IDLE: 超时/放弃
+    RESOLVED --> IDLE: 下次催收周期
+
+    note right of IDLE
+        初始状态
+        等待触发
+    end note
+
+    note right of OUTREACH_START
+        已选择渠道
+        已发送首条消息
+    end note
+
+    note right of INTENT_DETECTED
+        已识别用户意图
+        进入跟进流程
+    end note
+
+    note right of FOLLOW_UP
+        多轮对话中
+        记录谈判轮次
+    end note
+
+    note right of RESOLVED
+        催收结束
+        释放交互锁
+    end note
+        </div>
+
+        <div class="highlight-box warning">
+            <strong>状态转换规则：</strong>状态机使用严格的转换表，不允许任意跳转。例如，不能从 IDLE 直接跳到 FOLLOW_UP，必须经过 OUTREACH_START 和 INTENT_DETECTED。
+        </div>
+
+        <!-- Section 5: Orchestrator -->
+        <h2 id="orchestrator">
+            <span class="icon" style="background: var(--primary-light);">5</span>
+            Orchestrator 调度仲裁
+        </h2>
+
+        <h3>交互锁（Interaction Lock）</h3>
+        <p>同一时间只有一个渠道能与用户交互，避免多渠道同时打扰用户。</p>
+
+        <div class="mermaid">
+graph LR
+    subgraph Priority["渠道优先级"]
+        V["VOICE<br/>优先级: 3"]
+        C["CHATBOT<br/>优先级: 2"]
+        P["PUSH<br/>优先级: 1"]
+    end
+
+    V --> C
+    C --> P
+        </div>
+
+        <h3>冲突场景决策表</h3>
+        <table>
+            <tr>
+                <th>场景</th>
+                <th>当前状态</th>
+                <th>新请求</th>
+                <th>仲裁结果</th>
+            </tr>
+            <tr>
+                <td>S1</td>
+                <td>电话拨号中（OUTGOING）</td>
+                <td>用户回复 WhatsApp</td>
+                <td>WhatsApp 获得交互权，电话继续拨号</td>
+            </tr>
+            <tr>
+                <td>S2</td>
+                <td>WhatsApp 交互中</td>
+                <td>电话拨入且用户接听</td>
+                <td><strong>电话抢占</strong>，WhatsApp 变为 PAUSED</td>
+            </tr>
+            <tr>
+                <td>S3</td>
+                <td>电话交互中</td>
+                <td>用户回复 WhatsApp</td>
+                <td>WhatsApp 变为 PAUSED，电话保持</td>
+            </tr>
+            <tr>
+                <td>S4</td>
+                <td>电话挂断</td>
+                <td>WhatsApp 处于 PAUSED</td>
+                <td>检查未读消息，有则恢复 INTERACTING</td>
+            </tr>
+            <tr>
+                <td>S5</td>
+                <td>WhatsApp 和 Push 同时 OUTGOING</td>
+                <td>两者都不涉及交互权</td>
+                <td><strong>允许并行</strong></td>
+            </tr>
+            <tr>
+                <td>S6</td>
+                <td>两个渠道同时满足交互条件</td>
+                <td>同时竞争交互权</td>
+                <td>按优先级裁决：电话 > Chatbot > Push</td>
+            </tr>
+        </table>
+
+        <!-- Section 6: Strategy -->
+        <h2 id="strategy">
+            <span class="icon" style="background: var(--success-light);">6</span>
+            意图识别与策略引擎
+        </h2>
+
+        <h3>双重意图识别</h3>
+
+        <div class="mermaid">
+graph LR
+    A["用户消息"] --> B["规则引擎"]
+    B --> C{"匹配到关键词?"}
+    C -->|是| D["规则意图"]
+    C -->|否| E["默认: INEFFECTIVE"]
+    D --> F["LLM 验证"]
+    E --> F
+    F --> G{"LLM 结果有效?"}
+    G -->|是| H["采用 LLM 意图"]
+    G -->|否| I["回退到规则意图"]
+    H --> J["策略选择"]
+    I --> J
+        </div>
+
+        <h3>6 种意图对应的策略</h3>
+        <table>
+            <tr>
+                <th>意图</th>
+                <th>策略类型</th>
+                <th>最大轮次</th>
+                <th>关键动作</th>
+            </tr>
+            <tr>
+                <td><code>WILLING_TO_PAY</code></td>
+                <td>confirm_plan</td>
+                <td>3</td>
+                <td>确认还款计划、时间、金额</td>
+            </tr>
+            <tr>
+                <td><code>UNWILLING_TO_PAY</code></td>
+                <td>negotiate</td>
+                <td>3</td>
+                <td>探询原因、协商分期、告知后果</td>
+            </tr>
+            <tr>
+                <td><code>INEFFECTIVE_CONTACT</code></td>
+                <td>re_engage</td>
+                <td>4</td>
+                <td>提醒、换渠道、联系人</td>
+            </tr>
+            <tr>
+                <td><code>COMPLAINT</code></td>
+                <td>pause_collection</td>
+                <td>1</td>
+                <td>道歉、记录、暂停催收、转客服</td>
+            </tr>
+            <tr>
+                <td><code>PAYMENT_METHOD_INQUIRY</code></td>
+                <td>guide_payment</td>
+                <td>5</td>
+                <td>提供还款方式、发送链接、确认完成</td>
+            </tr>
+            <tr>
+                <td><code>OPERATION_INQUIRY</code></td>
+                <td>troubleshoot</td>
+                <td>3</td>
+                <td>诊断问题、提供步骤、必要时转客服</td>
+            </tr>
+        </table>
+
+        <h3>敏感职业特殊处理</h3>
+        <div class="highlight-box danger">
+            敏感职业包括：律师、法官、检察官、警察、政府官员、公务员、军人、记者、媒体从业者。
+        </div>
+
+        <table>
+            <tr>
+                <th>限制项</th>
+                <th>普通用户</th>
+                <th>敏感职业</th>
+            </tr>
+            <tr>
+                <td>催收话术</td>
+                <td>LLM 自主生成，可谈判</td>
+                <td><strong>仅标准话术模板</strong></td>
+            </tr>
+            <tr>
+                <td>谈判/施压</td>
+                <td>允许（最多3轮）</td>
+                <td><strong>禁止</strong></td>
+            </tr>
+            <tr>
+                <td>联系联系人</td>
+                <td>本人无法联系时可拨打</td>
+                <td><strong>禁止</strong></td>
+            </tr>
+            <tr>
+                <td>电话频次</td>
+                <td>每天10通</td>
+                <td>每天最多<strong>2通</strong></td>
+            </tr>
+            <tr>
+                <td>Chatbot 未回复</td>
+                <td>5条/天</td>
+                <td><strong>2条/天</strong></td>
+            </tr>
+            <tr>
+                <td>Chatbot 已回复</td>
+                <td>100条/天</td>
+                <td><strong>10条/天</strong></td>
+            </tr>
+        </table>
+
+        <!-- Section 7: Compliance -->
+        <h2 id="compliance">
+            <span class="icon" style="background: var(--danger-light);">7</span>
+            双层合规检查
+        </h2>
+
+        <div class="mermaid">
+graph TB
+    subgraph Layer1["Layer 1: 调度前检查"]
+        L1A["合规时间窗口<br/>8:00-20:00"]
+        L1B["配额检查<br/>频次上限"]
+        L1C["联系人规则<br/>本人优先"]
+    end
+
+    subgraph Execution["执行层"]
+        Exec["发送消息"]
+    end
+
+    subgraph Layer2["Layer 2: 输出前检查"]
+        L2A["内容审核<br/>威胁/侮辱/恐吓拦截"]
+        L2B["投诉关键词检测<br/>立即转人工"]
+        L2C["敏感信息保护"]
+    end
+
+    L1A --> Exec
+    L1B --> Exec
+    L1C --> Exec
+    Exec --> L2A
+    L2A --> L2B
+    L2B --> L2C
+        </div>
+
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-header">
+                    <span class="badge badge-primary">Layer 1</span>
+                </div>
+                <p><strong>位置</strong>：Orchestrator 调度前</p>
+                <p><strong>目的</strong>：决定是否允许发起催收</p>
+                <p><strong>检查项</strong>：</p>
+                <ul>
+                    <li>当前时间是否在 8:00-20:00</li>
+                    <li>当日配额是否已耗尽</li>
+                    <li>距离上次同渠道联系是否超过最小间隔</li>
+                </ul>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <span class="badge badge-danger">Layer 2</span>
+                </div>
+                <p><strong>位置</strong>：消息发送前</p>
+                <p><strong>目的</strong>：确保输出内容合规</p>
+                <p><strong>检查项</strong>：</p>
+                <ul>
+                    <li>是否包含禁用词汇（威胁、侮辱、恐吓）</li>
+                    <li>是否包含投诉关键词</li>
+                    <li>是否泄露敏感信息</li>
+                    <li>敏感职业用户是否使用了标准话术</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 8: Quota -->
+        <h2 id="quota">
+            <span class="icon" style="background: var(--warning-light);">8</span>
+            配额管理
+        </h2>
+
+        <h3>配额模型</h3>
+        <table>
+            <tr>
+                <th>渠道</th>
+                <th>每日上限</th>
+                <th>滑动窗口规则</th>
+            </tr>
+            <tr>
+                <td>电话本人</td>
+                <td>10 通</td>
+                <td>每小时最多3通；间隔 >= 10分钟</td>
+            </tr>
+            <tr>
+                <td>电话联系人</td>
+                <td>10 通</td>
+                <td>同上</td>
+            </tr>
+            <tr>
+                <td>Chatbot（未回复）</td>
+                <td>5 条</td>
+                <td>间隔 >= 30分钟</td>
+            </tr>
+            <tr>
+                <td>Chatbot（已回复）</td>
+                <td>100 条</td>
+                <td>间隔 >= 2分钟</td>
+            </tr>
+            <tr>
+                <td>Push</td>
+                <td>1 条</td>
+                <td>每天仅1个</td>
+            </tr>
+        </table>
+
+        <h3>动态配额调整</h3>
+        <div class="mermaid">
+graph LR
+    A["USER_UNANSWERED"] -->|"用户回复消息"| B["USER_ANSWERED"]
+    A -->|"配额: 5条/天"| C["间隔: >=30分钟"]
+    B -->|"配额: 100条/天"| D["间隔: >=2分钟"]
+        </div>
+
+        <h3>配额耗尽降级策略</h3>
+        <table>
+            <tr>
+                <th>渠道耗尽</th>
+                <th>降级方案</th>
+            </tr>
+            <tr>
+                <td>电话本人</td>
+                <td>尝试 Chatbot → 尝试 Push → 暂停</td>
+            </tr>
+            <tr>
+                <td>Chatbot（未回复）</td>
+                <td>已发5条无回复 → 换电话 → 或标记静默</td>
+            </tr>
+            <tr>
+                <td>Chatbot（已回复）</td>
+                <td>极少耗尽（100条），若耗尽暂停</td>
+            </tr>
+            <tr>
+                <td>Push</td>
+                <td>仅1条，耗尽后无降级</td>
+            </tr>
+        </table>
+
+        <!-- Section 9: Context -->
+        <h2 id="context">
+            <span class="icon" style="background: var(--success-light);">9</span>
+            上下文管理
+        </h2>
+
+        <div class="mermaid">
+graph TB
+    subgraph ContextSystem["上下文管理系统"]
+        CW["ContextWindow<br/>对话窗口"]
+        UC["UserContext<br/>用户画像"]
+    end
+
+    subgraph WindowStrategies["窗口策略"]
+        S1["sliding_window<br/>保留最近N条"]
+        S2["summarize<br/>超出时摘要压缩"]
+        S3["relevance<br/>按相关性筛选"]
+    end
+
+    subgraph UserProfile["用户画像数据"]
+        P1["response_rate<br/>回复率"]
+        P2["payment_promises<br/>还款承诺"]
+        P3["escalation_count<br/>升级次数"]
+        P4["intent_history<br/>意图历史"]
+        P5["preferred_channel<br/>偏好渠道"]
+    end
+
+    CW --> S1
+    CW --> S2
+    CW --> S3
+    UC --> P1
+    UC --> P2
+    UC --> P3
+    UC --> P4
+    UC --> P5
+        </div>
+
+        <div class="card">
+            <h4>上下文在 LLM 提示词中的应用</h4>
+            <pre>你是一个专业的催收助手。以下是用户上下文：
+
+用户历史回复率: 75%
+还款承诺记录:
+  - 2026-05-20: 承诺3天内还500元 [状态: 待履行]
+历史意图: willing_to_pay, willing_to_pay, ineffective_contact
+偏好渠道: chatbot
+
+对话历史:
+[用户] 我会还的
+[助手] 您好张三，感谢您愿意处理此事...
+
+请根据上述上下文生成合适的回复。</pre>
+        </div>
+
+        <!-- Section 10: LLM -->
+        <h2 id="llm">
+            <span class="icon" style="background: var(--primary-light);">10</span>
+            LLM 抽象层
+        </h2>
+
+        <h3>支持的供应商</h3>
+        <table>
+            <tr>
+                <th>供应商</th>
+                <th>环境变量</th>
+                <th>默认模型</th>
+                <th>用途</th>
+            </tr>
+            <tr>
+                <td>Mock</td>
+                <td>无需</td>
+                <td>-</td>
+                <td>单元测试</td>
+            </tr>
+            <tr>
+                <td>Claude</td>
+                <td><code>ANTHROPIC_API_KEY</code></td>
+                <td>claude-sonnet-4-6</td>
+                <td>生产</td>
+            </tr>
+            <tr>
+                <td>OpenAI</td>
+                <td><code>OPENAI_API_KEY</code></td>
+                <td>gpt-4o</td>
+                <td>生产</td>
+            </tr>
+            <tr>
+                <td>DeepSeek</td>
+                <td><code>DEEPSEEK_API_KEY</code></td>
+                <td>deepseek-chat</td>
+                <td>生产</td>
+            </tr>
+        </table>
+
+        <h3>智能重试策略</h3>
+        <div class="mermaid">
+graph TD
+    A["HTTP 请求"] --> B{"状态码?"}
+    B -->|401/403| C["不重试<br/>认证错误"]
+    B -->|429| D["指数退避重试"]
+    B -->|>=500| E["重试1次"]
+    B -->|其他| F["直接失败"]
+    D --> G{"重试成功?"}
+    E --> G
+    G -->|是| H["返回结果"]
+    G -->|否| I["降级到模板话术"]
+    C --> I
+    F --> I
+        </div>
+
+        <div class="highlight-box success">
+            <strong>兜底机制：</strong>LLM 调用超时（默认30s）→ 重试1次 → 仍失败则使用标准话术模板。确保催收流程不会因为 LLM 故障而中断。
+        </div>
+
+        <!-- Section 11: Storage -->
+        <h2 id="storage">
+            <span class="icon" style="background: var(--gray-light);">11</span>
+            持久化
+        </h2>
+
+        <div class="mermaid">
+graph LR
+    subgraph Memory["MemoryStore"]
+        M1["内存字典<br/>self._data: dict"]
+    end
+
+    subgraph SQLite["SQLiteStore"]
+        S1["user_states 表"]
+        S2["daily_quota 表"]
+        S3["context 表"]
+    end
+
+    Memory -->|"测试环境"| App["应用"]
+    SQLite -->|"生产环境"| App
+        </div>
+
+        <h3>持久化时机</h3>
+        <ul>
+            <li>每次状态转换后</li>
+            <li>每次消息发送前后</li>
+            <li>交互权变更时</li>
+            <li>自然日切换时（配额重置）</li>
+        </ul>
+
+        <!-- Section 12: Demo -->
+        <h2 id="demo">
+            <span class="icon" style="background: var(--success-light);">12</span>
+            Demo 流程解析
+        </h2>
+
+        <div class="mermaid">
+sequenceDiagram
+    participant CLI as CLI Demo
+    participant Store as SQLite Store
+    participant Router as EventRouter
+    participant Session as CollectionSession<br/>User-001
+    participant SM as StateMachine
+    participant LLM as DeepSeek API
+    participant Compliance as ComplianceChecker
+
+    CLI->>Store: 创建逾期用户<br/>overdue_days=5
+    CLI->>Router: SCHEDULED_OUTREACH 事件
+    Router->>Session: 分发事件
+    Session->>Compliance: 检查合规时间
+    Compliance-->>Session: 23:00 > 20:00 ❌<br/>拦截
+    Session-->>SM: 状态保持 IDLE
+
+    CLI->>Router: USER_REPLIED<br/>content="我会还的"
+    Router->>Session: 分发事件
+    Session->>Session: 规则引擎检测<br/>→ WILLING_TO_PAY
+    Session->>LLM: detect_intent()
+    LLM-->>Session: willing_to_pay ✅
+    Session->>LLM: generate_strategy_response()
+    LLM-->>Session: 个性化回复
+    Session->>Compliance: 内容审核
+    Compliance-->>Session: 通过 ✅
+    Session-->>SM: 状态 FOLLOW_UP
+    Session->>Store: 持久化状态
+
+    CLI->>Router: SILENCE_TIMEOUT<br/>tier=0 (10分钟)
+    Router->>Session: 分发事件
+    Session->>LLM: generate_strategy_response()
+    LLM-->>Session: 跟进提醒
+    Session->>Store: 持久化状态
+
+    CLI->>Router: USER_PAYMENT_SUCCESS<br/>amount=1000
+    Router->>Session: 分发事件
+    Session-->>SM: 状态 RESOLVED
+    Session->>Store: 持久化状态
+        </div>
+
+        <!-- Section 13: Structure -->
+        <h2 id="structure">
+            <span class="icon" style="background: var(--primary-light);">13</span>
+            项目结构
+        </h2>
+
+        <div class="file-tree">
+<span class="dir">collect-agent/</span>
+├── <span class="file">config.yaml</span>              # 运行时配置
+├── <span class="file">pyproject.toml</span>           # 项目依赖
+├── <span class="file">uv.lock</span>                  # 锁定依赖版本
+├── <span class="dir">src/</span>
+│   ├── <span class="file">cli.py</span>                 # 命令行入口
+│   ├── <span class="file">main.py</span>                # CollectAgentSystem
+│   ├── <span class="file">scheduler.py</span>           # 定时调度器
+│   ├── <span class="dir">core/</span>
+│   │   ├── <span class="file">constants.py</span>       # EventType, ChannelType, Intent...
+│   │   ├── <span class="file">models.py</span>          # UserProfile, Event, Message...
+│   │   └── <span class="file">exceptions.py</span>      # 结构化异常
+│   ├── <span class="dir">session/</span>
+│   │   ├── <span class="file">session.py</span>         # CollectionSession (核心)
+│   │   ├── <span class="file">state_machine.py</span>   # 状态机
+│   │   ├── <span class="file">manager.py</span>         # SessionManager
+│   │   └── <span class="file">timeout_tracker.py</span> # 静默超时追踪
+│   ├── <span class="dir">events/</span>
+│   │   └── <span class="file">router.py</span>          # EventRouter
+│   ├── <span class="dir">orchestrator/</span>
+│   │   ├── <span class="file">lock.py</span>            # InteractionLock
+│   │   └── <span class="file">orchestrator.py</span>    # Orchestrator
+│   ├── <span class="dir">channels/</span>
+│   │   ├── <span class="file">base.py</span>            # BaseChannel 抽象
+│   │   ├── <span class="file">registry.py</span>        # ChannelRegistry
+│   │   └── <span class="file">chatbot.py</span>         # ChatbotChannel
+│   ├── <span class="dir">strategy/</span>
+│   │   ├── <span class="file">detector.py</span>        # IntentDetector
+│   │   ├── <span class="file">engine.py</span>          # StrategyEngine
+│   │   └── <span class="file">strategies.py</span>      # 策略模板
+│   ├── <span class="dir">quota/</span>
+│   │   ├── <span class="file">profile.py</span>         # QuotaProfile
+│   │   ├── <span class="file">usage.py</span>           # DailyQuotaUsage
+│   │   └── <span class="file">manager.py</span>         # QuotaManager
+│   ├── <span class="dir">compliance/</span>
+│   │   ├── <span class="file">rules.py</span>           # ComplianceRules
+│   │   └── <span class="file">checker.py</span>         # ComplianceChecker
+│   ├── <span class="dir">llm/</span>
+│   │   ├── <span class="file">base.py</span>            # LLMClient 抽象
+│   │   ├── <span class="file">clients.py</span>         # 各供应商实现
+│   │   ├── <span class="file">retry.py</span>           # 智能重试
+│   │   └── <span class="file">prompts.py</span>         # Prompt 模板
+│   ├── <span class="dir">context/</span>
+│   │   ├── <span class="file">window.py</span>          # ContextWindow
+│   │   ├── <span class="file">user_context.py</span>    # UserContext
+│   │   └── <span class="file">manager.py</span>         # ContextManager
+│   └── <span class="dir">storage/</span>
+│       ├── <span class="file">memory_store.py</span>    # 内存存储
+│       └── <span class="file">sqlite_store.py</span>    # SQLite 存储
+└── <span class="dir">tests/</span>                       # 152 个测试用例
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="highlight-box info" style="text-align: center;">
+            <strong>Collect Agent v0.1.0</strong><br>
+            152 个测试通过 · 0 警告 · Linter 干净<br>
+            支持 Mock / Claude / OpenAI / DeepSeek
+        </div>
+        </main>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            sequence: {
+                useMaxWidth: true
+            }
+        });
+
+        // TOC active state
+        const sections = document.querySelectorAll('h2[id]');
+        const tocLinks = document.querySelectorAll('.toc a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            tocLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<thinking>
+  [当前状态分析]
+  [用户意图判断]
+  [行动计划]
+</thinking>
+
+<intent>
+  <category>A|B|C|D|E|STOP|CRISIS</category>
+  <confidence>high|medium|low</confidence>
+  <escalation>true|false</escalation>
+</intent>
+
+<action>
+  <type>reply|tool_call|escalate|end</type>
+  <tool_calls>
+    <tool_call>
+      <name>tool_name</name>
+      <parameters>
+        <param>value</param>
+      </parameters>
+    </tool_call>
+  </tool_calls>
+</action>
+
+<final_message>
+  [展示给用户的内容]
+</final_message>

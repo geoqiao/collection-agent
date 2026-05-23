@@ -1,0 +1,18 @@
+<session_context>
+  <session_id>{{session_id}}</session_id>
+  <channel>{{channel}}</channel>
+  <started_at>{{started_at}}</started_at>
+  <current_state>{{current_state}}</current_state>
+  <escalation_reason>{{escalation_reason}}</escalation_reason>
+  <assigned_agent>{{assigned_agent}}</assigned_agent>
+  <strategy>{{strategy}}</strategy>
+  <quota>
+    <daily_contacts_remaining>{{daily_contacts_remaining}}</daily_contacts_remaining>
+    <daily_contacts_limit>{{daily_contacts_limit}}</daily_contacts_limit>
+  </quota>
+  <locks>
+    <interaction_locked>{{interaction_locked}}</interaction_locked>
+    <lock_reason>{{lock_reason}}</lock_reason>
+    <locked_until>{{locked_until}}</locked_until>
+  </locks>
+</session_context>

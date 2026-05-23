@@ -1,0 +1,18 @@
+<recent_history>
+  <turns>
+    {{#each recent_turns}}
+    <turn index="{{@index}}">
+      <role>{{role}}</role>
+      <timestamp>{{timestamp}}</timestamp>
+      <content>{{content}}</content>
+      <intent>{{intent}}</intent>
+      <emotion>{{emotion}}</emotion>
+    </turn>
+    {{/each}}
+  </turns>
+  <summary>
+    <topic_shift>{{topic_shift}}</topic_shift>
+    <emotion_trend>{{emotion_trend}}</emotion_trend>
+    <unresolved_issues>{{unresolved_issues}}</unresolved_issues>
+  </summary>
+</recent_history>

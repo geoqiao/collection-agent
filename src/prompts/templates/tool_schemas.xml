@@ -1,0 +1,130 @@
+<tools>
+  <tool name="send_payment_guide">
+    <description>发送还款指引给用户</description>
+    <parameters>
+      <param name="channel" type="string" required="true">发送渠道: sms|app_push|email|current</param>
+      <param name="detail_level" type="string" required="false">详细程度: brief|standard|step_by_step</param>
+    </parameters>
+  </tool>
+
+  <tool name="verify_payment">
+    <description>核实用户还款到账情况</description>
+    <parameters>
+      <param name="user_id" type="string" required="true">用户ID</param>
+      <param name="amount" type="number" required="false">指定核实金额</param>
+    </parameters>
+  </tool>
+
+  <tool name="check_installment_eligibility">
+    <description>查询用户分期还款资格</description>
+    <parameters>
+      <param name="user_id" type="string" required="true">用户ID</param>
+    </parameters>
+  </tool>
+
+  <tool name="check_extension_eligibility">
+    <description>查询延期还款资格</description>
+    <parameters>
+      <param name="user_id" type="string" required="true">用户ID</param>
+      <param name="requested_days" type="number" required="false">申请延期天数</param>
+    </parameters>
+  </tool>
+
+  <tool name="check_relief_options">
+    <description>查询减免政策选项</description>
+    <parameters>
+      <param name="user_id" type="string" required="true">用户ID</param>
+    </parameters>
+  </tool>
+
+  <tool name="evaluate_partial_payment">
+    <description>评估部分还款方案</description>
+    <parameters>
+      <param name="user_id" type="string" required="true">用户ID</param>
+      <param name="amount" type="number" required="true">拟还金额</param>
+    </parameters>
+  </tool>
+
+  <tool name="get_fee_breakdown">
+    <description>获取费用明细</description>
+    <parameters>
+      <param name="user_id" type="string" required="true">用户ID</param>
+    </parameters>
+  </tool>
+
+  <tool name="schedule_reengage">
+    <description>安排再 engagement</description>
+    <parameters>
+      <param name="user_id" type="string" required="true">用户ID</param>
+      <param name="delay_hours" type="number" required="true">延迟小时数</param>
+      <param name="channel" type="string" required="true">渠道: sms|app_push|voice</param>
+      <param name="tone" type="string" required="false">语气: reminder|gentle|urgent</param>
+    </parameters>
+  </tool>
+
+  <tool name="create_complaint_ticket">
+    <description>创建投诉工单</description>
+    <parameters>
+      <param name="user_id" type="string" required="true">用户ID</param>
+      <param name="type" type="string" required="true">投诉类型</param>
+      <param name="priority" type="string" required="true">优先级: low|medium|high|urgent</param>
+    </parameters>
+  </tool>
+
+  <tool name="trigger_crisis_protocol">
+    <description>触发危机处理协议</description>
+    <parameters>
+      <param name="user_id" type="string" required="true">用户ID</param>
+      <param name="crisis_type" type="string" required="true">危机类型</param>
+      <param name="priority" type="string" required="true">优先级: high|urgent</param>
+    </parameters>
+  </tool>
+
+  <tool name="alert_crisis_team">
+    <description>通知危机处理团队</description>
+    <parameters>
+      <param name="user_id" type="string" required="true">用户ID</param>
+      <param name="message_content" type="string" required="true">消息内容摘要</param>
+    </parameters>
+  </tool>
+
+  <tool name="alert_pr_team">
+    <description>通知公关团队</description>
+    <parameters>
+      <param name="user_id" type="string" required="true">用户ID</param>
+      <param name="threat_level" type="string" required="true">威胁等级: low|medium|high</param>
+    </parameters>
+  </tool>
+
+  <tool name="request_medical_documentation">
+    <description>请求医疗证明</description>
+    <parameters>
+      <param name="user_id" type="string" required="true">用户ID</param>
+    </parameters>
+  </tool>
+
+  <tool name="check_date_change_eligibility">
+    <description>查询还款日调整资格</description>
+    <parameters>
+      <param name="user_id" type="string" required="true">用户ID</param>
+      <param name="preferred_date" type="number" required="true">期望还款日(1-31)</param>
+    </parameters>
+  </tool>
+
+  <tool name="transfer_to_human">
+    <description>转接人工坐席</description>
+    <parameters>
+      <param name="user_id" type="string" required="true">用户ID</param>
+      <param name="reason" type="string" required="true">转接原因</param>
+      <param name="priority" type="string" required="false">优先级: normal|high|urgent</param>
+    </parameters>
+  </tool>
+
+  <tool name="end_session">
+    <description>结束当前会话</description>
+    <parameters>
+      <param name="session_id" type="string" required="true">会话ID</param>
+      <param name="reason" type="string" required="true">结束原因</param>
+    </parameters>
+  </tool>
+</tools>

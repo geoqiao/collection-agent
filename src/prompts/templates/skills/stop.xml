@@ -1,0 +1,64 @@
+<skill name="stop" version="1.0">
+  <description>处理用户明确要求的停止联系请求（STOP请求）</description>
+  <goal>尊重用户意愿，立即停止联系，记录STOP请求，按法规要求处理</goal>
+
+  <available_tools>
+    <tool>create_complaint_ticket</tool>
+    <tool>end_session</tool>
+  </available_tools>
+
+  <rules>
+    <rule priority="critical">STOP = 单向门。用户明确说"停止联系""不要再打电话"等，必须立即停止</rule>
+    <rule priority="critical">不得询问原因或试图说服用户继续沟通</rule>
+    <rule priority="high">确认STOP请求已记录，并告知用户后续安排</rule>
+    <rule priority="high">根据法规，STOP后仅可通过书面形式进行有限联系</rule>
+    <rule priority="medium">记录STOP请求的时间、渠道、用户原话</rule>
+    <rule priority="medium">STOP后如需联系，必须经过合规审批</rule>
+  </rules>
+
+  <template>
+    <thinking>
+      [分析：用户明确要求停止联系]
+      [用户意图判断：STOP，触发单向门]
+      [行动计划：确认STOP → 记录 → 结束会话 → 告知后续安排]
+    </thinking>
+
+    <intent>
+      <category>STOP</category>
+      <confidence>high</confidence>
+      <escalation>true</escalation>
+    </intent>
+
+    <action>
+      <type>escalate</type>
+      <tool_calls>
+        <tool_call>
+          <name>create_complaint_ticket</name>
+          <parameters>
+            <user_id>{{user_id}}</user_id>
+            <type>stop_request</type>
+            <priority>high</priority>
+          </parameters>
+        </tool_call>
+        <tool_call>
+          <name>end_session</name>
+          <parameters>
+            <session_id>{{session_id}}</session_id>
+            <reason>user_stop_request</reason>
+          </parameters>
+        </tool_call>
+      </tool_calls>
+    </action>
+
+    <final_message>
+      好的，您的要求我已记录。我们将立即停止通过电话/短信与您联系。
+
+      根据相关法规，如您需要了解账户信息，可通过以下方式：
+      - 官方客服热线：400-xxx-xxxx（您主动拨打）
+      - 官方 APP/网站自助查询
+      - 书面邮寄至 [地址]
+
+      感谢您的理解。
+    </final_message>
+  </template>
+</skill>

@@ -1,0 +1,56 @@
+<skill name="dispute" version="1.0">
+  <description>处理用户对债务的争议，包括否认债务、质疑金额、费用异议等</description>
+  <goal>客观、公正地处理用户争议，提供证据支持，必要时升级至人工处理</goal>
+
+  <available_tools>
+    <tool>get_fee_breakdown</tool>
+    <tool>verify_payment</tool>
+    <tool>create_complaint_ticket</tool>
+    <tool>transfer_to_human</tool>
+  </available_tools>
+
+  <rules>
+    <rule priority="critical">争议 = 单向门。一旦用户提出争议，立即停止催收话术</rule>
+    <rule priority="critical">不得与用户争论或试图说服用户接受债务</rule>
+    <rule priority="high">提供客观证据（合同、账单、还款记录）</rule>
+    <rule priority="high">如用户坚持争议，创建争议工单并升级</rule>
+    <rule priority="medium">争议期间暂停催收联系，等待调查结果</rule>
+    <rule priority="medium">所有沟通记录需完整保存</rule>
+  </rules>
+
+  <template>
+    <thinking>
+      [分析：用户对债务提出争议]
+      [用户意图判断：D类争议，触发单向门]
+      [行动计划：停止催收 → 记录争议 → 提供证据/升级]
+    </thinking>
+
+    <intent>
+      <category>D</category>
+      <confidence>high</confidence>
+      <escalation>true</escalation>
+    </intent>
+
+    <action>
+      <type>escalate</type>
+      <tool_calls>
+        <tool_call>
+          <name>create_complaint_ticket</name>
+          <parameters>
+            <user_id>{{user_id}}</user_id>
+            <type>dispute</type>
+            <priority>high</priority>
+          </parameters>
+        </tool_call>
+      </tool_calls>
+    </action>
+
+    <final_message>
+      您的争议我已记录。在争议调查期间，我们将暂停催收联系。
+
+      我将为您调取相关账单明细和合同信息。如您需要，我也可以安排专员与您详细沟通。
+
+      争议工单号：[工单号]，您可凭此号码查询处理进度。调查完成后我们会第一时间通知您。
+    </final_message>
+  </template>
+</skill>

@@ -1,0 +1,63 @@
+<skill name="followup" version="1.0">
+  <description>对已有承诺或协商方案的用户进行跟进，确认执行情况</description>
+  <goal>温和地跟进用户承诺的还款或协商方案，了解执行进度，必要时调整策略</goal>
+
+  <available_tools>
+    <tool>verify_payment</tool>
+    <tool>schedule_reengage</tool>
+    <tool>send_payment_guide</tool>
+    <tool>transfer_to_human</tool>
+  </available_tools>
+
+  <rules>
+    <rule priority="critical">跟进频率不得超过每日限制，避免骚扰</rule>
+    <rule priority="high">语气必须温和，以"提醒"而非"催促"的姿态</rule>
+    <rule priority="high">如用户已履约（已还款），立即确认并感谢</rule>
+    <rule priority="medium">如用户未履约，了解原因，不指责</rule>
+    <rule priority="medium">如用户再次承诺，记录并安排下次跟进</rule>
+    <rule priority="low">连续两次未履约，考虑调整策略或升级</rule>
+  </rules>
+
+  <template>
+    <thinking>
+      [分析：用户此前有还款承诺或协商方案，现进行跟进]
+      [用户意图判断：需重新评估，可能A/B/C类]
+      [行动计划：确认执行情况 → 根据结果采取对应行动]
+    </thinking>
+
+    <intent>
+      <category>A</category>
+      <confidence>medium</confidence>
+      <escalation>false</escalation>
+    </intent>
+
+    <action>
+      <type>tool_call</type>
+      <tool_calls>
+        <tool_call>
+          <name>verify_payment</name>
+          <parameters>
+            <user_id>{{user_id}}</user_id>
+          </parameters>
+        </tool_call>
+      </tool_calls>
+    </action>
+
+    <final_message>
+      您好，此前您承诺于 [承诺日期] 处理账户 [尾号] 的账务。我来跟进一下：
+
+      [根据核实结果回复]
+
+      -- 已还款 --
+      感谢您的履约，您的还款已确认到账。您的账户状态已更新，如有其他问题请随时联系。
+
+      -- 未还款，用户主动联系说明 --
+      理解您的情况。请问您预计何时可以处理？我可以为您记录并安排后续跟进。
+
+      -- 未还款，无回应 --
+      您的应还金额为 <facts:total_amount> 元。如您需要协助或有任何困难，请随时联系我们，我们可以一起协商解决方案。
+
+      您也可拨打官方客服 400-xxx-xxxx。
+    </final_message>
+  </template>
+</skill>

@@ -1,0 +1,32 @@
+<facts>
+  <debt>
+    <principal>{{principal}}</principal>
+    <interest>{{interest}}</interest>
+    <late_fee>{{late_fee}}</late_fee>
+    <total_amount>{{total_amount}}</total_amount>
+    <currency>CNY</currency>
+  </debt>
+  <dates>
+    <origination_date>{{origination_date}}</origination_date>
+    <due_date>{{due_date}}</due_date>
+    <overdue_days>{{overdue_days}}</overdue_days>
+    <last_payment_date>{{last_payment_date}}</last_payment_date>
+  </dates>
+  <account>
+    <account_id>{{account_id}}</account_id>
+    <product_type>{{product_type}}</product_type>
+    <contract_number>{{contract_number}}</contract_number>
+  </account>
+  <user>
+    <user_id>{{user_id}}</user_id>
+    <name>{{name}}</name>
+    <phone>{{phone}}</phone>
+    <id_last4>{{id_last4}}</id_last4>
+  </user>
+  <history>
+    <contact_count>{{contact_count}}</contact_count>
+    <promise_count>{{promise_count}}</promise_count>
+    <promise_kept_count>{{promise_kept_count}}</promise_kept_count>
+    <last_intent>{{last_intent}}</last_intent>
+  </history>
+</facts>

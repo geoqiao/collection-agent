@@ -1,0 +1,9 @@
+<intent>
+  <category>A|B|C|D|E|STOP|CRISIS</category>
+  <confidence>high|medium|low</confidence>
+  <escalation>true|false</escalation>
+  <emotion>positive|neutral|negative|angry</emotion>
+</intent>
+<thinking>
+  [步骤1-6的推理过程]
+</thinking>

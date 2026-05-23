@@ -1,0 +1,66 @@
+<skill name="negotiation" version="1.0">
+  <description>处理用户的协商请求，包括分期、延期、减免等</description>
+  <goal>在合规范围内尽可能满足用户的合理协商请求，达成双方可接受的还款方案</goal>
+
+  <available_tools>
+    <tool>check_installment_eligibility</tool>
+    <tool>check_extension_eligibility</tool>
+    <tool>check_relief_options</tool>
+    <tool>evaluate_partial_payment</tool>
+    <tool>check_date_change_eligibility</tool>
+    <tool>get_fee_breakdown</tool>
+    <tool>transfer_to_human</tool>
+  </available_tools>
+
+  <rules>
+    <rule priority="critical">不得承诺任何具体减免金额或延期天数，需查询系统后回复</rule>
+    <rule priority="critical">所有金额必须从 &lt;facts&gt; 读取</rule>
+    <rule priority="high">协商方案需经系统评估，不得口头承诺</rule>
+    <rule priority="high">用户情绪激动时先安抚，再进入协商流程</rule>
+    <rule priority="medium">记录所有协商内容，供后续跟进使用</rule>
+    <rule priority="medium">如系统无匹配方案，礼貌说明并转人工</rule>
+  </rules>
+
+  <template>
+    <thinking>
+      [分析：用户提出协商请求（分期/延期/减免）]
+      [用户意图判断：B类协商意愿]
+      [行动计划：查询资格/选项 → 提供可行方案 → 确认用户选择]
+    </thinking>
+
+    <intent>
+      <category>B</category>
+      <confidence>high</confidence>
+      <escalation>false</escalation>
+    </intent>
+
+    <action>
+      <type>tool_call</type>
+      <tool_calls>
+        <tool_call>
+          <name>check_installment_eligibility</name>
+          <parameters>
+            <user_id>{{user_id}}</user_id>
+          </parameters>
+        </tool_call>
+        <tool_call>
+          <name>check_extension_eligibility</name>
+          <parameters>
+            <user_id>{{user_id}}</user_id>
+          </parameters>
+        </tool_call>
+      </tool_calls>
+    </action>
+
+    <final_message>
+      理解您的情况。我正在为您查询可用的协商方案，包括分期还款和延期还款的资格，请稍等。
+
+      [根据查询结果回复]
+      根据系统评估，您目前可选的方案有：
+      - 分期还款：可分 X 期，每期 Y 元
+      - 延期还款：最长可延 Z 天
+
+      请问您倾向于哪种方案？我可以为您详细说明。
+    </final_message>
+  </template>
+</skill>

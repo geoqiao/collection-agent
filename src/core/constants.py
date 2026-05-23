@@ -43,6 +43,62 @@ class SessionState(Enum):
     RESOLVED = "resolved"
 
 
+class AgentSessionState(Enum):
+    """Enhanced state machine with flowing states and one-way doors."""
+
+    # Flowing states (can transition freely)
+    NORMAL = "normal"
+    PENDING_ESCALATE = "pending_escalate"
+
+    # One-way doors (irreversible)
+    ESCALATED = "escalated"
+    STOPPED = "stopped"
+    CRISIS = "crisis"
+    DISPUTED = "disputed"
+
+    # Terminal states
+    RESOLVED = "resolved"
+    PAUSED = "paused"
+
+
+class IntentCategory(Enum):
+    COOPERATION = "A"
+    NEGOTIATION = "B"
+    AVOIDANCE = "C"
+    DISPUTE = "D"
+    COMPLAINT = "E"
+    STOP = "STOP"
+    CRISIS = "CRISIS"
+    INEFFECTIVE = "ineffective"
+    UNKNOWN = "unknown"
+
+
+class ConfidenceLevel(Enum):
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
+
+
+class EmotionLevel(Enum):
+    POSITIVE = "positive"
+    NEUTRAL = "neutral"
+    NEGATIVE = "negative"
+    ANGRY = "angry"
+
+
+ONE_WAY_DOOR_STATES = {
+    AgentSessionState.ESCALATED,
+    AgentSessionState.STOPPED,
+    AgentSessionState.CRISIS,
+    AgentSessionState.DISPUTED,
+}
+
+FLOWING_STATES = {
+    AgentSessionState.NORMAL,
+    AgentSessionState.PENDING_ESCALATE,
+}
+
+
 class ChannelState(Enum):
     IDLE = "idle"
     SCHEDULED = "scheduled"

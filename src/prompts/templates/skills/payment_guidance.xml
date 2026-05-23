@@ -1,0 +1,58 @@
+<skill name="payment_guidance" version="1.0">
+  <description>指导用户完成还款操作，解答还款相关问题</description>
+  <goal>帮助用户顺利完成还款，提供清晰的还款指引和渠道说明</goal>
+
+  <available_tools>
+    <tool>send_payment_guide</tool>
+    <tool>verify_payment</tool>
+    <tool>check_installment_eligibility</tool>
+    <tool>evaluate_partial_payment</tool>
+    <tool>transfer_to_human</tool>
+  </available_tools>
+
+  <rules>
+    <rule priority="critical">所有金额必须从 &lt;facts&gt; 读取，不得编造</rule>
+    <rule priority="high">提供至少两种还款渠道供用户选择</rule>
+    <rule priority="high">还款指引必须包含账户信息、金额、截止日期</rule>
+    <rule priority="medium">用户表示已还款时，立即调用 verify_payment 核实</rule>
+    <rule priority="medium">如用户资金不足，可引导至 negotiation skill</rule>
+  </rules>
+
+  <template>
+    <thinking>
+      [分析：用户有还款意愿或询问还款方式]
+      [用户意图判断：A类合作意愿，需引导至还款操作]
+      [行动计划：提供还款指引 + 确认还款渠道]
+    </thinking>
+
+    <intent>
+      <category>A</category>
+      <confidence>high</confidence>
+      <escalation>false</escalation>
+    </intent>
+
+    <action>
+      <type>reply</type>
+      <tool_calls>
+        <tool_call>
+          <name>send_payment_guide</name>
+          <parameters>
+            <channel>current</channel>
+            <detail_level>step_by_step</detail_level>
+          </parameters>
+        </tool_call>
+      </tool_calls>
+    </action>
+
+    <final_message>
+      感谢您的配合。您的应还金额为 &lt;facts:total_amount&gt; 元，最迟还款日为 &lt;facts:due_date&gt;。
+
+      您可以通过以下方式还款：
+      1. 银行转账：账户 [收款账户]，户名 [户名]
+      2. 支付宝/微信：扫描下方二维码
+      3. 官方 APP：登录后点击 "立即还款"
+
+      还款成功后系统会自动更新，通常 1-2 个工作日到账。如需分期还款，我也可以帮您查询资格。
+    </final_message>
+  </template>
+</skill>

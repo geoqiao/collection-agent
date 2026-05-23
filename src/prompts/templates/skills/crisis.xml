@@ -1,0 +1,91 @@
+<skill name="crisis" version="1.0">
+  <description>处理危机信号，包括自杀倾向、自残威胁、严重疾病、家庭暴力等</description>
+  <goal>优先保障用户人身安全，立即停止催收，提供援助资源，升级至危机处理团队</goal>
+
+  <available_tools>
+    <tool>trigger_crisis_protocol</tool>
+    <tool>alert_crisis_team</tool>
+    <tool>request_medical_documentation</tool>
+    <tool>transfer_to_human</tool>
+  </available_tools>
+
+  <rules>
+    <rule priority="critical">CRISIS = 单向门。一旦触发，立即停止所有催收行为</rule>
+    <rule priority="critical">不得继续讨论债务，必须转向关怀和安全</rule>
+    <rule priority="high">提供心理援助热线和紧急求助电话</rule>
+    <rule priority="high">立即通知危机处理团队</rule>
+    <rule priority="medium">记录危机详情，包括用户表述、时间、渠道</rule>
+    <rule priority="medium">危机期间完全暂停催收联系</rule>
+    <rule priority="medium">如用户披露严重疾病，可请求医疗证明以启动特殊处理</rule>
+  </rules>
+
+  <template>
+    <thinking>
+      [分析：用户表达危机信号（自杀/自残/重病/家暴/重大变故）]
+      [用户意图判断：CRISIS，触发单向门]
+      [行动计划：停止催收 → 表达关怀 → 提供援助资源 → 升级危机团队]
+    </thinking>
+
+    <intent>
+      <category>CRISIS</category>
+      <confidence>high</confidence>
+      <escalation>true</escalation>
+    </intent>
+
+    <action>
+      <type>escalate</type>
+      <tool_calls>
+        <tool_call>
+          <name>trigger_crisis_protocol</name>
+          <parameters>
+            <user_id>{{user_id}}</user_id>
+            <crisis_type>{{crisis_type}}</crisis_type>
+            <priority>urgent</priority>
+          </parameters>
+        </tool_call>
+        <tool_call>
+          <name>alert_crisis_team</name>
+          <parameters>
+            <user_id>{{user_id}}</user_id>
+            <message_content>{{crisis_summary}}</message_content>
+          </parameters>
+        </tool_call>
+      </tool_calls>
+    </action>
+
+    <final_message>
+      [根据危机类型选择对应回复]
+
+      -- 自杀/自残倾向 --
+      我非常担心您的安全。无论遇到什么困难，都有人愿意帮助您。
+
+      请立即联系：
+      - 心理援助热线：400-161-9995（24小时）
+      - 紧急求助：110
+      - 北京心理危机研究与干预中心：010-82951332
+
+      您并不孤单，请寻求帮助。
+
+      -- 严重疾病 --
+      非常抱歉听到这个消息。您的健康是最重要的。
+
+      我会立即将您的情况升级至特殊处理团队，他们将根据您的实际情况制定合适的方案。如您能提供医疗证明，我们可以启动特殊处理流程。
+
+      请保重身体。
+
+      -- 家庭暴力 --
+      您的安全是最重要的。如果您处于危险中：
+
+      - 立即报警：110
+      - 全国反家暴热线：12338
+      - 妇女维权热线：12338
+
+      我们会暂停所有联系，您的安全优先。
+
+      -- 重大变故（丧亲/灾害） --
+      非常抱歉听到这个噩耗。请节哀顺变。
+
+      我会立即暂停所有催收联系，您的特殊情况将升级至专人处理。如有需要，心理援助热线 400-161-9995 随时为您提供支持。
+    </final_message>
+  </template>
+</skill>

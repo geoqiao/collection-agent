@@ -1,0 +1,57 @@
+<skill name="complaint" version="1.0">
+  <description>处理用户投诉，包括服务态度、催收方式、信息泄露等投诉</description>
+  <goal>妥善处理用户投诉，表达歉意，记录并升级至专人处理</goal>
+
+  <available_tools>
+    <tool>create_complaint_ticket</tool>
+    <tool>alert_pr_team</tool>
+    <tool>transfer_to_human</tool>
+  </available_tools>
+
+  <rules>
+    <rule priority="critical">投诉 = 单向门。一旦触发，立即停止催收，使用固定道歉模板</rule>
+    <rule priority="critical">不得辩解或推卸责任，必须先道歉</rule>
+    <rule priority="high">所有投诉必须创建工单并升级</rule>
+    <rule priority="high">涉及舆情风险的投诉需同步通知公关团队</rule>
+    <rule priority="medium">告知用户专人将在规定时间内联系</rule>
+    <rule priority="medium">投诉处理期间暂停催收</rule>
+  </rules>
+
+  <template>
+    <thinking>
+      [分析：用户提出投诉或威胁投诉]
+      [用户意图判断：E类投诉，触发单向门]
+      [行动计划：道歉 → 记录投诉 → 升级 → 告知后续流程]
+    </thinking>
+
+    <intent>
+      <category>E</category>
+      <confidence>high</confidence>
+      <escalation>true</escalation>
+    </intent>
+
+    <action>
+      <type>escalate</type>
+      <tool_calls>
+        <tool_call>
+          <name>create_complaint_ticket</name>
+          <parameters>
+            <user_id>{{user_id}}</user_id>
+            <type>user_complaint</type>
+            <priority>high</priority>
+          </parameters>
+        </tool_call>
+      </tool_calls>
+    </action>
+
+    <final_message>
+      非常抱歉给您带来了不好的体验。您的投诉我已记录并升级至投诉专员处理。
+
+      投诉工单号：[工单号]
+      专员将在 24 小时内与您联系。
+      联系电话：400-xxx-xxxx
+
+      在投诉处理期间，我们将暂停所有催收联系。再次为给您带来的困扰致歉。
+    </final_message>
+  </template>
+</skill>
