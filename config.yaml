@@ -1,0 +1,17 @@
+llm:
+  provider: "mock"
+  temperature: 0.3
+  max_tokens: 1024
+
+compliance:
+  valid_hours: [8, 20]
+  max_call_per_hour: 3
+  min_call_interval_minutes: 10
+
+quota:
+  call_self_daily_max: 10
+  call_contact_daily_max: 10
+  call_answer_daily_max: 3
+  chat_unanswered_daily_max: 5
+  chat_answered_daily_max: 100
+  push_daily_max: 1

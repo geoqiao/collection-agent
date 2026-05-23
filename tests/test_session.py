@@ -35,3 +35,21 @@ def test_transition_to_resolved(sm):
     sm.transition(SessionState.FOLLOW_UP)
     sm.transition(SessionState.RESOLVED)
     assert sm.current == SessionState.RESOLVED
+
+
+from src.session.manager import SessionManager
+from src.core.models import UserProfile, UserState
+
+
+def test_session_manager_get_or_create():
+    manager = SessionManager()
+    session = manager.get_or_create("u001")
+    assert session.user_id == "u001"
+    assert session.state.profile.user_id == "u001"
+
+
+def test_session_manager_returns_existing():
+    manager = SessionManager()
+    session1 = manager.get_or_create("u001")
+    session2 = manager.get_or_create("u001")
+    assert session1 is session2
