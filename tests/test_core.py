@@ -21,3 +21,29 @@ def test_intent_values():
     assert Intent.COMPLAINT.value == "complaint"
     assert Intent.PAYMENT_METHOD_INQUIRY.value == "payment_method_inquiry"
     assert Intent.OPERATION_INQUIRY.value == "operation_inquiry"
+
+
+from src.core.models import UserProfile, Event, Message, ConversationContext
+
+
+def test_user_profile_creation():
+    user = UserProfile(user_id="u001", name="张三", phone="13800138000")
+    assert user.user_id == "u001"
+    assert user.is_sensitive is False
+
+
+def test_user_profile_sensitive_occupation():
+    user = UserProfile(user_id="u002", name="李四", occupation="律师")
+    assert user.is_sensitive is True
+
+
+def test_event_creation():
+    event = Event(user_id="u001", type=EventType.USER_LOGIN, payload={})
+    assert event.user_id == "u001"
+    assert event.type == EventType.USER_LOGIN
+
+
+def test_message_creation():
+    msg = Message(channel="chatbot", direction="outbound", content="请尽快还款")
+    assert msg.channel == "chatbot"
+    assert msg.direction == "outbound"
