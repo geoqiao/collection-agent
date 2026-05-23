@@ -55,3 +55,8 @@ class QuotaManager:
         if not usage.can_chat(self._profile):
             return False, "Daily chat limit reached"
         return True, ""
+
+    def get_usage_for_user(self, user_id: str) -> DailyQuotaUsage | None:
+        """Return the current day's usage for a user (public accessor)."""
+        key = f"{user_id}:{self._today()}"
+        return self._usages.get(key)

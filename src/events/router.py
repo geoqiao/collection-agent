@@ -1,6 +1,9 @@
 import asyncio
+import logging
 
 from src.core.models import Event
+
+logger = logging.getLogger(__name__)
 
 
 class EventRouter:
@@ -14,12 +17,21 @@ class EventRouter:
         else:
             session.handle_event(event)
 
+    def _on_task_done(self, task) -> None:
+        if task.cancelled():
+            return
+        exc = task.exception()
+        if exc is not None:
+            logger.exception("Event routing failed: %s", exc)
+
     def route(self, event: Event) -> None:
         """Synchronous wrapper - for sync contexts"""
         try:
             asyncio.get_running_loop()
-            # Already in async context - schedule as task
-            asyncio.create_task(self.route_async(event))
         except RuntimeError:
             # No loop running - use asyncio.run
             asyncio.run(self.route_async(event))
+        else:
+            # Already in async context - schedule as task with exception handling
+            task = asyncio.create_task(self.route_async(event))
+            task.add_done_callback(self._on_task_done)

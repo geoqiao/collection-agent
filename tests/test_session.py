@@ -20,10 +20,15 @@ def user_state():
 
 class MockOrchestrator:
     def __init__(self):
-        self.can_contact_user = MagicMock(return_value=(True, ""))
+        self.is_within_compliance_hours = MagicMock(return_value=(True, ""))
         self.select_channel = AsyncMock(return_value=ChannelType.CHATBOT)
         self.arbitrate = AsyncMock(return_value="granted")
-        self.get_lock = AsyncMock()
+        lock_mock = MagicMock()
+        lock_mock.acquire = MagicMock()
+        lock_mock.release = MagicMock()
+        lock_mock.holder = None
+        lock_mock.is_locked = False
+        self.get_lock = AsyncMock(return_value=lock_mock)
         self.release_and_cleanup_lock = MagicMock()
 
 
@@ -31,6 +36,7 @@ class MockOrchestrator:
 def mock_deps():
     orchestrator = MockOrchestrator()
     quota_manager = AsyncMock()
+    quota_manager.get_usage_for_user = MagicMock(return_value=None)
 
     return {
         "strategy_engine": MagicMock(),
@@ -46,7 +52,7 @@ def mock_deps():
 async def test_handle_scheduled_outreach(user_state, mock_deps):
     mock_deps["compliance_checker"].is_within_valid_hours.return_value = True
     mock_deps["compliance_checker"].audit_content.return_value = (True, "")
-    mock_deps["orchestrator"].can_contact_user.return_value = (True, "")
+    mock_deps["orchestrator"].is_within_compliance_hours.return_value = (True, "")
     mock_deps["orchestrator"].select_channel.return_value = ChannelType.CHATBOT
     mock_deps["orchestrator"].arbitrate.return_value = "granted"
     mock_deps["strategy_engine"].select_strategy.return_value = {"type": "re_engage"}
@@ -58,7 +64,7 @@ async def test_handle_scheduled_outreach(user_state, mock_deps):
     await session.handle_event(event)
 
     mock_deps["compliance_checker"].is_within_valid_hours.assert_called_once()
-    mock_deps["orchestrator"].can_contact_user.assert_called_once()
+    mock_deps["orchestrator"].is_within_compliance_hours.assert_called_once()
     mock_deps["orchestrator"].select_channel.assert_called_once()
     mock_deps["orchestrator"].arbitrate.assert_called_once_with("u001", ChannelType.CHATBOT)
     mock_deps["strategy_engine"].select_strategy.assert_called_once()
@@ -119,7 +125,7 @@ async def test_handle_call_connected(user_state, mock_deps):
 async def test_handle_silence_timeout(user_state, mock_deps):
     mock_deps["compliance_checker"].is_within_valid_hours.return_value = True
     mock_deps["compliance_checker"].audit_content.return_value = (True, "")
-    mock_deps["orchestrator"].can_contact_user.return_value = (True, "")
+    mock_deps["orchestrator"].is_within_compliance_hours.return_value = (True, "")
     mock_deps["orchestrator"].arbitrate.return_value = "granted"
     mock_deps["strategy_engine"].select_strategy.return_value = {"type": "re_engage"}
     mock_deps["llm_client"].generate_strategy_response.return_value = "重新联系"
@@ -165,7 +171,7 @@ async def test_compliance_blocks_outside_hours(user_state, mock_deps):
 @pytest.mark.asyncio
 async def test_quota_limits_enforced(user_state, mock_deps):
     mock_deps["compliance_checker"].is_within_valid_hours.return_value = True
-    mock_deps["orchestrator"].can_contact_user.return_value = (False, "Daily call limit reached")
+    mock_deps["orchestrator"].is_within_compliance_hours.return_value = (False, "Daily call limit reached")
 
     session = CollectionSession(user_id="u001", state=user_state, **mock_deps)
 
@@ -180,7 +186,7 @@ async def test_quota_limits_enforced(user_state, mock_deps):
 async def test_state_machine_transitions_on_events(user_state, mock_deps):
     mock_deps["compliance_checker"].is_within_valid_hours.return_value = True
     mock_deps["compliance_checker"].audit_content.return_value = (True, "")
-    mock_deps["orchestrator"].can_contact_user.return_value = (True, "")
+    mock_deps["orchestrator"].is_within_compliance_hours.return_value = (True, "")
     mock_deps["orchestrator"].select_channel.return_value = ChannelType.CHATBOT
     mock_deps["orchestrator"].arbitrate.return_value = "granted"
     mock_deps["strategy_engine"].select_strategy.return_value = {"type": "re_engage"}
@@ -220,7 +226,7 @@ async def test_sensitive_occupation_gets_standard_reminder_on_outreach(mock_deps
     """Sensitive occupation user gets standard_reminder on first outreach."""
     mock_deps["compliance_checker"].is_within_valid_hours.return_value = True
     mock_deps["compliance_checker"].audit_content.return_value = (True, "")
-    mock_deps["orchestrator"].can_contact_user.return_value = (True, "")
+    mock_deps["orchestrator"].is_within_compliance_hours.return_value = (True, "")
     mock_deps["orchestrator"].select_channel.return_value = ChannelType.CHATBOT
     mock_deps["orchestrator"].arbitrate.return_value = "granted"
     mock_deps["llm_client"].generate_strategy_response.return_value = "标准提醒"
@@ -366,7 +372,7 @@ async def test_content_audit_blocks_forbidden_words(mock_deps):
     mock_deps["compliance_checker"].is_within_valid_hours.return_value = True
     mock_deps["compliance_checker"].audit_content.return_value = (False, "Content contains forbidden words")
     mock_deps["compliance_checker"].get_standard_message.return_value = "标准消息"
-    mock_deps["orchestrator"].can_contact_user.return_value = (True, "")
+    mock_deps["orchestrator"].is_within_compliance_hours.return_value = (True, "")
     mock_deps["orchestrator"].select_channel.return_value = ChannelType.CHATBOT
     mock_deps["orchestrator"].arbitrate.return_value = "granted"
     mock_deps["strategy_engine"].select_strategy.return_value = {"type": "re_engage"}
@@ -395,7 +401,7 @@ async def test_state_sync_includes_quota_usage_and_conversation(mock_deps):
     """_sync_state includes quota_usage and conversation current_intent."""
     mock_deps["compliance_checker"].is_within_valid_hours.return_value = True
     mock_deps["compliance_checker"].audit_content.return_value = (True, "")
-    mock_deps["orchestrator"].can_contact_user.return_value = (True, "")
+    mock_deps["orchestrator"].is_within_compliance_hours.return_value = (True, "")
     mock_deps["orchestrator"].select_channel.return_value = ChannelType.CHATBOT
     mock_deps["orchestrator"].arbitrate.return_value = "granted"
     mock_deps["strategy_engine"].select_strategy.return_value = {"type": "re_engage"}
@@ -488,7 +494,7 @@ async def test_silence_timeout_uses_outreach_time(mock_deps):
 
     mock_deps["compliance_checker"].is_within_valid_hours.return_value = True
     mock_deps["compliance_checker"].audit_content.return_value = (True, "")
-    mock_deps["orchestrator"].can_contact_user.return_value = (True, "")
+    mock_deps["orchestrator"].is_within_compliance_hours.return_value = (True, "")
     mock_deps["orchestrator"].arbitrate.return_value = "granted"
     mock_deps["strategy_engine"].select_strategy.return_value = {"type": "re_engage"}
     mock_deps["llm_client"].generate_strategy_response.return_value = "test"

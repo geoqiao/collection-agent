@@ -13,11 +13,15 @@ class Orchestrator:
         ChannelType.PUSH: 1,
     }
 
-    def __init__(self):
+    def __init__(
+        self,
+        quota_manager: QuotaManager | None = None,
+        compliance_checker: ComplianceChecker | None = None,
+    ):
         self._locks: dict[str, InteractionLock] = {}
         self._lock_mutex = asyncio.Lock()
-        self._quota = QuotaManager()
-        self._compliance = ComplianceChecker()
+        self._quota = quota_manager or QuotaManager()
+        self._compliance = compliance_checker or ComplianceChecker()
 
     async def get_lock(self, user_id: str) -> InteractionLock:
         async with self._lock_mutex:
@@ -60,7 +64,7 @@ class Orchestrator:
             return ChannelType.CHATBOT
         return ChannelType.PUSH
 
-    def can_contact_user(self, user) -> tuple[bool, str]:
+    def is_within_compliance_hours(self) -> tuple[bool, str]:
         if not self._compliance.is_within_valid_hours():
             return False, "Outside valid hours"
         return True, ""

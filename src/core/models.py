@@ -38,6 +38,7 @@ class Message(BaseModel):
     direction: str  # "inbound" | "outbound"
     content: str
     timestamp: datetime = Field(default_factory=datetime.now)
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class ConversationContext(BaseModel):

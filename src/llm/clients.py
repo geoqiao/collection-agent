@@ -8,8 +8,6 @@ from src.llm.base import LLMClient, LLMResponse
 from src.llm.prompts import INTENT_SYSTEM_PROMPT, STRATEGY_SYSTEM_PROMPT
 from src.llm.retry import RetryConfig
 
-load_dotenv()
-
 
 class MockLLMClient(LLMClient):
     async def chat(
@@ -264,33 +262,45 @@ class DeepSeekClient(LLMClient):
         return resp.content
 
 
+def _resolve_api_key(provider: str, config: dict) -> str:
+    """Resolve API key from environment variables or config."""
+    env_vars = {
+        "claude": ["ANTHROPIC_API_KEY", "CLAUDE_API_KEY", "LLM_API_KEY"],
+        "openai": ["OPENAI_API_KEY", "LLM_API_KEY"],
+        "deepseek": ["DEEPSEEK_API_KEY", "LLM_API_KEY"],
+    }
+    for var in env_vars.get(provider, ["LLM_API_KEY"]):
+        key = os.getenv(var)
+        if key:
+            return key
+    return config.get("api_key", "")
+
+
 def create_llm_client(config: dict) -> LLMClient:
     provider = config.get("provider", "mock")
 
-    # Try env var first, then config
-    api_key = (
-        os.getenv("DEEPSEEK_API_KEY")
-        or os.getenv("LLM_API_KEY")
-        or config.get("api_key", "")
-    )
+    # Load .env at call time (not import time)
+    load_dotenv()
+
+    api_key = _resolve_api_key(provider, config)
 
     if provider == "mock":
         return MockLLMClient()
     elif provider == "claude":
         return ClaudeClient(
-            api_key=api_key or config.get("api_key", ""),
+            api_key=api_key,
             model=config.get("model", "claude-sonnet-4-6"),
             base_url=config.get("base_url", "https://api.anthropic.com"),
         )
     elif provider == "openai":
         return OpenAIClient(
-            api_key=api_key or config.get("api_key", ""),
+            api_key=api_key,
             model=config.get("model", "gpt-4o"),
             base_url=config.get("base_url", "https://api.openai.com/v1"),
         )
     elif provider == "deepseek":
         return DeepSeekClient(
-            api_key=api_key or config.get("api_key", ""),
+            api_key=api_key,
             model=config.get("model", "deepseek-chat"),
             base_url=config.get("base_url", "https://api.deepseek.com/v1"),
         )

@@ -54,9 +54,12 @@ class CollectionSession:
         self.last_outreach_at: datetime | None = None
 
         self.strategy_engine = strategy_engine or StrategyEngine()
-        self.orchestrator = orchestrator or Orchestrator()
         self.quota_manager = quota_manager or QuotaManager()
         self.compliance_checker = compliance_checker or ComplianceChecker()
+        self.orchestrator = orchestrator or Orchestrator(
+            quota_manager=self.quota_manager,
+            compliance_checker=self.compliance_checker,
+        )
         self.llm_client = llm_client or MockLLMClient()
         self.storage = storage or SQLiteStore()
         self.intent_detector = IntentDetector()
@@ -118,7 +121,7 @@ class CollectionSession:
             return
 
         # 2. Check quota
-        can_contact, reason = self.orchestrator.can_contact_user(self.state.profile)
+        can_contact, reason = self.orchestrator.is_within_compliance_hours()
         if not can_contact:
             logger.info("Outreach blocked: %s", reason)
             return
@@ -306,7 +309,7 @@ class CollectionSession:
             channel = self.channels.get(channel_type)
             if channel is None:
                 continue
-            can_contact, _ = self.orchestrator.can_contact_user(self.state.profile)
+            can_contact, _ = self.orchestrator.is_within_compliance_hours()
             if not can_contact:
                 continue
             arbitration = await self.orchestrator.arbitrate(self.user_id, channel_type)
@@ -422,6 +425,6 @@ class CollectionSession:
             self.state.conversation, 'current_intent', None
         )
         # Sync quota usage from manager
-        usage = self.quota_manager._usages.get(f"{self.user_id}:{self.quota_manager._today()}")
+        usage = self.quota_manager.get_usage_for_user(self.user_id)
         if usage and hasattr(usage, 'model_dump'):
             self.state.quota_usage = usage.model_dump()

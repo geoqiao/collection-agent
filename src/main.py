@@ -15,7 +15,12 @@ from src.storage.sqlite_store import SQLiteStore
 class CollectAgentSystem:
     def __init__(self, store=None, llm_client=None, compliance_checker=None, quota_manager=None):
         self.store = store or MemoryStore()
-        self.session_manager = SessionManager(self.store)
+        self.session_manager = SessionManager(
+            self.store,
+            quota_manager=quota_manager,
+            compliance_checker=compliance_checker,
+            llm_client=llm_client,
+        )
         self.router = EventRouter(self.session_manager)
         self.scheduler = OutreachScheduler(self)
         self._llm_client = llm_client

@@ -10,8 +10,11 @@ class StrategyEngine:
         return STRATEGIES.get(intent, STRATEGIES[Intent.INEFFECTIVE_CONTACT])
 
     def get_response(self, user: UserProfile, strategy: dict, context: dict) -> str:
-        strategy_type = strategy["type"]
+        strategy_type = strategy.get("type", "unknown")
         templates = RESPONSE_TEMPLATES.get(strategy_type, ["请尽快处理您的逾期账单。"])
+
+        if not templates:
+            return "请尽快处理您的逾期账单。"
 
         round_num = context.get("round", 0)
         if round_num < len(templates):
