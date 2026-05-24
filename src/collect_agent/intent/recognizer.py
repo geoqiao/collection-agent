@@ -11,6 +11,7 @@ from collect_agent.intent.models import (
 )
 from collect_agent.session.enhanced_state_machine import ONE_WAY_DOOR_STATES
 
+COOPERATION_KEYWORDS = ["我会还", "愿意还", "马上还", "尽快还", "会处理", "会支付", "愿意还款", "会还款"]
 STOP_KEYWORDS = ["停止", "退订", "取消", "不要再打"]
 CRISIS_KEYWORDS = ["自杀", "不想活了", "重病", "活不下去"]
 
@@ -22,8 +23,22 @@ B — 协商：表示困难，希望延期或分期
 C — 回避：回避问题，不愿深入讨论
 D — 争议：质疑账单真实性或金额
 E — 投诉/威胁：表达不满，威胁投诉
-STOP — 停止联系
+STOP — 停止联系（用户明确要求停止催收）
 CRISIS — 危机信号
+
+## 重要区分
+- 用户说"我会还的""愿意还款""马上处理"属于 A（合作），不是 STOP
+- STOP 仅限于用户明确要求"停止联系""不要再打""退订"等
+
+## 示例
+用户消息："我会还的"
+<intent>
+  <category>A</category>
+  <confidence>high</confidence>
+  <escalation>false</escalation>
+  <emotion>positive</emotion>
+</intent>
+<thinking>用户明确表示还款意愿，属于合作意图。</thinking>
 
 ## CoT SOP
 1. 当前会话状态是什么？
@@ -132,6 +147,16 @@ class IntentRecognizer:
     def _keyword_check(self, message: str) -> IntentResult | None:
         """Fast-path keyword guardrails."""
         lowered = message.lower()
+        # Cooperation fast-path: explicit willingness to pay
+        for kw in COOPERATION_KEYWORDS:
+            if kw in lowered:
+                return IntentResult(
+                    category=IntentCategory.COOPERATION,
+                    confidence=ConfidenceLevel.HIGH,
+                    escalation=False,
+                    emotion=EmotionLevel.POSITIVE,
+                    reasoning=f"Fast-path cooperation keyword: {kw}",
+                )
         for kw in STOP_KEYWORDS:
             if kw in lowered:
                 return IntentResult(
