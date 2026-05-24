@@ -14,8 +14,9 @@ class ComplianceChecker:
 
             t = datetime.now().time()
         start = time(self.rules.valid_hours[0], 0)
-        end = time(self.rules.valid_hours[1], 0)
-        return start <= t < end
+        end_hour = self.rules.valid_hours[1]
+        end = time(23, 59, 59) if end_hour == 24 else time(end_hour, 0)
+        return start <= t <= end
 
     def is_sensitive(self, user: UserProfile) -> bool:
         return user.is_sensitive

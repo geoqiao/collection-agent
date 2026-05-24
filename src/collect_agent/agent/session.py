@@ -6,7 +6,7 @@ from datetime import datetime
 
 from collect_agent.compliance.checker import ComplianceChecker
 from collect_agent.core.constants import EventType
-from collect_agent.core.models import Event, UserState
+from collect_agent.core.models import Event, Message, UserState
 from collect_agent.intent.models import IntentResult
 from collect_agent.intent.recognizer import IntentRecognizer
 from collect_agent.llm.base import LLMClient
@@ -154,8 +154,17 @@ class AgentSession:
         # d. Build SkillContext
         skill_ctx = self._build_skill_context(event, intent_result)
 
+        # Record user message before skill execution
+        if user_message:
+            self._record_message("chatbot", "inbound", user_message)
+            self.user_state.conversation.negotiation_round += 1
+
         # e. Execute skill via skill_executor
         skill_result = await self.skill_executor.execute(skill, skill_ctx)
+
+        # Record agent response
+        if skill_result.response_text:
+            self._record_message("chatbot", "outbound", skill_result.response_text)
 
         # f. Process result (update state machine, save state)
         self._process_skill_result(skill_result)
@@ -183,6 +192,11 @@ class AgentSession:
 
         skill_ctx = self._build_skill_context(event, None)
         skill_result = await self.skill_executor.execute(skill, skill_ctx)
+
+        # Record agent response for outreach
+        if skill_result.response_text:
+            self._record_message("chatbot", "outbound", skill_result.response_text)
+
         self._process_skill_result(skill_result)
         return skill_result
 
@@ -216,6 +230,18 @@ class AgentSession:
         skill_result = await self.skill_executor.execute(skill, skill_ctx)
         self._process_skill_result(skill_result)
         return skill_result
+
+    def _record_message(
+        self, channel: str, direction: str, content: str
+    ) -> None:
+        """Record a message to conversation history."""
+        self.user_state.conversation.add_message(
+            Message(
+                channel=channel,
+                direction=direction,
+                content=content,
+            )
+        )
 
     def _build_skill_context(
         self,
