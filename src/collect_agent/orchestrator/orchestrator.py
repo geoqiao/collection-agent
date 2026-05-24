@@ -1,9 +1,9 @@
 import asyncio
 
+from collect_agent.compliance.checker import ComplianceChecker
 from collect_agent.core.constants import ChannelType
 from collect_agent.orchestrator.lock import InteractionLock
 from collect_agent.quota.manager import QuotaManager
-from collect_agent.compliance.checker import ComplianceChecker
 
 
 class Orchestrator:

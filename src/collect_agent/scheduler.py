@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from collect_agent.core.constants import EventType
 from collect_agent.core.models import Event
@@ -23,7 +23,7 @@ class OutreachScheduler:
         states = self.system.store.load_all()
         for state in states:
             # Skip paused users
-            if state.paused_until and state.paused_until > datetime.now(timezone.utc):
+            if state.paused_until and state.paused_until > datetime.now(UTC):
                 continue
             profile = state.profile
             if profile.overdue_days > 0 and state.session_state != "resolved":
@@ -38,7 +38,7 @@ class OutreachScheduler:
         for user_id, session in self.system.session_manager._sessions.items():
             # Skip paused users
             if session.state.paused_until and session.state.paused_until > datetime.now(
-                timezone.utc
+                UTC
             ):
                 continue
             self._ensure_tracker_wired(session)

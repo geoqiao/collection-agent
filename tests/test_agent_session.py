@@ -21,8 +21,8 @@ from collect_agent.skills.executor import SkillExecutor
 from collect_agent.skills.onboard_skill import OnboardSkill
 from collect_agent.skills.payment_guidance_skill import PaymentGuidanceSkill
 from collect_agent.skills.registry import SkillRegistry
-from collect_agent.tools.registry import ToolRegistry
 from collect_agent.storage.memory_store import MemoryStore
+from collect_agent.tools.registry import ToolRegistry
 
 
 class MockLLMClient(LLMClient):

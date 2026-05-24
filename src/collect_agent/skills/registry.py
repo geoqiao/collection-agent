@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-
 from collect_agent.core.models import UserProfile
 from collect_agent.skills.base import Skill
 

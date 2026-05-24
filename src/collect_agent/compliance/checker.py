@@ -1,4 +1,5 @@
 from datetime import time
+
 from collect_agent.compliance.rules import ComplianceRules
 from collect_agent.core.models import UserProfile
 
@@ -20,16 +21,12 @@ class ComplianceChecker:
         return user.is_sensitive
 
     def has_forbidden_words(self, content: str) -> bool:
-        for word in self.rules.forbidden_words:
-            if word in content:
-                return True
-        return False
+        return any(word in content for word in self.rules.forbidden_words)
 
     def is_complaint(self, content: str) -> bool:
-        for keyword in self.rules.complaint_keywords:
-            if keyword in content:
-                return True
-        return False
+        return any(
+            keyword in content for keyword in self.rules.complaint_keywords
+        )
 
     def get_standard_message(self, user: UserProfile) -> str:
         return (

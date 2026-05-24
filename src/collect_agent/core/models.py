@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Any
+
 from pydantic import BaseModel, Field, computed_field
 
 from collect_agent.core.constants import EventType

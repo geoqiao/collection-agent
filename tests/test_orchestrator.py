@@ -1,10 +1,11 @@
-import pytest
 from unittest.mock import patch
 
-from collect_agent.orchestrator.lock import InteractionLock
-from collect_agent.orchestrator.orchestrator import Orchestrator
+import pytest
+
 from collect_agent.core.constants import ChannelType
 from collect_agent.core.models import UserProfile
+from collect_agent.orchestrator.lock import InteractionLock
+from collect_agent.orchestrator.orchestrator import Orchestrator
 
 
 @pytest.fixture

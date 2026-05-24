@@ -1,12 +1,12 @@
 from collect_agent.channels.base import BaseChannel
-from collect_agent.core.constants import ChannelType, ChannelState
+from collect_agent.core.constants import ChannelState, ChannelType
 
 
 def create_default_registry() -> "ChannelRegistry":
     registry = ChannelRegistry()
     from collect_agent.channels.chatbot import ChatbotChannel
-    from collect_agent.channels.voice import VoiceChannel
     from collect_agent.channels.push import PushChannel
+    from collect_agent.channels.voice import VoiceChannel
 
     registry.register(ChatbotChannel())
     registry.register(VoiceChannel())

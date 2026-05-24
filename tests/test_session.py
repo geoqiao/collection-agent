@@ -1,5 +1,7 @@
-import pytest
+from datetime import UTC
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from collect_agent.core.constants import (
     ChannelType,
@@ -326,9 +328,9 @@ async def test_complaint_event_pauses_collection(mock_deps):
     await session.handle_event(event)
 
     assert session.state.paused_until is not None
-    from datetime import datetime, timezone, timedelta
+    from datetime import datetime, timedelta
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     assert session.state.paused_until > now + timedelta(hours=47)
     assert session.state.paused_until < now + timedelta(hours=49)
     assert session.state_machine.current == SessionState.RESOLVED
@@ -365,8 +367,8 @@ async def test_max_rounds_enforcement(mock_deps):
     # After increment, round=3 >= max_rounds=2, should escalate
     assert session.state.conversation.negotiation_round == 3
     # Should escalate to COMPLAINT strategy (or standard_reminder fallback)
-    from collect_agent.strategy.strategies import STRATEGIES
     from collect_agent.core.constants import Intent
+    from collect_agent.strategy.strategies import STRATEGIES
 
     call_args = mock_deps["llm_client"].generate_strategy_response.call_args
     assert call_args[0][0] == STRATEGIES[Intent.COMPLAINT]
@@ -506,8 +508,8 @@ async def test_compliance_violation_caught_separately(user_state, mock_deps):
 @pytest.mark.asyncio
 async def test_config_from_dict_works_correctly():
     """QuotaProfile.from_dict and ComplianceRules.from_dict filter unknown keys."""
-    from collect_agent.quota.profile import QuotaProfile
     from collect_agent.compliance.rules import ComplianceRules
+    from collect_agent.quota.profile import QuotaProfile
 
     quota = QuotaProfile.from_dict(
         {
@@ -540,6 +542,7 @@ async def test_silence_timeout_uses_outreach_time(mock_deps):
     """SilenceTimeoutTracker uses last_outreach_at, not last_interaction_at."""
     from datetime import datetime
     from unittest.mock import patch
+
     from collect_agent.session.timeout_tracker import SilenceTimeoutTracker
 
     mock_deps["compliance_checker"].is_within_valid_hours.return_value = True

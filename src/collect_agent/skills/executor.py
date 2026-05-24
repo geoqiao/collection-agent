@@ -49,7 +49,7 @@ class SkillExecutor:
         observations = self._build_observation(ctx)
         max_steps = skill.max_react_steps
 
-        for step in range(max_steps):
+        for _step in range(max_steps):
             # Build messages for LLM
             messages = self._build_messages(skill, ctx, observations, actions)
 

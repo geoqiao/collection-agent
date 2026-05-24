@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import xml.etree.ElementTree as ET
 
-
 MAX_XML_SIZE = 100_000  # 100KB max XML payload
 
 

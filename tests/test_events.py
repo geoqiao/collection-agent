@@ -1,7 +1,8 @@
 import pytest
-from collect_agent.events.router import EventRouter
+
 from collect_agent.core.constants import EventType
 from collect_agent.core.models import Event
+from collect_agent.events.router import EventRouter
 
 
 class MockSessionManager:

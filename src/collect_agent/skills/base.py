@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
-from collect_agent.core.models import UserProfile, Message
+from collect_agent.core.models import Message, UserProfile
 from collect_agent.tools.base import Tool
 
 

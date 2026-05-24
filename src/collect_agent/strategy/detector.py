@@ -70,7 +70,7 @@ class IntentDetector:
         if not text or text in {"嗯", "哦", "好", "知道了", "。", ",", " "}:
             return Intent.INEFFECTIVE_CONTACT
 
-        scores = {intent: 0 for intent in Intent}
+        scores = dict.fromkeys(Intent, 0)
         for intent, keywords in self.KEYWORDS.items():
             for kw in keywords:
                 if kw in text:

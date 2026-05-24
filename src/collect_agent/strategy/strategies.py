@@ -1,6 +1,5 @@
 from collect_agent.core.constants import Intent
 
-
 STRATEGIES = {
     Intent.WILLING_TO_PAY: {
         "type": "confirm_plan",

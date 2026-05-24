@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from collect_agent.compliance.checker import ComplianceChecker
 from collect_agent.core.constants import EventType
 from collect_agent.core.models import Event, UserState
 from collect_agent.intent.models import IntentResult
@@ -17,10 +18,8 @@ from collect_agent.session.enhanced_state_machine import (
 from collect_agent.skills.base import SkillContext, SkillResult, SkillResultStatus
 from collect_agent.skills.executor import SkillExecutor
 from collect_agent.skills.registry import SkillRegistry
-from collect_agent.compliance.checker import ComplianceChecker
 from collect_agent.storage.memory_store import MemoryStore
 from collect_agent.tools.registry import ToolRegistry
-
 
 _FIXED_TEMPLATES: dict[str, str] = {
     "escalated": "非常抱歉给您带来了不好的体验。您的投诉我已记录并升级至专人处理，后续将由投诉专员与您联系。",
@@ -73,13 +72,12 @@ class AgentSession:
             EventType.SCHEDULED_OUTREACH,
             EventType.REMINDER_DUE,
             EventType.SILENCE_TIMEOUT,
-        }:
-            if not self.compliance_checker.is_within_valid_hours():
-                return SkillResult(
-                    status=SkillResultStatus.ERROR,
-                    response_text="",
-                    thinking="Outreach blocked: outside valid hours",
-                )
+        } and not self.compliance_checker.is_within_valid_hours():
+            return SkillResult(
+                status=SkillResultStatus.ERROR,
+                response_text="",
+                thinking="Outreach blocked: outside valid hours",
+            )
 
         if event.type in (EventType.USER_REPLIED, EventType.CALL_CONNECTED):
             return await self._handle_user_event(event)

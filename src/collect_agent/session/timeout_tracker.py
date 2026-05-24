@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from collect_agent.agent.session import AgentSession
 from collect_agent.session.session import CollectionSession
@@ -23,7 +23,7 @@ class SilenceTimeoutTracker:
         if last is None:
             return None
 
-        elapsed = (datetime.now(timezone.utc) - last).total_seconds()
+        elapsed = (datetime.now(UTC) - last).total_seconds()
 
         async with self._mutex:
             emitted = self._emitted_tiers.setdefault(user_id, set())

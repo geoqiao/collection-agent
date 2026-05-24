@@ -1,4 +1,5 @@
 import pytest
+
 from collect_agent.compliance.checker import ComplianceChecker
 from collect_agent.core.models import UserProfile
 

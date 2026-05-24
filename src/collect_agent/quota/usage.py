@@ -1,6 +1,8 @@
+import contextlib
 import json
 import sqlite3
 from datetime import datetime, timedelta
+
 from pydantic import BaseModel, Field
 
 
@@ -78,10 +80,8 @@ class QuotaStorage:
         self._conn.close()
 
     def __del__(self) -> None:
-        try:
+        with contextlib.suppress(Exception):
             self.close()
-        except Exception:
-            pass
 
     def save_usage(self, usage: DailyQuotaUsage) -> None:
         call_timestamps_json = json.dumps(

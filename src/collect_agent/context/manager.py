@@ -1,5 +1,5 @@
-from collect_agent.context.window import ContextWindow
 from collect_agent.context.user_context import UserContext
+from collect_agent.context.window import ContextWindow
 
 
 class ContextManager:

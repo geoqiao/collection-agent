@@ -1,6 +1,6 @@
-from collect_agent.strategy.strategies import STRATEGIES, RESPONSE_TEMPLATES
 from collect_agent.core.constants import Intent
 from collect_agent.core.models import UserProfile
+from collect_agent.strategy.strategies import RESPONSE_TEMPLATES, STRATEGIES
 
 
 class StrategyEngine:
@@ -17,10 +17,11 @@ class StrategyEngine:
             return "请尽快处理您的逾期账单。"
 
         round_num = context.get("round", 0)
-        if round_num < len(templates):
-            template = templates[round_num]
-        else:
-            template = templates[-1]
+        template = (
+            templates[round_num]
+            if round_num < len(templates)
+            else templates[-1]
+        )
 
         return template.format(
             name=user.name or "用户",

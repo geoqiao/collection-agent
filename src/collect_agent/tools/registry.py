@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-
 from collect_agent.tools.base import Tool
 
 

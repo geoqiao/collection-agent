@@ -1,10 +1,11 @@
 import pytest
+
 from collect_agent.channels.base import BaseChannel
-from collect_agent.channels.registry import ChannelRegistry, create_default_registry
 from collect_agent.channels.chatbot import ChatbotChannel
-from collect_agent.channels.voice import VoiceChannel
 from collect_agent.channels.push import PushChannel
-from collect_agent.core.constants import ChannelType, ChannelState
+from collect_agent.channels.registry import ChannelRegistry, create_default_registry
+from collect_agent.channels.voice import VoiceChannel
+from collect_agent.core.constants import ChannelState, ChannelType
 
 
 class MockChannel(BaseChannel):

@@ -51,6 +51,6 @@ def test_register_requires_name():
 
     try:
         registry.register(NoNameSkill())
-        assert False, "Expected ValueError"
+        raise AssertionError("Expected ValueError")
     except ValueError:
         pass

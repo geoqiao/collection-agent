@@ -1,10 +1,11 @@
 import asyncio
+from datetime import datetime
 
 import pytest
-from datetime import datetime
+
+from collect_agent.quota.manager import QuotaManager
 from collect_agent.quota.profile import QuotaProfile
 from collect_agent.quota.usage import DailyQuotaUsage
-from collect_agent.quota.manager import QuotaManager
 
 
 def test_quota_profile_defaults():

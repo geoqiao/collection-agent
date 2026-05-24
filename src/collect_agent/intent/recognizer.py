@@ -11,7 +11,6 @@ from collect_agent.intent.models import (
 )
 from collect_agent.session.enhanced_state_machine import ONE_WAY_DOOR_STATES
 
-
 STOP_KEYWORDS = ["停止", "退订", "取消", "不要再打"]
 CRISIS_KEYWORDS = ["自杀", "不想活了", "重病", "活不下去"]
 
@@ -236,9 +235,10 @@ class IntentRecognizer:
         return "medium"
 
     def _fallback_escalation(self, raw: str) -> str:
-        if "escalation" in raw.lower() or "升级" in raw or "上报" in raw:
-            if "true" in raw.lower() or "是" in raw or "需要" in raw:
-                return "true"
+        if (
+            "escalation" in raw.lower() or "升级" in raw or "上报" in raw
+        ) and ("true" in raw.lower() or "是" in raw or "需要" in raw):
+            return "true"
         return "false"
 
     def _fallback_emotion(self, raw: str) -> str:

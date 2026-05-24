@@ -15,9 +15,7 @@ class RetryConfig:
         if status_code in (401, 403):
             return False
         # Retry server errors and rate limits
-        if status_code >= 500 or status_code == 429:
-            return True
-        return False
+        return bool(status_code >= 500 or status_code == 429)
 
     def get_delay(self, attempt: int) -> float:
         delay = min(self.base_delay * (2**attempt), self.max_delay)

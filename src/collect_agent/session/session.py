@@ -1,8 +1,9 @@
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timedelta
 
-from datetime import timedelta
-
+from collect_agent.channels.registry import create_default_registry
+from collect_agent.compliance.checker import ComplianceChecker
+from collect_agent.context.manager import ContextManager
 from collect_agent.core.constants import (
     ChannelState,
     ChannelType,
@@ -17,14 +18,11 @@ from collect_agent.core.exceptions import (
     StorageError,
 )
 from collect_agent.core.models import Event, Message, UserState
-from collect_agent.channels.registry import create_default_registry
-from collect_agent.compliance.checker import ComplianceChecker
-from collect_agent.llm.clients import MockLLMClient
 from collect_agent.llm.base import LLMClient
+from collect_agent.llm.clients import MockLLMClient
 from collect_agent.orchestrator.orchestrator import Orchestrator
 from collect_agent.quota.manager import QuotaManager
 from collect_agent.session.state_machine import SessionStateMachine
-from collect_agent.context.manager import ContextManager
 from collect_agent.storage.sqlite_store import SQLiteStore
 from collect_agent.strategy.detector import IntentDetector
 from collect_agent.strategy.engine import StrategyEngine
@@ -113,13 +111,13 @@ class CollectionSession:
             logger.exception("Unexpected error handling event %s", event.type.value)
 
     def _record_interaction(self) -> None:
-        self.last_interaction_at = datetime.now(timezone.utc)
+        self.last_interaction_at = datetime.now(UTC)
         # Also notify scheduler's tracker if available
         if hasattr(self, "_timeout_tracker") and self._timeout_tracker is not None:
             self._timeout_tracker.record_interaction(self.user_id)
 
     def _record_outreach(self) -> None:
-        self.last_outreach_at = datetime.now(timezone.utc)
+        self.last_outreach_at = datetime.now(UTC)
 
     async def _handle_outreach_event(self, event: Event) -> None:
         # 1. Check compliance
@@ -370,7 +368,7 @@ class CollectionSession:
 
     async def _handle_complaint(self, event: Event) -> None:
         # Pause collection for 48 hours
-        self.state.paused_until = datetime.now(timezone.utc) + timedelta(hours=48)
+        self.state.paused_until = datetime.now(UTC) + timedelta(hours=48)
 
         # Send apology and transfer message
         strategy = STRATEGIES[Intent.COMPLAINT]

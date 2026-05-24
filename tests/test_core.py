@@ -1,5 +1,5 @@
-from collect_agent.core.constants import EventType, ChannelType, Intent
-from collect_agent.core.models import UserProfile, Event, Message
+from collect_agent.core.constants import ChannelType, EventType, Intent
+from collect_agent.core.models import Event, Message, UserProfile
 
 
 def test_event_type_has_required_events():

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+
 from collect_agent.core.constants import ChannelType
 
 

@@ -2,7 +2,7 @@ import asyncio
 
 from collect_agent.channels._escape import escape_output
 from collect_agent.channels.base import BaseChannel
-from collect_agent.core.constants import ChannelType, ChannelState
+from collect_agent.core.constants import ChannelState, ChannelType
 
 
 class VoiceChannel(BaseChannel):

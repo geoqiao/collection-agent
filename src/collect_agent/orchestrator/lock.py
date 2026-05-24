@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from collect_agent.core.constants import ChannelType
 
 

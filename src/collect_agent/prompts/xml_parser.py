@@ -7,7 +7,6 @@ from typing import Any
 from collect_agent.prompts.schemas import ParsedAction, ParsedIntent, ParsedXMLResponse
 from collect_agent.tools._safe_xml import safe_xml_fromstring
 
-
 _INTENT_RE = re.compile(
     r"<intent>.*?<category>(.*?)</category>.*?"
     r"<confidence>(.*?)</confidence>.*?"

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from unittest.mock import patch
 
 import pytest
@@ -33,13 +33,13 @@ async def test_silence_timeout_10min(system):
     """After 10min silence, SILENCE_TIMEOUT emitted."""
     # Create session and simulate outreach
     session = system.session_manager.get_or_create("u_silence")
-    session.last_outreach_at = datetime.now(timezone.utc)
+    session.last_outreach_at = datetime.now(UTC)
 
     # Wire tracker
     system.scheduler._ensure_tracker_wired(session)
 
     # Mock time: 11 minutes passed
-    future = datetime.now(timezone.utc).replace(second=0, microsecond=0)
+    future = datetime.now(UTC).replace(second=0, microsecond=0)
     with patch("collect_agent.session.timeout_tracker.datetime") as mock_dt:
         mock_dt.now.return_value = future
         mock_dt.side_effect = lambda tz=None: datetime.now(tz) if tz else datetime.now()
@@ -62,7 +62,7 @@ async def test_silence_timeout_10min(system):
 async def test_silence_timeout_1hour(system):
     """After 1h silence, next tier."""
     session = system.session_manager.get_or_create("u_silence_1h")
-    session.last_outreach_at = datetime.now(timezone.utc)
+    session.last_outreach_at = datetime.now(UTC)
     system.scheduler._ensure_tracker_wired(session)
 
     # Emit 10min tier first
@@ -99,7 +99,7 @@ async def test_silence_timeout_1hour(system):
 async def test_silence_timeout_no_repeat(system):
     """Same tier not emitted twice."""
     session = system.session_manager.get_or_create("u_no_repeat")
-    session.last_outreach_at = datetime.now(timezone.utc)
+    session.last_outreach_at = datetime.now(UTC)
     system.scheduler._ensure_tracker_wired(session)
 
     future_10min = session.last_outreach_at.replace(
@@ -209,7 +209,7 @@ async def test_full_flow_login_to_outreach(system):
 async def test_silence_timeout_via_scheduler(system):
     """Scheduler check_silence_timeouts emits SILENCE_TIMEOUT."""
     session = system.session_manager.get_or_create("u_scheduler_timeout")
-    session.last_outreach_at = datetime.now(timezone.utc)
+    session.last_outreach_at = datetime.now(UTC)
     system.scheduler._ensure_tracker_wired(session)
 
     future_10min = session.last_outreach_at.replace(
@@ -398,13 +398,13 @@ async def test_full_collection_lifecycle():
 async def test_scheduler_skips_paused_users():
     """Scheduler scan_and_outreach skips users with paused_until in the future."""
     system = CollectAgentSystem()
-    from datetime import datetime, timezone, timedelta
+    from datetime import datetime, timedelta
 
     # Create a paused user
     paused_state = UserState(
         user_id="u_paused",
         profile=UserProfile(user_id="u_paused", overdue_days=5, amount_due=100.0),
-        paused_until=datetime.now(timezone.utc) + timedelta(hours=48),
+        paused_until=datetime.now(UTC) + timedelta(hours=48),
     )
     system.store.save(paused_state)
 
@@ -435,12 +435,12 @@ async def test_scheduler_skips_paused_users():
 async def test_scheduler_timeout_skips_paused_sessions():
     """Scheduler check_silence_timeouts skips paused sessions."""
     system = CollectAgentSystem()
-    from datetime import datetime, timezone, timedelta
+    from datetime import datetime, timedelta
 
     session = system.session_manager.get_or_create("u_timeout_paused")
-    session.last_outreach_at = datetime.now(timezone.utc)
+    session.last_outreach_at = datetime.now(UTC)
     system.scheduler._ensure_tracker_wired(session)
-    session.state.paused_until = datetime.now(timezone.utc) + timedelta(hours=48)
+    session.state.paused_until = datetime.now(UTC) + timedelta(hours=48)
 
     future_10min = session.last_outreach_at.replace(
         minute=(session.last_outreach_at.minute + 11) % 60,

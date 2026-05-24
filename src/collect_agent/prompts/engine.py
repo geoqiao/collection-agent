@@ -5,7 +5,6 @@ from typing import Any
 
 from collect_agent.tools.base import Tool
 
-
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 
 
