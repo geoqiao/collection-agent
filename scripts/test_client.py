@@ -3,8 +3,9 @@
 Run: uv run python scripts/test_client.py
 """
 
+# ruff: noqa: ASYNC250
+
 import asyncio
-from datetime import datetime, timezone
 
 from collect_agent.core.constants import EventType
 from collect_agent.core.models import Event, UserProfile, UserState
