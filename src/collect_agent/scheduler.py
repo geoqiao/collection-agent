@@ -12,7 +12,10 @@ class OutreachScheduler:
 
     def _ensure_tracker_wired(self, session):
         """Wire the tracker into the session so interactions are recorded."""
-        if not hasattr(session, '_timeout_tracker') or session._timeout_tracker is not self.tracker:
+        if (
+            not hasattr(session, "_timeout_tracker")
+            or session._timeout_tracker is not self.tracker
+        ):
             session._timeout_tracker = self.tracker
 
     async def scan_and_outreach(self):
@@ -34,7 +37,9 @@ class OutreachScheduler:
         """Check all sessions for silence timeouts."""
         for user_id, session in self.system.session_manager._sessions.items():
             # Skip paused users
-            if session.state.paused_until and session.state.paused_until > datetime.now(timezone.utc):
+            if session.state.paused_until and session.state.paused_until > datetime.now(
+                timezone.utc
+            ):
                 continue
             self._ensure_tracker_wired(session)
             tier_idx = await self.tracker.check_timeout(session)
@@ -42,6 +47,9 @@ class OutreachScheduler:
                 event = Event(
                     user_id=user_id,
                     type=EventType.SILENCE_TIMEOUT,
-                    payload={"tier": tier_idx, "seconds": SilenceTimeoutTracker.TIERS[tier_idx]},
+                    payload={
+                        "tier": tier_idx,
+                        "seconds": SilenceTimeoutTracker.TIERS[tier_idx],
+                    },
                 )
                 await self.system.router.route_async(event)

@@ -75,7 +75,9 @@ async def test_release_lock_orchestrator(orchestrator):
 
 @pytest.mark.asyncio
 async def test_select_channel_considers_quota(orchestrator):
-    with patch.object(orchestrator._compliance, "is_within_valid_hours", return_value=True):
+    with patch.object(
+        orchestrator._compliance, "is_within_valid_hours", return_value=True
+    ):
         user = UserProfile(user_id="u001")
         channel = await orchestrator.select_channel(user)
         assert channel in [ChannelType.CHATBOT, ChannelType.VOICE, ChannelType.PUSH]

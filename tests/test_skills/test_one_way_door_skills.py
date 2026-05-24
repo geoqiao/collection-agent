@@ -11,7 +11,11 @@ from collect_agent.skills.crisis_skill import CrisisSkill
 from collect_agent.skills.dispute_skill import DisputeSkill
 from collect_agent.skills.executor import SkillExecutor
 from collect_agent.skills.stop_skill import StopSkill
-from collect_agent.tools.compliance import EscalateToHumanTool, PauseCollectionTool, WelfareAlertTool
+from collect_agent.tools.compliance import (
+    EscalateToHumanTool,
+    PauseCollectionTool,
+    WelfareAlertTool,
+)
 from collect_agent.tools.registry import ToolRegistry
 from collect_agent.tools.user import AddToDncListTool
 from tests.test_skills import ReActMockLLM
@@ -33,6 +37,7 @@ def _make_ctx(user_id: str = "u1") -> SkillContext:
 
 # ─── DisputeSkill ───
 
+
 @pytest.mark.asyncio
 async def test_dispute_skill_is_one_way_door():
     skill = DisputeSkill()
@@ -45,8 +50,9 @@ async def test_dispute_skill_is_one_way_door():
 async def test_dispute_skill_react_executes_tools():
     """DisputeSkill: LLM calls pause_collection + escalate_to_human via ReAct."""
     skill = DisputeSkill(tools=[PauseCollectionTool(), EscalateToHumanTool()])
-    llm = ReActMockLLM(actions=[
-        """
+    llm = ReActMockLLM(
+        actions=[
+            """
 <action>
   <type>tool_call</type>
   <tool_calls>
@@ -67,8 +73,9 @@ async def test_dispute_skill_react_executes_tools():
     </tool_call>
   </tool_calls>
 </action>""",
-        "<action><type>reply</type><text>我们已收到您的争议申请，将暂停催收并转人工核实。请保持电话畅通。</text></action>"
-    ])
+            "<action><type>reply</type><text>我们已收到您的争议申请，将暂停催收并转人工核实。请保持电话畅通。</text></action>",
+        ]
+    )
     executor = SkillExecutor(llm_client=llm, tool_registry=_make_registry(skill.tools))
     ctx = _make_ctx()
 
@@ -85,6 +92,7 @@ async def test_dispute_skill_react_executes_tools():
 
 # ─── ComplaintSkill ───
 
+
 @pytest.mark.asyncio
 async def test_complaint_skill_is_one_way_door():
     skill = ComplaintSkill()
@@ -97,8 +105,9 @@ async def test_complaint_skill_is_one_way_door():
 async def test_complaint_skill_react_executes_tools():
     """ComplaintSkill: LLM pauses collection and escalates via ReAct."""
     skill = ComplaintSkill(tools=[PauseCollectionTool(), EscalateToHumanTool()])
-    llm = ReActMockLLM(actions=[
-        """
+    llm = ReActMockLLM(
+        actions=[
+            """
 <action>
   <type>tool_call</type>
   <tool_calls>
@@ -119,8 +128,9 @@ async def test_complaint_skill_react_executes_tools():
     </tool_call>
   </tool_calls>
 </action>""",
-        "<action><type>reply</type><text>非常抱歉给您带来不好的体验，已为您暂停催收并安排专员处理。</text></action>"
-    ])
+            "<action><type>reply</type><text>非常抱歉给您带来不好的体验，已为您暂停催收并安排专员处理。</text></action>",
+        ]
+    )
     executor = SkillExecutor(llm_client=llm, tool_registry=_make_registry(skill.tools))
     ctx = _make_ctx(user_id="u2")
 
@@ -134,6 +144,7 @@ async def test_complaint_skill_react_executes_tools():
 
 
 # ─── CrisisSkill ───
+
 
 @pytest.mark.asyncio
 async def test_crisis_skill_is_one_way_door():
@@ -149,8 +160,9 @@ async def test_crisis_skill_react_executes_tools():
     skill = CrisisSkill(
         tools=[PauseCollectionTool(), WelfareAlertTool(), EscalateToHumanTool()]
     )
-    llm = ReActMockLLM(actions=[
-        """
+    llm = ReActMockLLM(
+        actions=[
+            """
 <action>
   <type>tool_call</type>
   <tool_calls>
@@ -178,8 +190,9 @@ async def test_crisis_skill_react_executes_tools():
     </tool_call>
   </tool_calls>
 </action>""",
-        "<action><type>reply</type><text>我们非常关心您的情况，已安排专业团队介入。请拨打心理援助热线：400-161-9995。</text></action>"
-    ])
+            "<action><type>reply</type><text>我们非常关心您的情况，已安排专业团队介入。请拨打心理援助热线：400-161-9995。</text></action>",
+        ]
+    )
     executor = SkillExecutor(llm_client=llm, tool_registry=_make_registry(skill.tools))
     ctx = _make_ctx(user_id="u3")
 
@@ -196,6 +209,7 @@ async def test_crisis_skill_react_executes_tools():
 
 # ─── StopSkill ───
 
+
 @pytest.mark.asyncio
 async def test_stop_skill_is_one_way_door():
     skill = StopSkill()
@@ -208,8 +222,9 @@ async def test_stop_skill_is_one_way_door():
 async def test_stop_skill_react_executes_tools():
     """StopSkill: LLM adds to DNC and pauses collection via ReAct."""
     skill = StopSkill(tools=[AddToDncListTool(), PauseCollectionTool()])
-    llm = ReActMockLLM(actions=[
-        """
+    llm = ReActMockLLM(
+        actions=[
+            """
 <action>
   <type>tool_call</type>
   <tool_calls>
@@ -230,8 +245,9 @@ async def test_stop_skill_react_executes_tools():
     </tool_call>
   </tool_calls>
 </action>""",
-        "<action><type>reply</type><text>已为您办理停止联系，后续不再打扰。</text></action>"
-    ])
+            "<action><type>reply</type><text>已为您办理停止联系，后续不再打扰。</text></action>",
+        ]
+    )
     executor = SkillExecutor(llm_client=llm, tool_registry=_make_registry(skill.tools))
     ctx = _make_ctx(user_id="u4")
 
@@ -247,13 +263,15 @@ async def test_stop_skill_react_executes_tools():
 
 # ─── Error Handling ───
 
+
 @pytest.mark.asyncio
 async def test_one_way_door_skills_with_missing_tools():
     """When tools are called but not registered, SkillExecutor records the error."""
     skill = StopSkill(tools=[])
     # LLM tries to call a tool that isn't registered
-    llm = ReActMockLLM(actions=[
-        """
+    llm = ReActMockLLM(
+        actions=[
+            """
 <action>
   <type>tool_call</type>
   <tool_calls>
@@ -266,8 +284,9 @@ async def test_one_way_door_skills_with_missing_tools():
     </tool_call>
   </tool_calls>
 </action>""",
-        "<action><type>reply</type><text>我已收到您的请求。</text></action>"
-    ])
+            "<action><type>reply</type><text>我已收到您的请求。</text></action>",
+        ]
+    )
     executor = SkillExecutor(llm_client=llm, tool_registry=_make_registry(skill.tools))
     ctx = _make_ctx(user_id="u5")
 
@@ -285,8 +304,9 @@ async def test_react_tool_call_with_invalid_params():
     """Tool parameter validation should catch invalid parameters."""
     skill = ComplaintSkill(tools=[PauseCollectionTool()])
     # LLM omits required 'reason' parameter
-    llm = ReActMockLLM(actions=[
-        """
+    llm = ReActMockLLM(
+        actions=[
+            """
 <action>
   <type>tool_call</type>
   <tool_calls>
@@ -299,8 +319,9 @@ async def test_react_tool_call_with_invalid_params():
     </tool_call>
   </tool_calls>
 </action>""",
-        "<action><type>reply</type><text>抱歉，操作遇到问题，已为您转接人工。</text></action>"
-    ])
+            "<action><type>reply</type><text>抱歉，操作遇到问题，已为您转接人工。</text></action>",
+        ]
+    )
     executor = SkillExecutor(llm_client=llm, tool_registry=_make_registry(skill.tools))
     ctx = _make_ctx(user_id="u6")
 

@@ -4,7 +4,13 @@ from pathlib import Path
 
 import yaml
 
-from collect_agent.config.models import AgentConfig, ComplianceConfig, LLMConfig, QuotaConfig, StorageConfig
+from collect_agent.config.models import (
+    AgentConfig,
+    ComplianceConfig,
+    LLMConfig,
+    QuotaConfig,
+    StorageConfig,
+)
 
 
 class ConfigManager:

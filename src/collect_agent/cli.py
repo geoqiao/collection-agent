@@ -35,9 +35,7 @@ async def run_demo(system: CollectAgentSystem) -> None:
 
     session = system.get_session(user_id)
     assert session is not None
-    logger.info(
-        "Session state after outreach: %s", session.state.session_state
-    )
+    logger.info("Session state after outreach: %s", session.state.session_state)
 
     # 3. Simulate user reply
     logger.info("=== Step 3: Simulate user reply ===")
@@ -61,9 +59,7 @@ async def run_demo(system: CollectAgentSystem) -> None:
         payload={"tier": 0, "seconds": 600},
     )
     await system.router.route_async(timeout_event)
-    logger.info(
-        "Session state after follow-up: %s", session.state.session_state
-    )
+    logger.info("Session state after follow-up: %s", session.state.session_state)
 
     # 5. Simulate payment
     logger.info("=== Step 5: Simulate payment ===")
@@ -73,9 +69,7 @@ async def run_demo(system: CollectAgentSystem) -> None:
         payload={"amount": 1000.0},
     )
     await system.router.route_async(payment_event)
-    logger.info(
-        "Session state after payment: %s", session.state.session_state
-    )
+    logger.info("Session state after payment: %s", session.state.session_state)
 
     # 6. Show final state
     logger.info("=== Final State ===")

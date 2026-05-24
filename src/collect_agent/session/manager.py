@@ -28,11 +28,19 @@ from collect_agent.skills.troubleshoot_skill import TroubleshootSkill
 from collect_agent.storage.memory_store import MemoryStore
 from collect_agent.storage.sqlite_store import SQLiteStore
 from collect_agent.tools.billing import CreatePaymentPlanTool, QueryBillTool
-from collect_agent.tools.compliance import EscalateToHumanTool, PauseCollectionTool, WelfareAlertTool
+from collect_agent.tools.compliance import (
+    EscalateToHumanTool,
+    PauseCollectionTool,
+    WelfareAlertTool,
+)
 from collect_agent.tools.messaging import SendMessageTool, SendPaymentLinkTool
 from collect_agent.tools.promises import CheckPaymentStatusTool, RecordPromiseTool
 from collect_agent.tools.registry import ToolRegistry
-from collect_agent.tools.user import AddToDncListTool, QueryUserHistoryTool, ScheduleReminderTool
+from collect_agent.tools.user import (
+    AddToDncListTool,
+    QueryUserHistoryTool,
+    ScheduleReminderTool,
+)
 
 # Default skill instances with their recommended tools
 _DEFAULT_SKILLS: list[Skill] = [
@@ -46,10 +54,14 @@ _DEFAULT_SKILLS: list[Skill] = [
             ScheduleReminderTool(),
         ]
     ),
-    ReEngageSkill(tools=[QueryUserHistoryTool(), SendMessageTool(), ScheduleReminderTool()]),
+    ReEngageSkill(
+        tools=[QueryUserHistoryTool(), SendMessageTool(), ScheduleReminderTool()]
+    ),
     DisputeSkill(tools=[PauseCollectionTool(), EscalateToHumanTool()]),
     ComplaintSkill(tools=[PauseCollectionTool(), EscalateToHumanTool()]),
-    CrisisSkill(tools=[PauseCollectionTool(), WelfareAlertTool(), EscalateToHumanTool()]),
+    CrisisSkill(
+        tools=[PauseCollectionTool(), WelfareAlertTool(), EscalateToHumanTool()]
+    ),
     StopSkill(tools=[AddToDncListTool(), PauseCollectionTool()]),
     TroubleshootSkill(tools=[SendMessageTool()]),
     FollowUpSkill(tools=[CheckPaymentStatusTool(), QueryBillTool(), SendMessageTool()]),

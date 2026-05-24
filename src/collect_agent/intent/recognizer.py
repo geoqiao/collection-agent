@@ -94,7 +94,9 @@ class IntentRecognizer:
         state = context.get("session_state", "unknown")
         history = context.get("history", [])
         recent = history[-3:] if isinstance(history, list) else []
-        history_str = "\n".join(f"  {i+1}. {h}" for i, h in enumerate(recent)) or "  （无）"
+        history_str = (
+            "\n".join(f"  {i + 1}. {h}" for i, h in enumerate(recent)) or "  （无）"
+        )
         return (
             f"当前会话状态：{state}\n"
             f"最近3轮对话：\n{history_str}\n"
@@ -159,7 +161,9 @@ class IntentRecognizer:
             "crisis": (IntentCategory.CRISIS, True, EmotionLevel.NEGATIVE),
             "disputed": (IntentCategory.DISPUTE, True, EmotionLevel.NEGATIVE),
         }
-        cat, esc, emo = mapping.get(session_state, (IntentCategory.UNKNOWN, False, EmotionLevel.NEUTRAL))
+        cat, esc, emo = mapping.get(
+            session_state, (IntentCategory.UNKNOWN, False, EmotionLevel.NEUTRAL)
+        )
         return IntentResult(
             category=cat,
             confidence=ConfidenceLevel.HIGH,

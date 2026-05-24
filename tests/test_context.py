@@ -13,27 +13,35 @@ class TestContextWindow:
     def test_sliding_window_truncates(self):
         cw = ContextWindow(max_messages=3)
         for i in range(5):
-            cw.add_message(Message(channel="chatbot", direction="outbound", content=f"msg{i}"))
+            cw.add_message(
+                Message(channel="chatbot", direction="outbound", content=f"msg{i}")
+            )
         assert cw.message_count == 3
         assert cw.get_messages()[0].content == "msg2"
 
     def test_get_messages_for_llm(self):
         cw = ContextWindow()
-        cw.add_message(Message(channel="chatbot", direction="outbound", content="hello"))
+        cw.add_message(
+            Message(channel="chatbot", direction="outbound", content="hello")
+        )
         msgs = cw.get_messages_for_llm()
         assert msgs[0]["role"] == "assistant"
         assert msgs[0]["content"] == "hello"
 
     def test_get_messages_for_llm_inbound(self):
         cw = ContextWindow()
-        cw.add_message(Message(channel="chatbot", direction="inbound", content="hi there"))
+        cw.add_message(
+            Message(channel="chatbot", direction="inbound", content="hi there")
+        )
         msgs = cw.get_messages_for_llm()
         assert msgs[0]["role"] == "user"
         assert msgs[0]["content"] == "hi there"
 
     def test_clear(self):
         cw = ContextWindow()
-        cw.add_message(Message(channel="chatbot", direction="outbound", content="hello"))
+        cw.add_message(
+            Message(channel="chatbot", direction="outbound", content="hello")
+        )
         cw.clear()
         assert cw.message_count == 0
 
@@ -108,7 +116,9 @@ class TestContextManager:
 
     def test_get_llm_context(self):
         cm = ContextManager(user_id="u1")
-        cm.add_message(Message(channel="chatbot", direction="outbound", content="hello"))
+        cm.add_message(
+            Message(channel="chatbot", direction="outbound", content="hello")
+        )
         msgs = cm.get_llm_context()
         assert len(msgs) == 1
         assert msgs[0]["role"] == "assistant"

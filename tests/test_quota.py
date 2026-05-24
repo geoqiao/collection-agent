@@ -78,8 +78,12 @@ async def test_cleanup_old_usages():
     """cleanup_old_usages removes records from previous days."""
     manager = QuotaManager()
     # Manually inject an old record
-    manager._usages["u001:2024-01-01"] = DailyQuotaUsage(user_id="u001", date="2024-01-01")
-    manager._usages["u001:2099-01-01"] = DailyQuotaUsage(user_id="u001", date="2099-01-01")
+    manager._usages["u001:2024-01-01"] = DailyQuotaUsage(
+        user_id="u001", date="2024-01-01"
+    )
+    manager._usages["u001:2099-01-01"] = DailyQuotaUsage(
+        user_id="u001", date="2099-01-01"
+    )
 
     manager.cleanup_old_usages()
     # Only today's record should remain (if today is not 2099-01-01)

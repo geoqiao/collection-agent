@@ -31,7 +31,11 @@ class QueryUserHistoryTool(Tool):
                 "interactions": [
                     {"date": "2025-04-01", "channel": "sms", "outcome": "no_response"},
                     {"date": "2025-04-05", "channel": "email", "outcome": "opened"},
-                    {"date": "2025-04-10", "channel": "call", "outcome": "promised_to_pay"},
+                    {
+                        "date": "2025-04-10",
+                        "channel": "call",
+                        "outcome": "promised_to_pay",
+                    },
                 ],
             },
         )

@@ -14,7 +14,9 @@ from collect_agent.session.session import CollectionSession
 def user_state():
     return UserState(
         user_id="u001",
-        profile=UserProfile(user_id="u001", name="张三", amount_due=1000.0, overdue_days=5),
+        profile=UserProfile(
+            user_id="u001", name="张三", amount_due=1000.0, overdue_days=5
+        ),
     )
 
 
@@ -56,7 +58,9 @@ async def test_handle_scheduled_outreach(user_state, mock_deps):
     mock_deps["orchestrator"].select_channel.return_value = ChannelType.CHATBOT
     mock_deps["orchestrator"].arbitrate.return_value = "granted"
     mock_deps["strategy_engine"].select_strategy.return_value = {"type": "re_engage"}
-    mock_deps["llm_client"].generate_strategy_response.return_value = "您好张三，请尽快处理您的逾期账单。"
+    mock_deps[
+        "llm_client"
+    ].generate_strategy_response.return_value = "您好张三，请尽快处理您的逾期账单。"
 
     session = CollectionSession(user_id="u001", state=user_state, **mock_deps)
 
@@ -66,7 +70,9 @@ async def test_handle_scheduled_outreach(user_state, mock_deps):
     mock_deps["compliance_checker"].is_within_valid_hours.assert_called_once()
     mock_deps["orchestrator"].is_within_compliance_hours.assert_called_once()
     mock_deps["orchestrator"].select_channel.assert_called_once()
-    mock_deps["orchestrator"].arbitrate.assert_called_once_with("u001", ChannelType.CHATBOT)
+    mock_deps["orchestrator"].arbitrate.assert_called_once_with(
+        "u001", ChannelType.CHATBOT
+    )
     mock_deps["strategy_engine"].select_strategy.assert_called_once()
     mock_deps["llm_client"].generate_strategy_response.assert_called_once()
     mock_deps["quota_manager"].record_chat.assert_awaited_once_with("u001")
@@ -80,7 +86,9 @@ async def test_handle_scheduled_outreach(user_state, mock_deps):
 async def test_handle_user_replied(user_state, mock_deps):
     mock_deps["compliance_checker"].audit_content.return_value = (True, "")
     mock_deps["strategy_engine"].select_strategy.return_value = {"type": "confirm_plan"}
-    mock_deps["llm_client"].generate_strategy_response.return_value = "感谢您愿意处理此事。"
+    mock_deps[
+        "llm_client"
+    ].generate_strategy_response.return_value = "感谢您愿意处理此事。"
     mock_deps["llm_client"].detect_intent.return_value = "willing_to_pay"
 
     session = CollectionSession(user_id="u001", state=user_state, **mock_deps)
@@ -115,7 +123,9 @@ async def test_handle_call_connected(user_state, mock_deps):
     )
     await session.handle_event(event)
 
-    mock_deps["orchestrator"].arbitrate.assert_called_once_with("u001", ChannelType.VOICE)
+    mock_deps["orchestrator"].arbitrate.assert_called_once_with(
+        "u001", ChannelType.VOICE
+    )
     mock_deps["orchestrator"].get_lock.assert_awaited_once()
     assert session.state_machine.current == SessionState.INTENT_DETECTED
     mock_deps["storage"].save.assert_called_once()
@@ -171,7 +181,10 @@ async def test_compliance_blocks_outside_hours(user_state, mock_deps):
 @pytest.mark.asyncio
 async def test_quota_limits_enforced(user_state, mock_deps):
     mock_deps["compliance_checker"].is_within_valid_hours.return_value = True
-    mock_deps["orchestrator"].is_within_compliance_hours.return_value = (False, "Daily call limit reached")
+    mock_deps["orchestrator"].is_within_compliance_hours.return_value = (
+        False,
+        "Daily call limit reached",
+    )
 
     session = CollectionSession(user_id="u001", state=user_state, **mock_deps)
 
@@ -212,7 +225,9 @@ async def test_state_machine_transitions_on_events(user_state, mock_deps):
     )
     assert session.state_machine.current == SessionState.FOLLOW_UP
 
-    await session.handle_event(Event(user_id="u001", type=EventType.USER_PAYMENT_SUCCESS))
+    await session.handle_event(
+        Event(user_id="u001", type=EventType.USER_PAYMENT_SUCCESS)
+    )
     assert session.state_machine.current == SessionState.RESOLVED
 
 
@@ -236,7 +251,11 @@ async def test_sensitive_occupation_gets_standard_reminder_on_outreach(mock_deps
     sensitive_state = UserState(
         user_id="u_lawyer",
         profile=UserProfile(
-            user_id="u_lawyer", name="律师张", occupation="律师", amount_due=1000.0, overdue_days=5
+            user_id="u_lawyer",
+            name="律师张",
+            occupation="律师",
+            amount_due=1000.0,
+            overdue_days=5,
         ),
     )
     session = CollectionSession(user_id="u_lawyer", state=sensitive_state, **mock_deps)
@@ -264,7 +283,11 @@ async def test_sensitive_occupation_gets_standard_reminder_on_reply(mock_deps):
     sensitive_state = UserState(
         user_id="u_lawyer",
         profile=UserProfile(
-            user_id="u_lawyer", name="律师张", occupation="律师", amount_due=1000.0, overdue_days=5
+            user_id="u_lawyer",
+            name="律师张",
+            occupation="律师",
+            amount_due=1000.0,
+            overdue_days=5,
         ),
     )
     session = CollectionSession(user_id="u_lawyer", state=sensitive_state, **mock_deps)
@@ -290,7 +313,9 @@ async def test_complaint_event_pauses_collection(mock_deps):
 
     state = UserState(
         user_id="u_complaint",
-        profile=UserProfile(user_id="u_complaint", name="投诉者", amount_due=1000.0, overdue_days=5),
+        profile=UserProfile(
+            user_id="u_complaint", name="投诉者", amount_due=1000.0, overdue_days=5
+        ),
     )
     session = CollectionSession(user_id="u_complaint", state=state, **mock_deps)
     # Need to reach INTENT_DETECTED before RESOLVED
@@ -302,6 +327,7 @@ async def test_complaint_event_pauses_collection(mock_deps):
 
     assert session.state.paused_until is not None
     from datetime import datetime, timezone, timedelta
+
     now = datetime.now(timezone.utc)
     assert session.state.paused_until > now + timedelta(hours=47)
     assert session.state.paused_until < now + timedelta(hours=49)
@@ -314,14 +340,17 @@ async def test_max_rounds_enforcement(mock_deps):
     """Max rounds reached escalates to complaint/standard reminder."""
     mock_deps["compliance_checker"].audit_content.return_value = (True, "")
     mock_deps["strategy_engine"].select_strategy.return_value = {
-        "type": "confirm_plan", "max_rounds": 2
+        "type": "confirm_plan",
+        "max_rounds": 2,
     }
     mock_deps["llm_client"].generate_strategy_response.return_value = "followup"
     mock_deps["llm_client"].detect_intent.return_value = "willing_to_pay"
 
     state = UserState(
         user_id="u_max",
-        profile=UserProfile(user_id="u_max", name="用户", amount_due=1000.0, overdue_days=5),
+        profile=UserProfile(
+            user_id="u_max", name="用户", amount_due=1000.0, overdue_days=5
+        ),
     )
     state.conversation.negotiation_round = 2
     session = CollectionSession(user_id="u_max", state=state, **mock_deps)
@@ -338,6 +367,7 @@ async def test_max_rounds_enforcement(mock_deps):
     # Should escalate to COMPLAINT strategy (or standard_reminder fallback)
     from collect_agent.strategy.strategies import STRATEGIES
     from collect_agent.core.constants import Intent
+
     call_args = mock_deps["llm_client"].generate_strategy_response.call_args
     assert call_args[0][0] == STRATEGIES[Intent.COMPLAINT]
 
@@ -352,7 +382,9 @@ async def test_quota_adjustment_on_user_reply(mock_deps):
 
     state = UserState(
         user_id="u_quota",
-        profile=UserProfile(user_id="u_quota", name="用户", amount_due=1000.0, overdue_days=5),
+        profile=UserProfile(
+            user_id="u_quota", name="用户", amount_due=1000.0, overdue_days=5
+        ),
     )
     session = CollectionSession(user_id="u_quota", state=state, **mock_deps)
 
@@ -370,25 +402,36 @@ async def test_quota_adjustment_on_user_reply(mock_deps):
 async def test_content_audit_blocks_forbidden_words(mock_deps):
     """Content audit blocks messages with forbidden words."""
     mock_deps["compliance_checker"].is_within_valid_hours.return_value = True
-    mock_deps["compliance_checker"].audit_content.return_value = (False, "Content contains forbidden words")
+    mock_deps["compliance_checker"].audit_content.return_value = (
+        False,
+        "Content contains forbidden words",
+    )
     mock_deps["compliance_checker"].get_standard_message.return_value = "标准消息"
     mock_deps["orchestrator"].is_within_compliance_hours.return_value = (True, "")
     mock_deps["orchestrator"].select_channel.return_value = ChannelType.CHATBOT
     mock_deps["orchestrator"].arbitrate.return_value = "granted"
     mock_deps["strategy_engine"].select_strategy.return_value = {"type": "re_engage"}
-    mock_deps["llm_client"].generate_strategy_response.return_value = "包含法律诉讼的内容"
+    mock_deps[
+        "llm_client"
+    ].generate_strategy_response.return_value = "包含法律诉讼的内容"
 
     state = UserState(
         user_id="u_audit",
-        profile=UserProfile(user_id="u_audit", name="用户", amount_due=1000.0, overdue_days=5),
+        profile=UserProfile(
+            user_id="u_audit", name="用户", amount_due=1000.0, overdue_days=5
+        ),
     )
     session = CollectionSession(user_id="u_audit", state=state, **mock_deps)
 
     event = Event(user_id="u_audit", type=EventType.SCHEDULED_OUTREACH)
     await session.handle_event(event)
 
-    mock_deps["compliance_checker"].audit_content.assert_called_once_with("包含法律诉讼的内容")
-    mock_deps["compliance_checker"].get_standard_message.assert_called_once_with(state.profile)
+    mock_deps["compliance_checker"].audit_content.assert_called_once_with(
+        "包含法律诉讼的内容"
+    )
+    mock_deps["compliance_checker"].get_standard_message.assert_called_once_with(
+        state.profile
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -409,12 +452,15 @@ async def test_state_sync_includes_quota_usage_and_conversation(mock_deps):
 
     # Use real QuotaManager so _usages is populated
     from collect_agent.quota.manager import QuotaManager
+
     quota_manager = QuotaManager()
     mock_deps["quota_manager"] = quota_manager
 
     state = UserState(
         user_id="u_sync",
-        profile=UserProfile(user_id="u_sync", name="用户", amount_due=1000.0, overdue_days=5),
+        profile=UserProfile(
+            user_id="u_sync", name="用户", amount_due=1000.0, overdue_days=5
+        ),
     )
     session = CollectionSession(user_id="u_sync", state=state, **mock_deps)
 
@@ -463,18 +509,22 @@ async def test_config_from_dict_works_correctly():
     from collect_agent.quota.profile import QuotaProfile
     from collect_agent.compliance.rules import ComplianceRules
 
-    quota = QuotaProfile.from_dict({
-        "call_self_daily_max": 5,
-        "unknown_key": "should_be_ignored",
-    })
+    quota = QuotaProfile.from_dict(
+        {
+            "call_self_daily_max": 5,
+            "unknown_key": "should_be_ignored",
+        }
+    )
     assert quota.call_self_daily_max == 5
     assert quota.call_contact_daily_max == 10  # default
 
-    rules = ComplianceRules.from_dict({
-        "valid_hours": [9, 18],
-        "max_call_per_hour": 5,
-        "unknown_key": "should_be_ignored",
-    })
+    rules = ComplianceRules.from_dict(
+        {
+            "valid_hours": [9, 18],
+            "max_call_per_hour": 5,
+            "unknown_key": "should_be_ignored",
+        }
+    )
     assert rules.valid_hours == (9, 18)
     assert rules.max_call_per_hour == 5
     assert rules.min_call_interval_minutes == 10  # default
@@ -501,7 +551,9 @@ async def test_silence_timeout_uses_outreach_time(mock_deps):
 
     state = UserState(
         user_id="u_timeout",
-        profile=UserProfile(user_id="u_timeout", name="用户", amount_due=1000.0, overdue_days=5),
+        profile=UserProfile(
+            user_id="u_timeout", name="用户", amount_due=1000.0, overdue_days=5
+        ),
     )
     session = CollectionSession(user_id="u_timeout", state=state, **mock_deps)
 
@@ -548,7 +600,9 @@ async def test_channel_receive_updates_state_on_user_replied(mock_deps):
 
     state = UserState(
         user_id="u_receive",
-        profile=UserProfile(user_id="u_receive", name="用户", amount_due=1000.0, overdue_days=5),
+        profile=UserProfile(
+            user_id="u_receive", name="用户", amount_due=1000.0, overdue_days=5
+        ),
     )
     session = CollectionSession(user_id="u_receive", state=state, **mock_deps)
 

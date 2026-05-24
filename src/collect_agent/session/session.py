@@ -115,7 +115,7 @@ class CollectionSession:
     def _record_interaction(self) -> None:
         self.last_interaction_at = datetime.now(timezone.utc)
         # Also notify scheduler's tracker if available
-        if hasattr(self, '_timeout_tracker') and self._timeout_tracker is not None:
+        if hasattr(self, "_timeout_tracker") and self._timeout_tracker is not None:
             self._timeout_tracker.record_interaction(self.user_id)
 
     def _record_outreach(self) -> None:
@@ -159,7 +159,9 @@ class CollectionSession:
         is_clean, reason = self.compliance_checker.audit_content(response_text)
         if not is_clean:
             logger.warning("Content audit failed: %s", reason)
-            response_text = self.compliance_checker.get_standard_message(self.state.profile)
+            response_text = self.compliance_checker.get_standard_message(
+                self.state.profile
+            )
 
         # 8. Send via selected channel
         channel = self.channels.get(channel_type)
@@ -218,7 +220,7 @@ class CollectionSession:
             self.state.conversation.current_intent = Intent.INEFFECTIVE_CONTACT.value
         elif event.type == EventType.USER_REPLIED:
             channel = self.channels.get(channel_type)
-            if channel is not None and hasattr(channel, 'receive'):
+            if channel is not None and hasattr(channel, "receive"):
                 user_message = event.payload.get("content", "")
                 await channel.receive(self.user_id, user_message)
             self.channels.set_state(channel_type, ChannelState.INTERACTING)
@@ -227,9 +229,7 @@ class CollectionSession:
             detected = self.intent_detector.detect(user_message)
             # Try LLM fallback
             try:
-                llm_intent_str = await self.llm_client.detect_intent(
-                    user_message, {}
-                )
+                llm_intent_str = await self.llm_client.detect_intent(user_message, {})
                 llm_intent = self._parse_intent(llm_intent_str)
                 if llm_intent != Intent.INEFFECTIVE_CONTACT:
                     detected = llm_intent
@@ -254,14 +254,20 @@ class CollectionSession:
             if self.state.profile.is_sensitive:
                 strategy = STRATEGIES["standard_reminder"]
             else:
-                strategy = self.strategy_engine.select_strategy(self.state.profile, detected)
+                strategy = self.strategy_engine.select_strategy(
+                    self.state.profile, detected
+                )
 
                 # Check max rounds (only for non-sensitive users in negotiation)
                 max_rounds = strategy.get("max_rounds", 3)
                 if self.state.conversation.negotiation_round >= max_rounds:
                     # Escalate: switch to standard reminder or pause
-                    logger.info("Max rounds reached for user %s, escalating", self.user_id)
-                    strategy = STRATEGIES.get(Intent.COMPLAINT, STRATEGIES["standard_reminder"])
+                    logger.info(
+                        "Max rounds reached for user %s, escalating", self.user_id
+                    )
+                    strategy = STRATEGIES.get(
+                        Intent.COMPLAINT, STRATEGIES["standard_reminder"]
+                    )
 
             response_text = await self._generate_response(strategy)
 
@@ -269,7 +275,9 @@ class CollectionSession:
             is_clean, reason = self.compliance_checker.audit_content(response_text)
             if not is_clean:
                 logger.warning("Content audit failed: %s", reason)
-                response_text = self.compliance_checker.get_standard_message(self.state.profile)
+                response_text = self.compliance_checker.get_standard_message(
+                    self.state.profile
+                )
 
             channel = self.channels.get(channel_type)
             if channel is not None:
@@ -309,7 +317,9 @@ class CollectionSession:
         is_clean, reason = self.compliance_checker.audit_content(response_text)
         if not is_clean:
             logger.warning("Content audit failed: %s", reason)
-            response_text = self.compliance_checker.get_standard_message(self.state.profile)
+            response_text = self.compliance_checker.get_standard_message(
+                self.state.profile
+            )
 
         # Re-engage: try channels in priority order
         for channel_type in (ChannelType.CHATBOT, ChannelType.PUSH, ChannelType.VOICE):
@@ -370,7 +380,9 @@ class CollectionSession:
         is_clean, reason = self.compliance_checker.audit_content(response_text)
         if not is_clean:
             logger.warning("Content audit failed: %s", reason)
-            response_text = self.compliance_checker.get_standard_message(self.state.profile)
+            response_text = self.compliance_checker.get_standard_message(
+                self.state.profile
+            )
 
         channel = self.channels.get(ChannelType.CHATBOT)
         if channel is not None:
@@ -429,9 +441,9 @@ class CollectionSession:
         self.state.channel_states = self.channels.get_all_states()
         # Sync conversation state
         self.state.conversation.current_intent = getattr(
-            self.state.conversation, 'current_intent', None
+            self.state.conversation, "current_intent", None
         )
         # Sync quota usage from manager
         usage = self.quota_manager.get_usage_for_user(self.user_id)
-        if usage and hasattr(usage, 'model_dump'):
+        if usage and hasattr(usage, "model_dump"):
             self.state.quota_usage = usage.model_dump()

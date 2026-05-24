@@ -7,7 +7,12 @@ import pytest
 from collect_agent.agent.session import AgentSession
 from collect_agent.core.constants import EventType
 from collect_agent.core.models import Event, UserProfile, UserState
-from collect_agent.intent.models import ConfidenceLevel, EmotionLevel, IntentCategory, IntentResult
+from collect_agent.intent.models import (
+    ConfidenceLevel,
+    EmotionLevel,
+    IntentCategory,
+    IntentResult,
+)
 from collect_agent.intent.recognizer import IntentRecognizer
 from collect_agent.llm.base import LLMClient, LLMResponse
 from collect_agent.prompts.engine import PromptEngine

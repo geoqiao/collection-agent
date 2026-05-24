@@ -49,6 +49,7 @@ def test_get_all_states(registry):
 
 # ChatbotChannel tests
 
+
 @pytest.mark.asyncio
 async def test_chatbot_send_returns_dict():
     ch = ChatbotChannel()
@@ -86,6 +87,7 @@ async def test_chatbot_channel_type():
 
 # VoiceChannel tests
 
+
 @pytest.mark.asyncio
 async def test_voice_call_returns_dict():
     ch = VoiceChannel()
@@ -118,6 +120,7 @@ async def test_voice_channel_type():
 
 # PushChannel tests
 
+
 @pytest.mark.asyncio
 async def test_push_send_returns_dict():
     ch = PushChannel()
@@ -149,12 +152,13 @@ async def test_push_channel_type():
 
 # XSS escape tests
 
+
 @pytest.mark.asyncio
 async def test_chatbot_escapes_xss():
     ch = ChatbotChannel()
     malicious = '<script>alert("xss")</script>'
     result = await ch.send("user1", malicious)
-    escaped = '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;'
+    escaped = "&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;"
     assert result["content"] == escaped
 
 
@@ -187,6 +191,7 @@ async def test_empty_content_not_modified():
 
 
 # Factory test
+
 
 def test_create_default_registry():
     registry = create_default_registry()

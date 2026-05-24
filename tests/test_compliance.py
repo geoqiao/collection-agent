@@ -10,6 +10,7 @@ def checker():
 
 def test_valid_hours_check(checker):
     from datetime import time
+
     assert checker.is_within_valid_hours(time(10, 0)) is True
     assert checker.is_within_valid_hours(time(7, 0)) is False
     assert checker.is_within_valid_hours(time(21, 0)) is False
@@ -31,7 +32,13 @@ def test_complaint_keywords(checker):
 
 
 def test_standard_template_for_sensitive(checker):
-    user = UserProfile(user_id="u001", name="张三", occupation="律师", overdue_days=5, amount_due=1000.0)
+    user = UserProfile(
+        user_id="u001",
+        name="张三",
+        occupation="律师",
+        overdue_days=5,
+        amount_due=1000.0,
+    )
     msg = checker.get_standard_message(user)
     assert "5" in msg
     assert "1000" in msg
@@ -58,14 +65,18 @@ def test_audit_content_blocks_threats(checker):
 def test_clean_template_no_legal_risk(checker):
     """Negotiate strategy template should not contain legal threat language."""
     from collect_agent.strategy.strategies import RESPONSE_TEMPLATES
+
     templates = RESPONSE_TEMPLATES["negotiate"]
     for template in templates:
         is_clean, reason = checker.audit_content(template)
-        assert is_clean is True, f"Template contains forbidden words: {template} - {reason}"
+        assert is_clean is True, (
+            f"Template contains forbidden words: {template} - {reason}"
+        )
 
 
 def test_compliance_rules_has_forbidden_words():
     from collect_agent.compliance.rules import ComplianceRules
+
     rules = ComplianceRules()
     assert len(rules.forbidden_words) > 0
     assert "法律诉讼" in rules.forbidden_words

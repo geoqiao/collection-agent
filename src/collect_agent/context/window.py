@@ -54,7 +54,9 @@ class ContextWindow:
         """Get current messages in window."""
         return list(self._messages)
 
-    def get_messages_for_llm(self, max_tokens: int | None = None) -> list[dict[str, str]]:
+    def get_messages_for_llm(
+        self, max_tokens: int | None = None
+    ) -> list[dict[str, str]]:
         """Return messages formatted for LLM API, truncated by token limit."""
         _max_t = max_tokens or self.max_tokens
         # Start with summary if available
@@ -62,7 +64,10 @@ class ContextWindow:
         token_count = 0
 
         if self._summary:
-            summary_msg = {"role": "system", "content": f"Previous conversation summary: {self._summary}"}
+            summary_msg = {
+                "role": "system",
+                "content": f"Previous conversation summary: {self._summary}",
+            }
             result.append(summary_msg)
             token_count += estimate_tokens(summary_msg["content"])
 
@@ -88,7 +93,7 @@ class ContextWindow:
         if self.strategy == "sliding_window":
             # Apply both message count and token count limits
             if len(self._messages) > self.max_messages:
-                self._messages = self._messages[-self.max_messages:]
+                self._messages = self._messages[-self.max_messages :]
             # Token-based pruning: if total exceeds limit, drop oldest
             total_tokens = sum(estimate_tokens(m.content) for m in self._messages)
             while self._messages and total_tokens > self.max_tokens:
@@ -97,16 +102,18 @@ class ContextWindow:
         elif self.strategy == "summarize":
             if len(self._messages) > self.max_messages:
                 # Simple summary: keep first 5, last max_messages-5, summarize middle
-                to_summarize = self._messages[5:-(self.max_messages - 5)]
+                to_summarize = self._messages[5 : -(self.max_messages - 5)]
                 self._summary = self._summarize_messages(to_summarize)
-                self._messages = self._messages[:5] + self._messages[-(self.max_messages - 5):]
+                self._messages = (
+                    self._messages[:5] + self._messages[-(self.max_messages - 5) :]
+                )
 
     def _summarize_messages(self, messages: list[Message]) -> str:
         """Generate simple summary of messages."""
         intents = set()
         for msg in messages:
-            if hasattr(msg, 'metadata') and msg.metadata.get('intent'):
-                intents.add(msg.metadata['intent'])
+            if hasattr(msg, "metadata") and msg.metadata.get("intent"):
+                intents.add(msg.metadata["intent"])
         if intents:
             return f"User expressed: {', '.join(intents)}"
         return f"{len(messages)} messages exchanged"

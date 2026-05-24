@@ -137,7 +137,9 @@ class PromptEngine:
         if history:
             lines.append("最近对话:")
             for msg in history[-5:]:
-                direction = "用户" if getattr(msg, "direction", "") == "inbound" else "助手"
+                direction = (
+                    "用户" if getattr(msg, "direction", "") == "inbound" else "助手"
+                )
                 content = getattr(msg, "content", "")
                 lines.append(f"  {direction}: {content}")
 

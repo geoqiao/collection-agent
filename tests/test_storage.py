@@ -22,10 +22,7 @@ def store():
 
 @pytest.fixture
 def sample_state():
-    return UserState(
-        user_id="u001",
-        profile=UserProfile(user_id="u001", name="张三")
-    )
+    return UserState(user_id="u001", profile=UserProfile(user_id="u001", name="张三"))
 
 
 def test_save_and_load(store, sample_state):
@@ -42,7 +39,9 @@ def test_load_nonexistent(store):
 
 def test_load_all(store, sample_state):
     store.save(sample_state)
-    store.save(UserState(user_id="u002", profile=UserProfile(user_id="u002", name="李四")))
+    store.save(
+        UserState(user_id="u002", profile=UserProfile(user_id="u002", name="李四"))
+    )
     all_states = store.load_all()
     assert len(all_states) == 2
 
@@ -62,11 +61,25 @@ def sqlite_store():
 def test_sqlite_save_and_load(sqlite_store):
     state = UserState(
         user_id="u001",
-        profile=UserProfile(user_id="u001", name="张三", phone="13800138000", occupation="工程师", overdue_days=5, amount_due=1000.0),
+        profile=UserProfile(
+            user_id="u001",
+            name="张三",
+            phone="13800138000",
+            occupation="工程师",
+            overdue_days=5,
+            amount_due=1000.0,
+        ),
         session_state="active",
         channel_states={"sms": "sent", "call": "answered"},
         conversation=ConversationContext(
-            messages=[Message(channel="sms", direction="outbound", content="hello", timestamp=datetime(2024, 1, 1, 12, 0, 0))],
+            messages=[
+                Message(
+                    channel="sms",
+                    direction="outbound",
+                    content="hello",
+                    timestamp=datetime(2024, 1, 1, 12, 0, 0),
+                )
+            ],
             current_intent="greeting",
             negotiation_round=1,
         ),
@@ -95,8 +108,12 @@ def test_sqlite_save_and_load(sqlite_store):
 
 
 def test_sqlite_load_all(sqlite_store):
-    sqlite_store.save(UserState(user_id="u001", profile=UserProfile(user_id="u001", name="张三")))
-    sqlite_store.save(UserState(user_id="u002", profile=UserProfile(user_id="u002", name="李四")))
+    sqlite_store.save(
+        UserState(user_id="u001", profile=UserProfile(user_id="u001", name="张三"))
+    )
+    sqlite_store.save(
+        UserState(user_id="u002", profile=UserProfile(user_id="u002", name="李四"))
+    )
     all_states = sqlite_store.load_all()
     assert len(all_states) == 2
     ids = {s.user_id for s in all_states}
@@ -117,7 +134,14 @@ def test_sqlite_json_serialization(sqlite_store):
         profile=UserProfile(user_id="u001", name="张三"),
         channel_states={"sms": "sent"},
         conversation=ConversationContext(
-            messages=[Message(channel="sms", direction="outbound", content="hello", timestamp=datetime(2024, 1, 1, 12, 0, 0))],
+            messages=[
+                Message(
+                    channel="sms",
+                    direction="outbound",
+                    content="hello",
+                    timestamp=datetime(2024, 1, 1, 12, 0, 0),
+                )
+            ],
         ),
         quota_usage={"calls": 1},
     )
@@ -135,7 +159,9 @@ def test_sqlite_schema_auto_creation():
         assert os.path.exists(path)
         store = SQLiteStore(db_path=path)
         # Verify table exists by saving and loading
-        state = UserState(user_id="u001", profile=UserProfile(user_id="u001", name="张三"))
+        state = UserState(
+            user_id="u001", profile=UserProfile(user_id="u001", name="张三")
+        )
         store.save(state)
         assert store.load("u001") is not None
     finally:
@@ -147,7 +173,9 @@ def test_sqlite_context_manager():
     os.close(fd)
     try:
         with SQLiteStore(db_path=path) as store:
-            state = UserState(user_id="u001", profile=UserProfile(user_id="u001", name="张三"))
+            state = UserState(
+                user_id="u001", profile=UserProfile(user_id="u001", name="张三")
+            )
             store.save(state)
             assert store.load("u001") is not None
         # After exiting context manager, connection is closed
@@ -191,7 +219,10 @@ def test_quota_save_and_load(quota_storage):
     assert loaded.call_contact_count == 1
     assert loaded.call_answered_count == 1
     assert loaded.call_last_timestamp == datetime(2024, 1, 1, 10, 0, 0)
-    assert loaded.call_timestamps == [datetime(2024, 1, 1, 9, 0, 0), datetime(2024, 1, 1, 10, 0, 0)]
+    assert loaded.call_timestamps == [
+        datetime(2024, 1, 1, 9, 0, 0),
+        datetime(2024, 1, 1, 10, 0, 0),
+    ]
     assert loaded.chat_sent_count == 5
     assert loaded.chat_user_replied is True
     assert loaded.chat_last_timestamp == datetime(2024, 1, 1, 11, 0, 0)

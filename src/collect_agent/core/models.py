@@ -19,9 +19,16 @@ class UserProfile(BaseModel):
         if not self.occupation:
             return False
         sensitive = {
-            "律师", "法官", "检察官", "警察",
-            "政府官员", "公务员", "军人", "军人配偶",
-            "记者", "媒体从业者",
+            "律师",
+            "法官",
+            "检察官",
+            "警察",
+            "政府官员",
+            "公务员",
+            "军人",
+            "军人配偶",
+            "记者",
+            "媒体从业者",
         }
         return self.occupation in sensitive
 

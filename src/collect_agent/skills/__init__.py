@@ -1,6 +1,12 @@
 """Skills package for debt collection agent."""
 
-from collect_agent.skills.base import Skill, SkillContext, SkillResult, SkillResultStatus, ToolCallRecord
+from collect_agent.skills.base import (
+    Skill,
+    SkillContext,
+    SkillResult,
+    SkillResultStatus,
+    ToolCallRecord,
+)
 from collect_agent.skills.complaint_skill import ComplaintSkill
 from collect_agent.skills.crisis_skill import CrisisSkill
 from collect_agent.skills.dispute_skill import DisputeSkill

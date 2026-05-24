@@ -28,7 +28,11 @@ class ContextManager:
         if dominant:
             lines.append(f"Recent dominant intent: {dominant}")
         if self.user_context.payment_promises:
-            pending = [p for p in self.user_context.payment_promises if p["status"] == "pending"]
+            pending = [
+                p
+                for p in self.user_context.payment_promises
+                if p["status"] == "pending"
+            ]
             if pending:
                 lines.append(f"Pending promises: {len(pending)}")
         return "\n".join(lines)
@@ -57,6 +61,7 @@ class ContextManager:
         cm = cls(data["user_id"])
         # Restore messages
         from collect_agent.core.models import Message
+
         for m_data in data.get("window", {}).get("messages", []):
             cm.window.add_message(Message(**m_data))
         cm.window._summary = data.get("window", {}).get("summary", "")

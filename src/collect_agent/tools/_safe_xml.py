@@ -14,7 +14,9 @@ def safe_xml_fromstring(xml_text: str) -> ET.Element:
     Raises ValueError if XML is too large or contains entities.
     """
     if len(xml_text) > MAX_XML_SIZE:
-        raise ValueError(f"XML payload too large: {len(xml_text)} bytes > {MAX_XML_SIZE}")
+        raise ValueError(
+            f"XML payload too large: {len(xml_text)} bytes > {MAX_XML_SIZE}"
+        )
 
     # Reject XML with DOCTYPE declarations (entities)
     upper = xml_text.upper()

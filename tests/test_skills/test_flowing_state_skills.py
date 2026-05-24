@@ -39,10 +39,14 @@ def _make_ctx(user_id: str = "u1", **kwargs) -> SkillContext:
 @pytest.mark.asyncio
 async def test_onboard_skill_react_reply():
     """OnboardSkill: LLM replies directly without tool calls."""
-    skill = OnboardSkill(tools=[QueryBillTool(), QueryUserHistoryTool(), SendMessageTool()])
-    llm = ReActMockLLM(actions=[
-        "<action><type>reply</type><text>Hello, we noticed your bill is overdue. Please contact us to settle.</text></action>"
-    ])
+    skill = OnboardSkill(
+        tools=[QueryBillTool(), QueryUserHistoryTool(), SendMessageTool()]
+    )
+    llm = ReActMockLLM(
+        actions=[
+            "<action><type>reply</type><text>Hello, we noticed your bill is overdue. Please contact us to settle.</text></action>"
+        ]
+    )
     executor = SkillExecutor(llm_client=llm, tool_registry=_make_registry(skill.tools))
     ctx = _make_ctx()
 
@@ -58,8 +62,9 @@ async def test_onboard_skill_react_reply():
 async def test_payment_guidance_skill_react_tool_then_reply():
     """PaymentGuidanceSkill: LLM calls query_bill then replies with guidance."""
     skill = PaymentGuidanceSkill(tools=[QueryBillTool(), SendPaymentLinkTool()])
-    llm = ReActMockLLM(actions=[
-        """<action>
+    llm = ReActMockLLM(
+        actions=[
+            """<action>
   <type>tool_call</type>
   <tool_calls>
     <tool_call>
@@ -68,8 +73,9 @@ async def test_payment_guidance_skill_react_tool_then_reply():
     </tool_call>
   </tool_calls>
 </action>""",
-        "<action><type>reply</type><text>您的账单金额为 2580 元，请点击链接还款。</text></action>"
-    ])
+            "<action><type>reply</type><text>您的账单金额为 2580 元，请点击链接还款。</text></action>",
+        ]
+    )
     executor = SkillExecutor(llm_client=llm, tool_registry=_make_registry(skill.tools))
     ctx = _make_ctx(user_id="u2")
 
@@ -86,10 +92,16 @@ async def test_payment_guidance_skill_react_tool_then_reply():
 async def test_negotiation_skill_react_create_plan():
     """NegotiationSkill: LLM calls create_payment_plan then replies."""
     skill = NegotiationSkill(
-        tools=[QueryBillTool(), CreatePaymentPlanTool(), RecordPromiseTool(), ScheduleReminderTool()]
+        tools=[
+            QueryBillTool(),
+            CreatePaymentPlanTool(),
+            RecordPromiseTool(),
+            ScheduleReminderTool(),
+        ]
     )
-    llm = ReActMockLLM(actions=[
-        """<action>
+    llm = ReActMockLLM(
+        actions=[
+            """<action>
   <type>tool_call</type>
   <tool_calls>
     <tool_call>
@@ -102,8 +114,9 @@ async def test_negotiation_skill_react_create_plan():
     </tool_call>
   </tool_calls>
 </action>""",
-        "<action><type>reply</type><text>已为您生成分期方案，每期 666.67 元。</text></action>"
-    ])
+            "<action><type>reply</type><text>已为您生成分期方案，每期 666.67 元。</text></action>",
+        ]
+    )
     executor = SkillExecutor(llm_client=llm, tool_registry=_make_registry(skill.tools))
     ctx = _make_ctx(user_id="u3", user_message="我现在没钱，能分期吗？")
 
@@ -119,9 +132,12 @@ async def test_negotiation_skill_react_create_plan():
 @pytest.mark.asyncio
 async def test_reengage_skill_react_schedule_reminder():
     """ReEngageSkill: LLM schedules a reminder then replies."""
-    skill = ReEngageSkill(tools=[QueryUserHistoryTool(), SendMessageTool(), ScheduleReminderTool()])
-    llm = ReActMockLLM(actions=[
-        """<action>
+    skill = ReEngageSkill(
+        tools=[QueryUserHistoryTool(), SendMessageTool(), ScheduleReminderTool()]
+    )
+    llm = ReActMockLLM(
+        actions=[
+            """<action>
   <type>tool_call</type>
   <tool_calls>
     <tool_call>
@@ -135,8 +151,9 @@ async def test_reengage_skill_react_schedule_reminder():
     </tool_call>
   </tool_calls>
 </action>""",
-        "<action><type>reply</type><text>已为您安排后续提醒，请注意查收。</text></action>"
-    ])
+            "<action><type>reply</type><text>已为您安排后续提醒，请注意查收。</text></action>",
+        ]
+    )
     executor = SkillExecutor(llm_client=llm, tool_registry=_make_registry(skill.tools))
     ctx = _make_ctx(user_id="u4")
 
@@ -153,9 +170,11 @@ async def test_reengage_skill_react_schedule_reminder():
 async def test_troubleshoot_skill_react_reply():
     """TroubleshootSkill: LLM provides troubleshooting steps directly."""
     skill = TroubleshootSkill()
-    llm = ReActMockLLM(actions=[
-        "<action><type>reply</type><text>请尝试清除缓存后重新打开App。如果仍有问题，请联系技术支持。</text></action>"
-    ])
+    llm = ReActMockLLM(
+        actions=[
+            "<action><type>reply</type><text>请尝试清除缓存后重新打开App。如果仍有问题，请联系技术支持。</text></action>"
+        ]
+    )
     executor = SkillExecutor(llm_client=llm, tool_registry=_make_registry(skill.tools))
     ctx = _make_ctx(user_id="u5", user_message="App打不开")
 
@@ -169,9 +188,12 @@ async def test_troubleshoot_skill_react_reply():
 @pytest.mark.asyncio
 async def test_followup_skill_react_check_payment():
     """FollowUpSkill: LLM checks payment status then replies."""
-    skill = FollowUpSkill(tools=[CheckPaymentStatusTool(), QueryBillTool(), SendMessageTool()])
-    llm = ReActMockLLM(actions=[
-        """<action>
+    skill = FollowUpSkill(
+        tools=[CheckPaymentStatusTool(), QueryBillTool(), SendMessageTool()]
+    )
+    llm = ReActMockLLM(
+        actions=[
+            """<action>
   <type>tool_call</type>
   <tool_calls>
     <tool_call>
@@ -180,8 +202,9 @@ async def test_followup_skill_react_check_payment():
     </tool_call>
   </tool_calls>
 </action>""",
-        "<action><type>reply</type><text>我们注意到您尚未完成还款，请尽快处理。</text></action>"
-    ])
+            "<action><type>reply</type><text>我们注意到您尚未完成还款，请尽快处理。</text></action>",
+        ]
+    )
     executor = SkillExecutor(llm_client=llm, tool_registry=_make_registry(skill.tools))
     ctx = _make_ctx(user_id="u6")
 
@@ -199,13 +222,15 @@ async def test_react_max_steps_fallback():
     """ReAct loop should return ERROR after max steps with no terminal action."""
     skill = PaymentGuidanceSkill(tools=[QueryBillTool()])
     # LLM keeps returning unknown actions, never reply/end/escalate
-    llm = ReActMockLLM(actions=[
-        "<action><type>thinking</type><text>I need to think more...</text></action>",
-        "<action><type>thinking</type><text>Still thinking...</text></action>",
-        "<action><type>thinking</type><text>Not done yet...</text></action>",
-        "<action><type>thinking</type><text>Almost there...</text></action>",
-        "<action><type>thinking</type><text>One more step...</text></action>",
-    ])
+    llm = ReActMockLLM(
+        actions=[
+            "<action><type>thinking</type><text>I need to think more...</text></action>",
+            "<action><type>thinking</type><text>Still thinking...</text></action>",
+            "<action><type>thinking</type><text>Not done yet...</text></action>",
+            "<action><type>thinking</type><text>Almost there...</text></action>",
+            "<action><type>thinking</type><text>One more step...</text></action>",
+        ]
+    )
     executor = SkillExecutor(llm_client=llm, tool_registry=_make_registry(skill.tools))
     ctx = _make_ctx()
 
@@ -220,9 +245,11 @@ async def test_react_max_steps_fallback():
 async def test_react_escalate_action():
     """LLM can return escalate action to trigger escalation."""
     skill = NegotiationSkill(tools=[])
-    llm = ReActMockLLM(actions=[
-        "<action><type>escalate</type><text>User is requesting a complex arrangement beyond my authority.</text></action>"
-    ])
+    llm = ReActMockLLM(
+        actions=[
+            "<action><type>escalate</type><text>User is requesting a complex arrangement beyond my authority.</text></action>"
+        ]
+    )
     executor = SkillExecutor(llm_client=llm, tool_registry=_make_registry(skill.tools))
     ctx = _make_ctx()
 
@@ -237,9 +264,7 @@ async def test_react_escalate_action():
 async def test_react_end_action():
     """LLM can return end action to stop without responding."""
     skill = FollowUpSkill(tools=[])
-    llm = ReActMockLLM(actions=[
-        "<action><type>end</type></action>"
-    ])
+    llm = ReActMockLLM(actions=["<action><type>end</type></action>"])
     executor = SkillExecutor(llm_client=llm, tool_registry=_make_registry(skill.tools))
     ctx = _make_ctx()
 

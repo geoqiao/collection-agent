@@ -111,11 +111,15 @@ class QuotaStorage:
                 usage.call_self_count,
                 usage.call_contact_count,
                 usage.call_answered_count,
-                usage.call_last_timestamp.isoformat() if usage.call_last_timestamp else None,
+                usage.call_last_timestamp.isoformat()
+                if usage.call_last_timestamp
+                else None,
                 call_timestamps_json,
                 usage.chat_sent_count,
                 int(usage.chat_user_replied),
-                usage.chat_last_timestamp.isoformat() if usage.chat_last_timestamp else None,
+                usage.chat_last_timestamp.isoformat()
+                if usage.chat_last_timestamp
+                else None,
                 usage.push_sent_count,
             ),
         )

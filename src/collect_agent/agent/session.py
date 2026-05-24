@@ -127,7 +127,9 @@ class AgentSession:
             state_value = self.state_machine.current.value
             return SkillResult(
                 status=SkillResultStatus.SUCCESS,
-                response_text=_FIXED_TEMPLATES.get(state_value, "感谢您的留言，我们将尽快处理。"),
+                response_text=_FIXED_TEMPLATES.get(
+                    state_value, "感谢您的留言，我们将尽快处理。"
+                ),
                 new_session_state=state_value,
                 escalation=state_value in ("escalated", "crisis", "disputed"),
                 thinking=f"One-way door state locked: {state_value}",
@@ -201,7 +203,9 @@ class AgentSession:
 
     async def _handle_silence_timeout(self, event: Event) -> SkillResult:
         """Handle SILENCE_TIMEOUT event."""
-        skill = self.skill_registry.get("re_engagement") or self.skill_registry.get("reengage")
+        skill = self.skill_registry.get("re_engagement") or self.skill_registry.get(
+            "reengage"
+        )
 
         if skill is None:
             return SkillResult(
@@ -225,7 +229,9 @@ class AgentSession:
             user_id=self.user_id,
             user_profile=self.user_state.profile,
             conversation_history=self.user_state.conversation.messages,
-            current_intent=intent_result.category.value if intent_result else event.type.value,
+            current_intent=intent_result.category.value
+            if intent_result
+            else event.type.value,
             user_message=event.payload.get("message", ""),
             session_state=self.state_machine.current.value,
             available_tools=self.tool_registry.list_tools(),

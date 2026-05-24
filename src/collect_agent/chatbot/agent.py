@@ -10,8 +10,7 @@ from collect_agent.intent.models import IntentCategory, IntentResult
 from collect_agent.intent.recognizer import IntentRecognizer
 from collect_agent.llm.base import LLMClient
 from collect_agent.prompts.engine import PromptEngine
-from collect_agent.session.enhanced_state_machine import ONE_WAY_DOOR_STATES, AgentSessionState, StateMachine
-from collect_agent.skills.base import SkillContext, SkillResult, SkillResultStatus
+from collect_agent.skills.base import SkillContext
 from collect_agent.skills.executor import SkillExecutor
 from collect_agent.skills.registry import SkillRegistry
 from collect_agent.tools.base import Tool
@@ -110,7 +109,9 @@ class ChatbotAgent:
             template_key = self._intent_to_template_key(intent_result.category)
             new_state = self._intent_to_state(intent_result.category)
             return ChatbotResponse(
-                message=self.FIXED_TEMPLATES.get(template_key, "感谢您的留言，我们将尽快处理。"),
+                message=self.FIXED_TEMPLATES.get(
+                    template_key, "感谢您的留言，我们将尽快处理。"
+                ),
                 intent=intent_result.category.value,
                 confidence=intent_result.confidence.value,
                 escalation=intent_result.escalation,

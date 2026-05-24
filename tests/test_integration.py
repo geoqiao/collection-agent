@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pytest
 
 from collect_agent.cli import run_demo
-from collect_agent.core.constants import EventType, SessionState
+from collect_agent.core.constants import EventType
 from collect_agent.core.models import Event, UserProfile, UserState
 from collect_agent.main import CollectAgentSystem
 
@@ -249,7 +249,10 @@ async def test_demo_mode():
     """Run the full demo and verify state transitions."""
     system = CollectAgentSystem()
     # Patch compliance to always allow outreach
-    with patch("collect_agent.session.session.ComplianceChecker.is_within_valid_hours", return_value=True):
+    with patch(
+        "collect_agent.session.session.ComplianceChecker.is_within_valid_hours",
+        return_value=True,
+    ):
         await run_demo(system)
 
     session = system.get_session("demo_user_001")
@@ -350,7 +353,10 @@ async def test_full_collection_lifecycle():
     system.store.save(state)
 
     # Patch compliance to always allow outreach
-    with patch("collect_agent.session.session.ComplianceChecker.is_within_valid_hours", return_value=True):
+    with patch(
+        "collect_agent.session.session.ComplianceChecker.is_within_valid_hours",
+        return_value=True,
+    ):
         # 2. SCHEDULED_OUTREACH -> session created and outreach handled
         await system.run_scheduled_outreach()
         session = system.get_session(user_id)

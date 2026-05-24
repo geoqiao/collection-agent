@@ -9,9 +9,13 @@ class UserContext(BaseModel):
     total_overdue_days: int = 0
     total_contacts: int = 0  # Total times contacted
     successful_contacts: int = 0  # Times user responded
-    payment_promises: list[dict] = Field(default_factory=list)  # [{"date": "", "amount": 0, "status": "pending"}]
+    payment_promises: list[dict] = Field(
+        default_factory=list
+    )  # [{"date": "", "amount": 0, "status": "pending"}]
     preferred_channel: str | None = None  # User's most responsive channel
-    intent_history: list[dict] = Field(default_factory=list)  # [{"intent": "", "timestamp": ""}]
+    intent_history: list[dict] = Field(
+        default_factory=list
+    )  # [{"intent": "", "timestamp": ""}]
     escalation_level: int = 0  # 0=normal, 1=supervisor, 2=legal
     notes: str = ""
 
@@ -24,18 +28,22 @@ class UserContext(BaseModel):
             self.preferred_channel = channel
 
     def record_intent(self, intent: str) -> None:
-        self.intent_history.append({
-            "intent": intent,
-            "timestamp": datetime.now().isoformat(),
-        })
+        self.intent_history.append(
+            {
+                "intent": intent,
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
 
     def record_payment_promise(self, date: str, amount: float) -> None:
-        self.payment_promises.append({
-            "date": date,
-            "amount": amount,
-            "status": "pending",
-            "created_at": datetime.now().isoformat(),
-        })
+        self.payment_promises.append(
+            {
+                "date": date,
+                "amount": amount,
+                "status": "pending",
+                "created_at": datetime.now().isoformat(),
+            }
+        )
 
     def mark_promise_kept(self, promise_index: int) -> None:
         if 0 <= promise_index < len(self.payment_promises):

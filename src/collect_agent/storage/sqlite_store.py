@@ -4,7 +4,12 @@ from datetime import datetime
 from types import TracebackType
 from typing import Self
 
-from collect_agent.core.models import ConversationContext, Message, UserProfile, UserState
+from collect_agent.core.models import (
+    ConversationContext,
+    Message,
+    UserProfile,
+    UserState,
+)
 
 
 class SQLiteStore:
@@ -64,12 +69,20 @@ class SQLiteStore:
 
     def save(self, state: UserState, context_manager=None) -> None:
         profile = state.profile
-        conversation_json = json.dumps(state.conversation.model_dump(mode="json"), ensure_ascii=False)
+        conversation_json = json.dumps(
+            state.conversation.model_dump(mode="json"), ensure_ascii=False
+        )
         quota_usage_json = json.dumps(state.quota_usage, ensure_ascii=False)
         channel_states_json = json.dumps(state.channel_states, ensure_ascii=False)
 
-        paused_until_str = state.paused_until.isoformat() if state.paused_until else None
-        context_json = json.dumps(context_manager.to_dict(), ensure_ascii=False) if context_manager else None
+        paused_until_str = (
+            state.paused_until.isoformat() if state.paused_until else None
+        )
+        context_json = (
+            json.dumps(context_manager.to_dict(), ensure_ascii=False)
+            if context_manager
+            else None
+        )
 
         self._conn.execute(
             """
@@ -168,6 +181,7 @@ class SQLiteStore:
 
     def load_context_manager(self, user_id: str):
         from collect_agent.context.manager import ContextManager
+
         row = self._conn.execute(
             "SELECT context FROM user_states WHERE user_id = ?", (user_id,)
         ).fetchone()

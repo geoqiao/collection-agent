@@ -10,6 +10,7 @@ class ComplianceChecker:
     def is_within_valid_hours(self, t: time | None = None) -> bool:
         if t is None:
             from datetime import datetime
+
             t = datetime.now().time()
         start = time(self.rules.valid_hours[0], 0)
         end = time(self.rules.valid_hours[1], 0)

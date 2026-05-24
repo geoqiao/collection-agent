@@ -248,7 +248,9 @@ def test_factory_deepseek():
 
 
 def test_factory_custom_model():
-    client = create_llm_client({"provider": "openai", "api_key": "key", "model": "gpt-4"})
+    client = create_llm_client(
+        {"provider": "openai", "api_key": "key", "model": "gpt-4"}
+    )
     assert isinstance(client, OpenAIClient)
     assert client.model == "gpt-4"
 

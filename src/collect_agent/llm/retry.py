@@ -20,5 +20,5 @@ class RetryConfig:
         return False
 
     def get_delay(self, attempt: int) -> float:
-        delay = min(self.base_delay * (2 ** attempt), self.max_delay)
+        delay = min(self.base_delay * (2**attempt), self.max_delay)
         return delay * (0.5 + random.random())  # Jitter

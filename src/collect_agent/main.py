@@ -12,7 +12,9 @@ from collect_agent.storage.sqlite_store import SQLiteStore
 
 
 class CollectAgentSystem:
-    def __init__(self, store=None, llm_client=None, compliance_checker=None, quota_manager=None):
+    def __init__(
+        self, store=None, llm_client=None, compliance_checker=None, quota_manager=None
+    ):
         self.store = store or MemoryStore()
         self.session_manager = SessionManager(
             self.store,

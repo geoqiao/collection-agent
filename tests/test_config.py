@@ -4,7 +4,13 @@ import tempfile
 from pathlib import Path
 
 from collect_agent.config import ConfigManager
-from collect_agent.config.models import AgentConfig, ComplianceConfig, LLMConfig, QuotaConfig, StorageConfig
+from collect_agent.config.models import (
+    AgentConfig,
+    ComplianceConfig,
+    LLMConfig,
+    QuotaConfig,
+    StorageConfig,
+)
 
 
 class TestConfigModels:
@@ -126,7 +132,9 @@ storage:
     def test_convenience_accessors(self):
         ConfigManager._instance = None
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
-            f.write("compliance:\n  valid_hours: [7, 21]\nstorage:\n  db_path: test.db\nllm:\n  provider: claude\n")
+            f.write(
+                "compliance:\n  valid_hours: [7, 21]\nstorage:\n  db_path: test.db\nllm:\n  provider: claude\n"
+            )
             path = f.name
 
         try:

@@ -6,10 +6,15 @@ import pytest
 
 from collect_agent.chatbot.agent import ChatbotAgent, ChatContext
 from collect_agent.core.models import UserProfile
-from collect_agent.intent.models import ConfidenceLevel, EmotionLevel, IntentCategory, IntentResult
+from collect_agent.intent.models import (
+    ConfidenceLevel,
+    EmotionLevel,
+    IntentCategory,
+    IntentResult,
+)
 from collect_agent.llm.base import LLMClient, LLMResponse
 from collect_agent.prompts.engine import PromptEngine
-from collect_agent.skills.base import SkillContext as SkillCtx, SkillResult, SkillResultStatus
+from collect_agent.skills.base import SkillResult, SkillResultStatus
 from collect_agent.skills.executor import SkillExecutor
 from collect_agent.skills.registry import SkillRegistry
 

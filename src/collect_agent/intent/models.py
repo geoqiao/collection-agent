@@ -7,9 +7,9 @@ from enum import Enum
 class IntentCategory(Enum):
     COOPERATION = "A"  # 合作
     NEGOTIATION = "B"  # 协商
-    AVOIDANCE = "C"    # 回避
-    DISPUTE = "D"      # 争议
-    COMPLAINT = "E"    # 投诉/威胁
+    AVOIDANCE = "C"  # 回避
+    DISPUTE = "D"  # 争议
+    COMPLAINT = "E"  # 投诉/威胁
     STOP = "STOP"
     CRISIS = "CRISIS"
     INEFFECTIVE = "ineffective"  # 无效联系

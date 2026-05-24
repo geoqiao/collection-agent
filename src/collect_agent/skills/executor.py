@@ -7,7 +7,13 @@ from typing import Any
 
 from collect_agent.llm.base import LLMClient
 from collect_agent.prompts.engine import PromptEngine
-from collect_agent.skills.base import Skill, SkillContext, SkillResult, SkillResultStatus, ToolCallRecord
+from collect_agent.skills.base import (
+    Skill,
+    SkillContext,
+    SkillResult,
+    SkillResultStatus,
+    ToolCallRecord,
+)
 from collect_agent.tools._safe_xml import safe_xml_fromstring
 from collect_agent.tools.base import ToolResult
 from collect_agent.tools.registry import ToolRegistry
@@ -72,16 +78,24 @@ class SkillExecutor:
                     tool = self.tool_registry.get(tool_name)
                     if tool is None:
                         result_data = {"error": f"Tool '{tool_name}' not found"}
-                        tool_result = ToolResult(success=False, error=result_data["error"])
+                        tool_result = ToolResult(
+                            success=False, error=result_data["error"]
+                        )
                     else:
                         tool_result = await tool.execute(**parameters)
-                        result_data = tool_result.data if tool_result.success else {"error": tool_result.error or "Unknown error"}
+                        result_data = (
+                            tool_result.data
+                            if tool_result.success
+                            else {"error": tool_result.error or "Unknown error"}
+                        )
 
-                    actions.append(ToolCallRecord(
-                        tool_name=tool_name,
-                        parameters=parameters,
-                        result=result_data,
-                    ))
+                    actions.append(
+                        ToolCallRecord(
+                            tool_name=tool_name,
+                            parameters=parameters,
+                            result=result_data,
+                        )
+                    )
 
                     # Add tool result as new observation
                     observations += f"\nTool '{tool_name}' result: {result_data}"
@@ -148,14 +162,18 @@ class SkillExecutor:
 
         # Add previous actions as assistant/user turns
         for record in actions:
-            messages.append({
-                "role": "assistant",
-                "content": f"<action>\n  <type>tool_call</type>\n  <tool_calls>\n    <tool_call>\n      <name>{record.tool_name}</name>\n      <parameters>{record.parameters}</parameters>\n    </tool_call>\n  </tool_calls>\n</action>",
-            })
-            messages.append({
-                "role": "user",
-                "content": f"Tool '{record.tool_name}' result: {record.result}",
-            })
+            messages.append(
+                {
+                    "role": "assistant",
+                    "content": f"<action>\n  <type>tool_call</type>\n  <tool_calls>\n    <tool_call>\n      <name>{record.tool_name}</name>\n      <parameters>{record.parameters}</parameters>\n    </tool_call>\n  </tool_calls>\n</action>",
+                }
+            )
+            messages.append(
+                {
+                    "role": "user",
+                    "content": f"Tool '{record.tool_name}' result: {record.result}",
+                }
+            )
 
         return messages
 
@@ -217,32 +235,34 @@ class SkillExecutor:
         for tool in skill.get_available_tools():
             lines.append(tool.to_xml_description())
 
-        lines.extend([
-            "",
-            "You must respond with an XML action block. Possible action types:",
-            "- reply: Respond to the user",
-            "- tool_call: Call one or more tools",
-            "- escalate: Escalate to a human agent",
-            "- end: End the conversation without responding",
-            "",
-            "Format:",
-            "<action>",
-            "  <type>reply|tool_call|escalate|end</type>",
-            "  <!-- For reply: -->",
-            "  <text>Your response here</text>",
-            "  <!-- For tool_call: -->",
-            "  <tool_calls>",
-            "    <tool_call>",
-            "      <name>tool_name</name>",
-            "      <parameters>",
-            "        <param_name>value</param_name>",
-            "      </parameters>",
-            "    </tool_call>",
-            "  </tool_calls>",
-            "  <!-- For escalate: -->",
-            "  <text>Reason for escalation</text>",
-            "</action>",
-        ])
+        lines.extend(
+            [
+                "",
+                "You must respond with an XML action block. Possible action types:",
+                "- reply: Respond to the user",
+                "- tool_call: Call one or more tools",
+                "- escalate: Escalate to a human agent",
+                "- end: End the conversation without responding",
+                "",
+                "Format:",
+                "<action>",
+                "  <type>reply|tool_call|escalate|end</type>",
+                "  <!-- For reply: -->",
+                "  <text>Your response here</text>",
+                "  <!-- For tool_call: -->",
+                "  <tool_calls>",
+                "    <tool_call>",
+                "      <name>tool_name</name>",
+                "      <parameters>",
+                "        <param_name>value</param_name>",
+                "      </parameters>",
+                "    </tool_call>",
+                "  </tool_calls>",
+                "  <!-- For escalate: -->",
+                "  <text>Reason for escalation</text>",
+                "</action>",
+            ]
+        )
 
         return "\n".join(lines)
 
@@ -257,7 +277,7 @@ class SkillExecutor:
         if start == -1 or end == -1:
             return "unknown", {"raw": xml_text}
 
-        action_xml = xml_text[start:end + len("</action>")]
+        action_xml = xml_text[start : end + len("</action>")]
 
         try:
             root = safe_xml_fromstring(action_xml)
@@ -265,13 +285,21 @@ class SkillExecutor:
             return "unknown", {"raw": xml_text}
 
         action_type_elem = root.find("type")
-        action_type = action_type_elem.text.strip() if action_type_elem is not None and action_type_elem.text else "unknown"
+        action_type = (
+            action_type_elem.text.strip()
+            if action_type_elem is not None and action_type_elem.text
+            else "unknown"
+        )
 
         data: dict[str, Any] = {}
 
         if action_type == "reply":
             text_elem = root.find("text")
-            data["text"] = text_elem.text.strip() if text_elem is not None and text_elem.text else ""
+            data["text"] = (
+                text_elem.text.strip()
+                if text_elem is not None and text_elem.text
+                else ""
+            )
 
         elif action_type == "tool_call":
             tool_calls: list[dict[str, Any]] = []
@@ -281,12 +309,18 @@ class SkillExecutor:
                     name_elem = tc_elem.find("name")
                     params_elem = tc_elem.find("parameters")
 
-                    tool_name = name_elem.text.strip() if name_elem is not None and name_elem.text else ""
+                    tool_name = (
+                        name_elem.text.strip()
+                        if name_elem is not None and name_elem.text
+                        else ""
+                    )
                     parameters: dict[str, Any] = {}
 
                     if params_elem is not None:
                         for child in params_elem:
-                            parameters[child.tag] = child.text.strip() if child.text else ""
+                            parameters[child.tag] = (
+                                child.text.strip() if child.text else ""
+                            )
 
                     tool_calls.append({"name": tool_name, "parameters": parameters})
 
@@ -294,7 +328,11 @@ class SkillExecutor:
 
         elif action_type == "escalate":
             text_elem = root.find("text")
-            data["text"] = text_elem.text.strip() if text_elem is not None and text_elem.text else ""
+            data["text"] = (
+                text_elem.text.strip()
+                if text_elem is not None and text_elem.text
+                else ""
+            )
 
         elif action_type == "end":
             pass  # No additional data needed
