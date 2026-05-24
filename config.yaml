@@ -6,7 +6,7 @@ llm:
   max_tokens: 1024
 
 compliance:
-  valid_hours: [8, 20]
+  valid_hours: [0, 23]
   max_call_per_hour: 3
   min_call_interval_minutes: 10
 

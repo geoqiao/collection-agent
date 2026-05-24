@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-collect-agent = "collect_agent.cli:main"
+collect-agent = "collect_agent.cli:cli_main"
 
 [build-system]
 requires = ["uv_build>=0.10.12,<0.11.0"]
