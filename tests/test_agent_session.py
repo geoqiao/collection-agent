@@ -4,20 +4,20 @@ from __future__ import annotations
 
 import pytest
 
-from src.agent.session import AgentSession
-from src.core.constants import EventType
-from src.core.models import Event, UserProfile, UserState
-from src.intent.models import ConfidenceLevel, EmotionLevel, IntentCategory, IntentResult
-from src.intent.recognizer import IntentRecognizer
-from src.llm.base import LLMClient, LLMResponse
-from src.prompts.engine import PromptEngine
-from src.session.enhanced_state_machine import StateMachine
-from src.skills.executor import SkillExecutor
-from src.skills.onboard_skill import OnboardSkill
-from src.skills.payment_guidance_skill import PaymentGuidanceSkill
-from src.skills.registry import SkillRegistry
-from src.tools.registry import ToolRegistry
-from src.storage.memory_store import MemoryStore
+from collect_agent.agent.session import AgentSession
+from collect_agent.core.constants import EventType
+from collect_agent.core.models import Event, UserProfile, UserState
+from collect_agent.intent.models import ConfidenceLevel, EmotionLevel, IntentCategory, IntentResult
+from collect_agent.intent.recognizer import IntentRecognizer
+from collect_agent.llm.base import LLMClient, LLMResponse
+from collect_agent.prompts.engine import PromptEngine
+from collect_agent.session.enhanced_state_machine import StateMachine
+from collect_agent.skills.executor import SkillExecutor
+from collect_agent.skills.onboard_skill import OnboardSkill
+from collect_agent.skills.payment_guidance_skill import PaymentGuidanceSkill
+from collect_agent.skills.registry import SkillRegistry
+from collect_agent.tools.registry import ToolRegistry
+from collect_agent.storage.memory_store import MemoryStore
 
 
 class MockLLMClient(LLMClient):
@@ -36,7 +36,7 @@ class MockSkillExecutor(SkillExecutor):
         pass
 
     async def execute(self, skill, ctx):
-        from src.skills.base import SkillResult, SkillResultStatus
+        from collect_agent.skills.base import SkillResult, SkillResultStatus
 
         return SkillResult(
             status=SkillResultStatus.SUCCESS,
@@ -146,7 +146,7 @@ async def test_handle_payment_success():
 
 @pytest.mark.asyncio
 async def test_one_way_door_locked():
-    from src.session.enhanced_state_machine import AgentSessionState
+    from collect_agent.session.enhanced_state_machine import AgentSessionState
 
     session = create_session()
     session.state_machine.transition(AgentSessionState.ESCALATED)

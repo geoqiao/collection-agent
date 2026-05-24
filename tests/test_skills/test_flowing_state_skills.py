@@ -4,20 +4,20 @@ from __future__ import annotations
 
 import pytest
 
-from src.core.models import UserProfile
-from src.skills.base import SkillContext, SkillResultStatus
-from src.skills.executor import SkillExecutor
-from src.skills.followup_skill import FollowUpSkill
-from src.skills.negotiation_skill import NegotiationSkill
-from src.skills.onboard_skill import OnboardSkill
-from src.skills.payment_guidance_skill import PaymentGuidanceSkill
-from src.skills.reengage_skill import ReEngageSkill
-from src.skills.troubleshoot_skill import TroubleshootSkill
-from src.tools.billing import CreatePaymentPlanTool, QueryBillTool
-from src.tools.messaging import SendMessageTool, SendPaymentLinkTool
-from src.tools.promises import CheckPaymentStatusTool, RecordPromiseTool
-from src.tools.registry import ToolRegistry
-from src.tools.user import QueryUserHistoryTool, ScheduleReminderTool
+from collect_agent.core.models import UserProfile
+from collect_agent.skills.base import SkillContext, SkillResultStatus
+from collect_agent.skills.executor import SkillExecutor
+from collect_agent.skills.followup_skill import FollowUpSkill
+from collect_agent.skills.negotiation_skill import NegotiationSkill
+from collect_agent.skills.onboard_skill import OnboardSkill
+from collect_agent.skills.payment_guidance_skill import PaymentGuidanceSkill
+from collect_agent.skills.reengage_skill import ReEngageSkill
+from collect_agent.skills.troubleshoot_skill import TroubleshootSkill
+from collect_agent.tools.billing import CreatePaymentPlanTool, QueryBillTool
+from collect_agent.tools.messaging import SendMessageTool, SendPaymentLinkTool
+from collect_agent.tools.promises import CheckPaymentStatusTool, RecordPromiseTool
+from collect_agent.tools.registry import ToolRegistry
+from collect_agent.tools.user import QueryUserHistoryTool, ScheduleReminderTool
 from tests.test_skills import ReActMockLLM
 
 

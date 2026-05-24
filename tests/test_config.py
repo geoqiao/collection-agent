@@ -3,8 +3,8 @@
 import tempfile
 from pathlib import Path
 
-from src.config import ConfigManager
-from src.config.models import AgentConfig, ComplianceConfig, LLMConfig, QuotaConfig, StorageConfig
+from collect_agent.config import ConfigManager
+from collect_agent.config.models import AgentConfig, ComplianceConfig, LLMConfig, QuotaConfig, StorageConfig
 
 
 class TestConfigModels:

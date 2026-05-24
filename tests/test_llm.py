@@ -4,15 +4,15 @@ import httpx
 import pytest
 import respx
 
-from src.llm.base import LLMResponse
-from src.llm.clients import (
+from collect_agent.llm.base import LLMResponse
+from collect_agent.llm.clients import (
     ClaudeClient,
     DeepSeekClient,
     MockLLMClient,
     OpenAIClient,
     create_llm_client,
 )
-from src.llm.prompts import INTENT_SYSTEM_PROMPT, STRATEGY_SYSTEM_PROMPT
+from collect_agent.llm.prompts import INTENT_SYSTEM_PROMPT, STRATEGY_SYSTEM_PROMPT
 
 
 @pytest.fixture

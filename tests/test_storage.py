@@ -4,15 +4,15 @@ from datetime import datetime
 
 import pytest
 
-from src.core.models import (
+from collect_agent.core.models import (
     ConversationContext,
     Message,
     UserProfile,
     UserState,
 )
-from src.quota.usage import DailyQuotaUsage, QuotaStorage
-from src.storage.memory_store import MemoryStore
-from src.storage.sqlite_store import SQLiteStore
+from collect_agent.quota.usage import DailyQuotaUsage, QuotaStorage
+from collect_agent.storage.memory_store import MemoryStore
+from collect_agent.storage.sqlite_store import SQLiteStore
 
 
 @pytest.fixture

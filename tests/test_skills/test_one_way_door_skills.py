@@ -4,16 +4,16 @@ from __future__ import annotations
 
 import pytest
 
-from src.core.models import UserProfile
-from src.skills.base import SkillContext, SkillResultStatus
-from src.skills.complaint_skill import ComplaintSkill
-from src.skills.crisis_skill import CrisisSkill
-from src.skills.dispute_skill import DisputeSkill
-from src.skills.executor import SkillExecutor
-from src.skills.stop_skill import StopSkill
-from src.tools.compliance import EscalateToHumanTool, PauseCollectionTool, WelfareAlertTool
-from src.tools.registry import ToolRegistry
-from src.tools.user import AddToDncListTool
+from collect_agent.core.models import UserProfile
+from collect_agent.skills.base import SkillContext, SkillResultStatus
+from collect_agent.skills.complaint_skill import ComplaintSkill
+from collect_agent.skills.crisis_skill import CrisisSkill
+from collect_agent.skills.dispute_skill import DisputeSkill
+from collect_agent.skills.executor import SkillExecutor
+from collect_agent.skills.stop_skill import StopSkill
+from collect_agent.tools.compliance import EscalateToHumanTool, PauseCollectionTool, WelfareAlertTool
+from collect_agent.tools.registry import ToolRegistry
+from collect_agent.tools.user import AddToDncListTool
 from tests.test_skills import ReActMockLLM
 
 

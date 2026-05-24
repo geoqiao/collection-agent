@@ -1,13 +1,13 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from src.core.constants import (
+from collect_agent.core.constants import (
     ChannelType,
     EventType,
     SessionState,
 )
-from src.core.models import Event, UserProfile, UserState
-from src.session.session import CollectionSession
+from collect_agent.core.models import Event, UserProfile, UserState
+from collect_agent.session.session import CollectionSession
 
 
 @pytest.fixture
@@ -231,7 +231,7 @@ async def test_sensitive_occupation_gets_standard_reminder_on_outreach(mock_deps
     mock_deps["orchestrator"].arbitrate.return_value = "granted"
     mock_deps["llm_client"].generate_strategy_response.return_value = "标准提醒"
 
-    from src.strategy.strategies import STRATEGIES
+    from collect_agent.strategy.strategies import STRATEGIES
 
     sensitive_state = UserState(
         user_id="u_lawyer",
@@ -259,7 +259,7 @@ async def test_sensitive_occupation_gets_standard_reminder_on_reply(mock_deps):
     mock_deps["llm_client"].generate_strategy_response.return_value = "标准提醒"
     mock_deps["llm_client"].detect_intent.return_value = "willing_to_pay"
 
-    from src.strategy.strategies import STRATEGIES
+    from collect_agent.strategy.strategies import STRATEGIES
 
     sensitive_state = UserState(
         user_id="u_lawyer",
@@ -336,8 +336,8 @@ async def test_max_rounds_enforcement(mock_deps):
     # After increment, round=3 >= max_rounds=2, should escalate
     assert session.state.conversation.negotiation_round == 3
     # Should escalate to COMPLAINT strategy (or standard_reminder fallback)
-    from src.strategy.strategies import STRATEGIES
-    from src.core.constants import Intent
+    from collect_agent.strategy.strategies import STRATEGIES
+    from collect_agent.core.constants import Intent
     call_args = mock_deps["llm_client"].generate_strategy_response.call_args
     assert call_args[0][0] == STRATEGIES[Intent.COMPLAINT]
 
@@ -408,7 +408,7 @@ async def test_state_sync_includes_quota_usage_and_conversation(mock_deps):
     mock_deps["llm_client"].generate_strategy_response.return_value = "test"
 
     # Use real QuotaManager so _usages is populated
-    from src.quota.manager import QuotaManager
+    from collect_agent.quota.manager import QuotaManager
     quota_manager = QuotaManager()
     mock_deps["quota_manager"] = quota_manager
 
@@ -435,7 +435,7 @@ async def test_state_sync_includes_quota_usage_and_conversation(mock_deps):
 @pytest.mark.asyncio
 async def test_compliance_violation_caught_separately(user_state, mock_deps):
     """ComplianceViolationError is caught separately in handle_event."""
-    from src.core.exceptions import ComplianceViolationError
+    from collect_agent.core.exceptions import ComplianceViolationError
 
     # Make _handle_outreach_event raise ComplianceViolationError
     async def raise_compliance(*args, **kwargs):
@@ -460,8 +460,8 @@ async def test_compliance_violation_caught_separately(user_state, mock_deps):
 @pytest.mark.asyncio
 async def test_config_from_dict_works_correctly():
     """QuotaProfile.from_dict and ComplianceRules.from_dict filter unknown keys."""
-    from src.quota.profile import QuotaProfile
-    from src.compliance.rules import ComplianceRules
+    from collect_agent.quota.profile import QuotaProfile
+    from collect_agent.compliance.rules import ComplianceRules
 
     quota = QuotaProfile.from_dict({
         "call_self_daily_max": 5,
@@ -490,7 +490,7 @@ async def test_silence_timeout_uses_outreach_time(mock_deps):
     """SilenceTimeoutTracker uses last_outreach_at, not last_interaction_at."""
     from datetime import datetime
     from unittest.mock import patch
-    from src.session.timeout_tracker import SilenceTimeoutTracker
+    from collect_agent.session.timeout_tracker import SilenceTimeoutTracker
 
     mock_deps["compliance_checker"].is_within_valid_hours.return_value = True
     mock_deps["compliance_checker"].audit_content.return_value = (True, "")
@@ -523,7 +523,7 @@ async def test_silence_timeout_uses_outreach_time(mock_deps):
     if future.minute < session.last_outreach_at.minute:
         future = future.replace(hour=future.hour + 1)
 
-    with patch("src.session.timeout_tracker.datetime") as mock_dt:
+    with patch("collect_agent.session.timeout_tracker.datetime") as mock_dt:
         mock_dt.now.return_value = future
         mock_dt.side_effect = lambda tz=None: datetime.now(tz) if tz else datetime.now()
         tier = await tracker.check_timeout(session)
@@ -538,8 +538,8 @@ async def test_silence_timeout_uses_outreach_time(mock_deps):
 @pytest.mark.asyncio
 async def test_channel_receive_updates_state_on_user_replied(mock_deps):
     """USER_REPLIED calls channel.receive and updates channel state."""
-    from src.channels.chatbot import ChatbotChannel
-    from src.core.constants import ChannelState
+    from collect_agent.channels.chatbot import ChatbotChannel
+    from collect_agent.core.constants import ChannelState
 
     mock_deps["compliance_checker"].audit_content.return_value = (True, "")
     mock_deps["strategy_engine"].select_strategy.return_value = {"type": "confirm_plan"}

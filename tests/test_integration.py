@@ -3,10 +3,10 @@ from unittest.mock import patch
 
 import pytest
 
-from src.cli import run_demo
-from src.core.constants import EventType, SessionState
-from src.core.models import Event, UserProfile, UserState
-from src.main import CollectAgentSystem
+from collect_agent.cli import run_demo
+from collect_agent.core.constants import EventType, SessionState
+from collect_agent.core.models import Event, UserProfile, UserState
+from collect_agent.main import CollectAgentSystem
 
 
 @pytest.fixture
@@ -40,7 +40,7 @@ async def test_silence_timeout_10min(system):
 
     # Mock time: 11 minutes passed
     future = datetime.now(timezone.utc).replace(second=0, microsecond=0)
-    with patch("src.session.timeout_tracker.datetime") as mock_dt:
+    with patch("collect_agent.session.timeout_tracker.datetime") as mock_dt:
         mock_dt.now.return_value = future
         mock_dt.side_effect = lambda tz=None: datetime.now(tz) if tz else datetime.now()
         # Add 11 minutes to now
@@ -74,7 +74,7 @@ async def test_silence_timeout_1hour(system):
     if future_10min.minute < session.last_outreach_at.minute:
         future_10min = future_10min.replace(hour=future_10min.hour + 1)
 
-    with patch("src.session.timeout_tracker.datetime") as mock_dt:
+    with patch("collect_agent.session.timeout_tracker.datetime") as mock_dt:
         mock_dt.now.return_value = future_10min
         mock_dt.side_effect = lambda tz=None: datetime.now(tz) if tz else datetime.now()
         tier = await system.scheduler.tracker.check_timeout(session)
@@ -88,7 +88,7 @@ async def test_silence_timeout_1hour(system):
         microsecond=0,
     )
 
-    with patch("src.session.timeout_tracker.datetime") as mock_dt:
+    with patch("collect_agent.session.timeout_tracker.datetime") as mock_dt:
         mock_dt.now.return_value = future_1h
         mock_dt.side_effect = lambda tz=None: datetime.now(tz) if tz else datetime.now()
         tier = await system.scheduler.tracker.check_timeout(session)
@@ -110,7 +110,7 @@ async def test_silence_timeout_no_repeat(system):
     if future_10min.minute < session.last_outreach_at.minute:
         future_10min = future_10min.replace(hour=future_10min.hour + 1)
 
-    with patch("src.session.timeout_tracker.datetime") as mock_dt:
+    with patch("collect_agent.session.timeout_tracker.datetime") as mock_dt:
         mock_dt.now.return_value = future_10min
         mock_dt.side_effect = lambda tz=None: datetime.now(tz) if tz else datetime.now()
         tier1 = await system.scheduler.tracker.check_timeout(session)
@@ -229,7 +229,7 @@ async def test_silence_timeout_via_scheduler(system):
 
     system.router.route_async = capturing_route_async
 
-    with patch("src.session.timeout_tracker.datetime") as mock_dt:
+    with patch("collect_agent.session.timeout_tracker.datetime") as mock_dt:
         mock_dt.now.return_value = future_10min
         mock_dt.side_effect = lambda tz=None: datetime.now(tz) if tz else datetime.now()
         await system.run_timeout_checks()
@@ -249,7 +249,7 @@ async def test_demo_mode():
     """Run the full demo and verify state transitions."""
     system = CollectAgentSystem()
     # Patch compliance to always allow outreach
-    with patch("src.session.session.ComplianceChecker.is_within_valid_hours", return_value=True):
+    with patch("collect_agent.session.session.ComplianceChecker.is_within_valid_hours", return_value=True):
         await run_demo(system)
 
     session = system.get_session("demo_user_001")
@@ -350,7 +350,7 @@ async def test_full_collection_lifecycle():
     system.store.save(state)
 
     # Patch compliance to always allow outreach
-    with patch("src.session.session.ComplianceChecker.is_within_valid_hours", return_value=True):
+    with patch("collect_agent.session.session.ComplianceChecker.is_within_valid_hours", return_value=True):
         # 2. SCHEDULED_OUTREACH -> session created and outreach handled
         await system.run_scheduled_outreach()
         session = system.get_session(user_id)
@@ -453,7 +453,7 @@ async def test_scheduler_timeout_skips_paused_sessions():
 
     system.router.route_async = capturing_route_async
 
-    with patch("src.session.timeout_tracker.datetime") as mock_dt:
+    with patch("collect_agent.session.timeout_tracker.datetime") as mock_dt:
         mock_dt.now.return_value = future_10min
         mock_dt.side_effect = lambda tz=None: datetime.now(tz) if tz else datetime.now()
         await system.run_timeout_checks()

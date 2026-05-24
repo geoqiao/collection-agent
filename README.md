@@ -17,19 +17,19 @@ uv run pytest tests/ -q
 ## Run Demo
 
 ```bash
-uv run python src/cli.py --action=demo
+uv run collect-agent --action=demo
 ```
 
 ## Run Scheduled Outreach
 
 ```bash
-uv run python src/cli.py --action=scan
+uv run collect-agent --action=scan
 ```
 
 ## Send an Event
 
 ```bash
-uv run python src/cli.py --action=event --user-id=u001 --event-type=USER_LOGIN
+uv run collect-agent --action=event --user-id=u001 --event-type=USER_LOGIN
 ```
 
 ## Architecture

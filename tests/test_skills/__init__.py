@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from src.llm.base import LLMClient, LLMResponse
+from collect_agent.llm.base import LLMClient, LLMResponse
 
 
 class ReActMockLLM(LLMClient):

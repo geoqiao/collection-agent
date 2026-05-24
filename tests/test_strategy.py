@@ -1,8 +1,8 @@
 import pytest
-from src.strategy.detector import IntentDetector
-from src.strategy.engine import StrategyEngine
-from src.core.constants import Intent
-from src.core.models import UserProfile
+from collect_agent.strategy.detector import IntentDetector
+from collect_agent.strategy.engine import StrategyEngine
+from collect_agent.core.constants import Intent
+from collect_agent.core.models import UserProfile
 
 
 @pytest.fixture

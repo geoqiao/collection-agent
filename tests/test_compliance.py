@@ -1,6 +1,6 @@
 import pytest
-from src.compliance.checker import ComplianceChecker
-from src.core.models import UserProfile
+from collect_agent.compliance.checker import ComplianceChecker
+from collect_agent.core.models import UserProfile
 
 
 @pytest.fixture
@@ -57,7 +57,7 @@ def test_audit_content_blocks_threats(checker):
 
 def test_clean_template_no_legal_risk(checker):
     """Negotiate strategy template should not contain legal threat language."""
-    from src.strategy.strategies import RESPONSE_TEMPLATES
+    from collect_agent.strategy.strategies import RESPONSE_TEMPLATES
     templates = RESPONSE_TEMPLATES["negotiate"]
     for template in templates:
         is_clean, reason = checker.audit_content(template)
@@ -65,7 +65,7 @@ def test_clean_template_no_legal_risk(checker):
 
 
 def test_compliance_rules_has_forbidden_words():
-    from src.compliance.rules import ComplianceRules
+    from collect_agent.compliance.rules import ComplianceRules
     rules = ComplianceRules()
     assert len(rules.forbidden_words) > 0
     assert "法律诉讼" in rules.forbidden_words

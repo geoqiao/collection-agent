@@ -1,7 +1,7 @@
-from src.context.window import ContextWindow
-from src.context.user_context import UserContext
-from src.context.manager import ContextManager
-from src.core.models import Message
+from collect_agent.context.window import ContextWindow
+from collect_agent.context.user_context import UserContext
+from collect_agent.context.manager import ContextManager
+from collect_agent.core.models import Message
 
 
 class TestContextWindow:

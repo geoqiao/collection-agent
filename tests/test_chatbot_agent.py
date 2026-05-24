@@ -4,14 +4,14 @@ from __future__ import annotations
 
 import pytest
 
-from src.chatbot.agent import ChatbotAgent, ChatContext
-from src.core.models import UserProfile
-from src.intent.models import ConfidenceLevel, EmotionLevel, IntentCategory, IntentResult
-from src.llm.base import LLMClient, LLMResponse
-from src.prompts.engine import PromptEngine
-from src.skills.base import SkillContext as SkillCtx, SkillResult, SkillResultStatus
-from src.skills.executor import SkillExecutor
-from src.skills.registry import SkillRegistry
+from collect_agent.chatbot.agent import ChatbotAgent, ChatContext
+from collect_agent.core.models import UserProfile
+from collect_agent.intent.models import ConfidenceLevel, EmotionLevel, IntentCategory, IntentResult
+from collect_agent.llm.base import LLMClient, LLMResponse
+from collect_agent.prompts.engine import PromptEngine
+from collect_agent.skills.base import SkillContext as SkillCtx, SkillResult, SkillResultStatus
+from collect_agent.skills.executor import SkillExecutor
+from collect_agent.skills.registry import SkillRegistry
 
 
 class MockLLMClient(LLMClient):
@@ -107,7 +107,7 @@ async def test_one_way_door_intent_returns_fixed_template():
 
 @pytest.mark.asyncio
 async def test_normal_intent_with_skill_registry():
-    from src.skills.onboard_skill import OnboardSkill
+    from collect_agent.skills.onboard_skill import OnboardSkill
 
     registry = SkillRegistry()
     registry.register(OnboardSkill())
