@@ -33,3 +33,6 @@ test_*.db
 # OS
 .DS_Store
 Thumbs.db
+
+# pi agent state
+.pi/
