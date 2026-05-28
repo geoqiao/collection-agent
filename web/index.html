@@ -121,6 +121,12 @@
     let currentUserId = 'test_001';
 
     function connectWebSocket(userId) {
+      // Close existing connection to prevent duplicate messages
+      if (ws) {
+        ws.close();
+        ws = null;
+      }
+
       currentUserId = userId;
       document.getElementById('currentUserId').textContent = userId;
 

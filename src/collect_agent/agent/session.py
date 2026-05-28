@@ -58,6 +58,10 @@ class AgentSession:
 
     async def handle_event(self, event: Event) -> SkillResult | None:
         """Handle an incoming event and return a skill result."""
+        # Special events: bypass normal flow
+        if event.type == EventType.USER_PAYMENT_SUCCESS:
+            return await self._handle_payment_success(event)
+
         # 1. Harness checks
         harness_result = self.harness.check(event, self.user_state)
         if harness_result.block:
@@ -223,6 +227,33 @@ class AgentSession:
         # Save state
         if self.storage and hasattr(self.storage, "save"):
             self.storage.save(self.user_state)
+
+    async def _handle_payment_success(self, event: Event) -> SkillResult:
+        """Handle USER_PAYMENT_SUCCESS event directly."""
+        self.user_state.session_state = "resolved"
+
+        amount = event.payload.get("amount", 0)
+        thinking = f"Payment successful: ¥{amount}. Transitioned to RESOLVED."
+
+        # Record the payment event
+        self._record_message("chatbot", "inbound", f"[系统] 用户支付 ¥{amount}")
+
+        response_text = (
+            f"感谢您的还款！您的账单已结清。"
+            f"如有其他问题，欢迎随时联系。"
+        )
+
+        self._record_message("chatbot", "outbound", response_text)
+
+        if self.storage and hasattr(self.storage, "save"):
+            self.storage.save(self.user_state)
+
+        return SkillResult(
+            status="success",
+            response_text=response_text,
+            new_session_state="resolved",
+            thinking=thinking,
+        )
 
     def _fallback_for_violation(self, reason: str) -> str:
         """Return safe fallback message when audit blocks content."""
