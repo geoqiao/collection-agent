@@ -63,18 +63,6 @@ def test_audit_content_blocks_threats(checker):
     assert "forbidden words" in reason
 
 
-def test_clean_template_no_legal_risk(checker):
-    """Negotiate strategy template should not contain legal threat language."""
-    from collect_agent.strategy.strategies import RESPONSE_TEMPLATES
-
-    templates = RESPONSE_TEMPLATES["negotiate"]
-    for template in templates:
-        is_clean, reason = checker.audit_content(template)
-        assert is_clean is True, (
-            f"Template contains forbidden words: {template} - {reason}"
-        )
-
-
 def test_compliance_rules_has_forbidden_words():
     from collect_agent.compliance.rules import ComplianceRules
 

@@ -1,52 +1,26 @@
-"""Skill framework base classes."""
+"""Skill framework base classes — simplified for MVP.
+
+Skills are declarative configuration, not Python classes with inheritance.
+Execution logic is fully delegated to SkillExecutor.
+"""
+
+from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
 from typing import Any
-
-from collect_agent.core.models import Message, UserProfile
-from collect_agent.tools.base import Tool
-
-
-class SkillResultStatus:
-    SUCCESS = "success"
-    NEEDS_ESCALATION = "needs_escalation"
-    STOPPED = "stopped"
-    CRISIS = "crisis"
-    ERROR = "error"
-
-
-@dataclass
-class ToolCallRecord:
-    tool_name: str
-    parameters: dict[str, Any]
-    result: dict[str, Any]
-
-
-@dataclass
-class SkillContext:
-    user_id: str
-    user_profile: UserProfile
-    conversation_history: list[Message] = field(default_factory=list)
-    current_intent: str = ""
-    user_message: str | None = None
-    session_state: str = "normal"
-    available_tools: list[Tool] = field(default_factory=list)
-    memory: dict[str, Any] = field(default_factory=dict)
-    bill_facts: dict[str, Any] = field(default_factory=dict)
-    negotiation_round: int = 0
 
 
 @dataclass
 class SkillResult:
-    status: str = SkillResultStatus.SUCCESS
+    """Result of skill execution."""
+
+    status: str = "success"
     response_text: str | None = None
-    actions: list[ToolCallRecord] = field(default_factory=list)
     new_session_state: str | None = None
     escalation: bool = False
     requires_follow_up: bool = False
-    follow_up_date: datetime | None = None
     thinking: str = ""
+    actions: list[dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass
@@ -54,32 +28,28 @@ class Skill:
     """A skill defines configuration for the ReAct executor.
 
     Skills do NOT contain hard-coded execution logic.
-    Execution is fully delegated to SkillExecutor, which drives an LLM
-    through a ReAct loop using the skill's system prompt and available tools.
+    Loaded from Markdown files with YAML frontmatter.
     """
 
     name: str = ""
     description: str = ""
-    triggers: list[str] = field(default_factory=list)
-    is_one_way_door: bool = False
-    max_react_steps: int = 5
-    prompt_template: str = ""  # Filename under prompts/templates/skills/
-    tools: list[Tool] = field(default_factory=list)
+    tools: list[str] = field(default_factory=list)
+    max_steps: int = 3
+    content: str = ""  # Markdown body used as system prompt supplement
 
-    def __post_init__(self) -> None:
-        """Read class-level overrides from subclasses."""
-        cls = self.__class__
-        defaults = {
-            "name": "",
-            "description": "",
-            "triggers": [],
-            "is_one_way_door": False,
-            "max_react_steps": 5,
-            "prompt_template": "",
-        }
-        for attr, default in defaults.items():
-            if attr in cls.__dict__ and getattr(self, attr) == default:
-                object.__setattr__(self, attr, cls.__dict__[attr])
+    def get_system_prompt(self) -> str:
+        """Build the system prompt for this skill."""
+        lines = [
+            f"# Skill: {self.name}",
+            f"## 描述\n{self.description}",
+        ]
 
-    def get_available_tools(self) -> list[Tool]:
-        return self.tools
+        if self.tools:
+            lines.append("## 可用工具")
+            for t in self.tools:
+                lines.append(f"- {t}")
+
+        if self.content:
+            lines.append(f"\n## 详细指令\n{self.content}")
+
+        return "\n\n".join(lines)

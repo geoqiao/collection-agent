@@ -5,7 +5,6 @@ import httpx
 from dotenv import load_dotenv
 
 from collect_agent.llm.base import LLMClient, LLMResponse
-from collect_agent.llm.prompts import INTENT_SYSTEM_PROMPT, STRATEGY_SYSTEM_PROMPT
 from collect_agent.llm.retry import RetryConfig
 
 
@@ -17,18 +16,6 @@ class MockLLMClient(LLMClient):
         max_tokens: int = 1024,
     ) -> LLMResponse:
         return LLMResponse(content="[Mock response]")
-
-    async def detect_intent(self, user_message: str, context: dict) -> str:
-        text = user_message.lower()
-        if "还" in text or "付" in text:
-            return "willing_to_pay"
-        if "不" in text or "没钱" in text:
-            return "unwilling_to_pay"
-        return "ineffective_contact"
-
-    async def generate_strategy_response(self, strategy: dict, context: dict) -> str:
-        name = context.get("user_name", "用户")
-        return f"您好{name}，请尽快处理您的逾期账单。"
 
 
 class ClaudeClient(LLMClient):
@@ -90,23 +77,6 @@ class ClaudeClient(LLMClient):
             model=data.get("model", self.model),
         )
 
-    async def detect_intent(self, user_message: str, context: dict) -> str:
-        messages = [
-            {"role": "system", "content": INTENT_SYSTEM_PROMPT},
-            {"role": "user", "content": user_message},
-        ]
-        resp = await self.chat(messages, temperature=0.0, max_tokens=64)
-        return resp.content.strip().lower()
-
-    async def generate_strategy_response(self, strategy: dict, context: dict) -> str:
-        strategy_text = f"Strategy: {strategy}\nContext: {context}"
-        messages = [
-            {"role": "system", "content": STRATEGY_SYSTEM_PROMPT},
-            {"role": "user", "content": strategy_text},
-        ]
-        resp = await self.chat(messages, temperature=0.7, max_tokens=1024)
-        return resp.content
-
 
 class OpenAIClient(LLMClient):
     def __init__(
@@ -167,23 +137,6 @@ class OpenAIClient(LLMClient):
             model=data.get("model", self.model),
         )
 
-    async def detect_intent(self, user_message: str, context: dict) -> str:
-        messages = [
-            {"role": "system", "content": INTENT_SYSTEM_PROMPT},
-            {"role": "user", "content": user_message},
-        ]
-        resp = await self.chat(messages, temperature=0.0, max_tokens=64)
-        return resp.content.strip().lower()
-
-    async def generate_strategy_response(self, strategy: dict, context: dict) -> str:
-        strategy_text = f"Strategy: {strategy}\nContext: {context}"
-        messages = [
-            {"role": "system", "content": STRATEGY_SYSTEM_PROMPT},
-            {"role": "user", "content": strategy_text},
-        ]
-        resp = await self.chat(messages, temperature=0.7, max_tokens=1024)
-        return resp.content
-
 
 class DeepSeekClient(LLMClient):
     def __init__(
@@ -243,23 +196,6 @@ class DeepSeekClient(LLMClient):
             },
             model=data.get("model", self.model),
         )
-
-    async def detect_intent(self, user_message: str, context: dict) -> str:
-        messages = [
-            {"role": "system", "content": INTENT_SYSTEM_PROMPT},
-            {"role": "user", "content": user_message},
-        ]
-        resp = await self.chat(messages, temperature=0.0, max_tokens=64)
-        return resp.content.strip().lower()
-
-    async def generate_strategy_response(self, strategy: dict, context: dict) -> str:
-        strategy_text = f"Strategy: {strategy}\nContext: {context}"
-        messages = [
-            {"role": "system", "content": STRATEGY_SYSTEM_PROMPT},
-            {"role": "user", "content": strategy_text},
-        ]
-        resp = await self.chat(messages, temperature=0.7, max_tokens=1024)
-        return resp.content
 
 
 def _resolve_api_key(provider: str, config: dict) -> str:

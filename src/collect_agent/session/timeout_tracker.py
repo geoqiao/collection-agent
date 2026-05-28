@@ -2,7 +2,6 @@ import asyncio
 from datetime import UTC, datetime
 
 from collect_agent.agent.session import AgentSession
-from collect_agent.session.session import CollectionSession
 
 
 class SilenceTimeoutTracker:
@@ -16,7 +15,7 @@ class SilenceTimeoutTracker:
         self._emitted_tiers.pop(user_id, None)
 
     async def check_timeout(
-        self, session: CollectionSession | AgentSession
+        self, session: AgentSession
     ) -> int | None:
         user_id = session.user_id
         last = session.last_outreach_at

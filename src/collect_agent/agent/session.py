@@ -1,27 +1,25 @@
-"""Main agent session that handles events via skill dispatch."""
+"""Main agent session that handles events via Harness -> Decide -> Execute flow."""
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from collect_agent.compliance.checker import ComplianceChecker
 from collect_agent.core.constants import EventType
+from collect_agent.core.context import Context, OutreachResult
 from collect_agent.core.models import Event, Message, UserState
-from collect_agent.intent.models import IntentResult
-from collect_agent.intent.recognizer import IntentRecognizer
-from collect_agent.llm.base import LLMClient
-from collect_agent.prompts.engine import PromptEngine
-from collect_agent.session.enhanced_state_machine import (
-    AgentSessionState,
-    StateMachine,
-)
-from collect_agent.skills.base import SkillContext, SkillResult, SkillResultStatus
+from collect_agent.decider import Decider, Decision
+from collect_agent.harness import Harness
+from collect_agent.intent.models import IntentCategory
+from collect_agent.skills.base import SkillResult
 from collect_agent.skills.executor import SkillExecutor
 from collect_agent.skills.registry import SkillRegistry
 from collect_agent.storage.memory_store import MemoryStore
-from collect_agent.tools.registry import ToolRegistry
+from collect_agent.storage.sqlite_store import SQLiteStore
 
-_FIXED_TEMPLATES: dict[str, str] = {
+
+# Fixed templates for locked states
+_LOCKED_TEMPLATES: dict[str, str] = {
     "escalated": "非常抱歉给您带来了不好的体验。您的投诉我已记录并升级至专人处理，后续将由投诉专员与您联系。",
     "stopped": "已收到您的要求。我已立即停止所有联系，并将您加入免打扰名单。",
     "crisis": "我非常理解您现在的感受。无论遇到什么困难，都有人愿意帮助您。请拨打心理援助热线 400-161-9995。",
@@ -30,33 +28,27 @@ _FIXED_TEMPLATES: dict[str, str] = {
 
 
 class AgentSession:
-    """Main agent session that handles events via skill dispatch."""
+    """Main agent session — Harness -> Decide -> Execute."""
 
     def __init__(
         self,
         user_id: str,
         user_state: UserState,
         skill_registry: SkillRegistry,
-        intent_recognizer: IntentRecognizer,
-        state_machine: StateMachine,
         skill_executor: SkillExecutor,
-        tool_registry: ToolRegistry,
-        prompt_engine: PromptEngine,
-        llm_client: LLMClient,
-        storage: MemoryStore,
+        decider: Decider,
+        harness: Harness,
         compliance_checker: ComplianceChecker | None = None,
+        storage: MemoryStore | SQLiteStore | None = None,
     ) -> None:
         self.user_id = user_id
         self.user_state = user_state
         self.skill_registry = skill_registry
-        self.intent_recognizer = intent_recognizer
-        self.state_machine = state_machine
         self.skill_executor = skill_executor
-        self.tool_registry = tool_registry
-        self.prompt_engine = prompt_engine
-        self.llm_client = llm_client
+        self.decider = decider
+        self.harness = harness
+        self.compliance_checker = compliance_checker
         self.storage = storage
-        self.compliance_checker = compliance_checker or ComplianceChecker()
         self.last_outreach_at: datetime | None = None
         self.last_interaction_at: datetime | None = None
 
@@ -67,173 +59,133 @@ class AgentSession:
 
     async def handle_event(self, event: Event) -> SkillResult | None:
         """Handle an incoming event and return a skill result."""
-        # Compliance check for outbound/outreach events
-        if event.type in {
-            EventType.SCHEDULED_OUTREACH,
-            EventType.REMINDER_DUE,
-            EventType.SILENCE_TIMEOUT,
-        } and not self.compliance_checker.is_within_valid_hours():
+        # 1. Harness checks
+        harness_result = self.harness.check(event, self.user_state)
+        if harness_result.block:
             return SkillResult(
-                status=SkillResultStatus.ERROR,
-                response_text="",
-                thinking="Outreach blocked: outside valid hours",
+                status="blocked",
+                response_text=harness_result.force_response or "",
+                thinking=f"Harness blocked: {harness_result.reason}",
             )
 
-        if event.type in (EventType.USER_REPLIED, EventType.CALL_CONNECTED):
-            return await self._handle_user_event(event)
+        # 2. Build context
+        context = self._build_context(event)
 
-        if event.type in (
-            EventType.SCHEDULED_OUTREACH,
-            EventType.REMINDER_DUE,
-            EventType.USER_LOGIN,
-        ):
-            return await self._handle_outreach_event(event)
-
-        if event.type == EventType.USER_PAYMENT_SUCCESS:
-            return await self._handle_payment_success(event)
-
-        if event.type == EventType.SILENCE_TIMEOUT:
-            return await self._handle_silence_timeout(event)
-
-        return None
-
-    async def _handle_user_event(self, event: Event) -> SkillResult:
-        """Handle USER_REPLIED or CALL_CONNECTED events."""
-        user_message = event.payload.get("message", "")
-        session_state = self.state_machine.current.value
-
-        # a. Recognize intent (with guardrails if locked)
-        if self.state_machine.is_locked:
-            intent_result = await self.intent_recognizer.recognize_with_guardrails(
-                user_message=user_message,
-                session_state=session_state,
+        # 3. Decide (intent + skill selection)
+        if harness_result.force_intent:
+            decision = self._build_forced_decision(
+                harness_result.force_intent, harness_result.reason
             )
         else:
-            intent_result = await self.intent_recognizer.recognize(
-                user_message=user_message,
-                context={
-                    "session_state": session_state,
-                    "history": self.user_state.conversation.messages,
-                },
+            decision = await self.decider.decide(context)
+
+        # 4. Load skill
+        skill = self.skill_registry.get(decision.selected_skill)
+        if skill is None:
+            skill = self._fallback_skill(decision.intent)
+
+        # 5. Record user message
+        if event.type == EventType.USER_REPLIED:
+            msg = event.payload.get("message", "")
+            if msg:
+                self._record_message("chatbot", "inbound", msg)
+                self.user_state.conversation.negotiation_round += 1
+
+        # 6. Execute skill via ReAct
+        result = await self.skill_executor.execute(skill, context, self.storage)
+
+        # 7. Output audit
+        if result.response_text and self.compliance_checker:
+            clean, reason = self.compliance_checker.audit_content(result.response_text)
+            if not clean:
+                result.response_text = self._fallback_for_violation(reason)
+                result.status = "error"
+                result.thinking += f"\n[Audit blocked: {reason}]"
+
+        # 8. Record agent response
+        if result.response_text:
+            self._record_message("chatbot", "outbound", result.response_text)
+
+        # 9. Process result (state transition, save)
+        self._process_result(result, decision)
+
+        return result
+
+    def _build_context(self, event: Event) -> Context:
+        """Build multi-signal context from event and user state."""
+        profile = self.user_state.profile
+        conversation = self.user_state.conversation
+
+        # Recent events
+        recent_events: list[Event] = []
+        if event.type != EventType.USER_REPLIED:
+            recent_events.append(event)
+
+        # Last outreach
+        last_outreach = None
+        if self.last_outreach_at:
+            hours = (datetime.now(UTC) - self.last_outreach_at).total_seconds() / 3600
+            last_outreach = OutreachResult(
+                hours_since=hours,
             )
 
-        # Sync intent to user state for backward compatibility
-        self.user_state.conversation.current_intent = intent_result.category.value
+        # Facts injection
+        facts = {
+            "user_name": profile.name or "用户",
+            "due_amount": str(profile.amount_due),
+            "overdue_days": str(profile.overdue_days),
+            "occupation": profile.occupation or "未知",
+        }
 
-        # b. Check one-way door - if locked, return fixed template
-        if self.state_machine.is_locked:
-            state_value = self.state_machine.current.value
-            return SkillResult(
-                status=SkillResultStatus.SUCCESS,
-                response_text=_FIXED_TEMPLATES.get(
-                    state_value, "感谢您的留言，我们将尽快处理。"
-                ),
-                new_session_state=state_value,
-                escalation=state_value in ("escalated", "crisis", "disputed"),
-                thinking=f"One-way door state locked: {state_value}",
-            )
+        # Available skills
+        available_skills = [
+            {"name": s.name, "description": s.description}
+            for s in self.skill_registry.list_skills()
+        ]
 
-        # c. Select skill from registry based on intent.category.value
-        skill = self.skill_registry.select_skill(
-            intent=intent_result.category.value,
-            event_type=event.type.value,
-            user_profile=self.user_state.profile,
+        return Context(
+            user_message=event.payload.get("message") if event.type == EventType.USER_REPLIED else None,
+            profile=profile,
+            session_state=self.user_state.session_state,
+            negotiation_round=conversation.negotiation_round,
+            intent_history=self.user_state.intent_history,
+            recent_events=recent_events,
+            last_outreach=last_outreach,
+            messages=conversation.messages,
+            facts=facts,
+            available_skills=available_skills,
         )
 
-        if skill is None:
-            # Fallback: try to match by intent name
-            skill = self.skill_registry.get(intent_result.category.value.lower())
-
-        if skill is None:
-            return SkillResult(
-                status=SkillResultStatus.ERROR,
-                response_text="感谢您的留言，我已记录，稍后会有专人与您联系。",
-                thinking=f"No skill found for intent: {intent_result.category.value}",
-            )
-
-        # d. Build SkillContext
-        skill_ctx = self._build_skill_context(event, intent_result)
-
-        # Record user message before skill execution
-        if user_message:
-            self._record_message("chatbot", "inbound", user_message)
-            self.user_state.conversation.negotiation_round += 1
-
-        # e. Execute skill via skill_executor
-        skill_result = await self.skill_executor.execute(skill, skill_ctx)
-
-        # Record agent response
-        if skill_result.response_text:
-            self._record_message("chatbot", "outbound", skill_result.response_text)
-
-        # f. Process result (update state machine, save state)
-        self._process_skill_result(skill_result)
-
-        # g. Return result
-        return skill_result
-
-    async def _handle_outreach_event(self, event: Event) -> SkillResult:
-        """Handle SCHEDULED_OUTREACH / REMINDER_DUE / USER_LOGIN events."""
-        skill = self.skill_registry.select_skill(
-            intent=event.type.value,
-            event_type=event.type.value,
-            user_profile=self.user_state.profile,
+    def _build_forced_decision(self, intent: IntentCategory, reason: str) -> Decision:
+        """Build a decision when harness forces an intent."""
+        skill_name = self._intent_to_skill(intent)
+        return Decision(
+            intent=intent,
+            selected_skill=skill_name,
+            confidence="high",
+            escalation=intent in (IntentCategory.CRISIS, IntentCategory.COMPLAINT, IntentCategory.DISPUTE),
+            emotion="negative",
+            reasoning=f"Harness forced: {reason}",
         )
 
-        if skill is None:
-            skill = self.skill_registry.get("onboard")
+    def _intent_to_skill(self, intent: IntentCategory) -> str:
+        """Map intent to skill name (for harness-forced or fallback)."""
+        mapping = {
+            IntentCategory.COOPERATION: "payment_guidance",
+            IntentCategory.NEGOTIATION: "negotiation",
+            IntentCategory.AVOIDANCE: "reengage",
+            IntentCategory.DISPUTE: "dispute",
+            IntentCategory.COMPLAINT: "complaint",
+            IntentCategory.STOP: "stop",
+            IntentCategory.CRISIS: "crisis",
+        }
+        return mapping.get(intent, "troubleshoot")
 
-        if skill is None:
-            return SkillResult(
-                status=SkillResultStatus.ERROR,
-                response_text="系统错误：未找到 outreach 技能。",
-                thinking=f"No skill found for event: {event.type.value}",
-            )
+    def _fallback_skill(self, intent: IntentCategory) -> str:
+        """Fallback skill when LLM-selected skill is not found."""
+        return self._intent_to_skill(intent)
 
-        skill_ctx = self._build_skill_context(event, None)
-        skill_result = await self.skill_executor.execute(skill, skill_ctx)
-
-        # Record agent response for outreach
-        if skill_result.response_text:
-            self._record_message("chatbot", "outbound", skill_result.response_text)
-
-        self._process_skill_result(skill_result)
-        return skill_result
-
-    async def _handle_payment_success(self, event: Event) -> SkillResult:
-        """Handle USER_PAYMENT_SUCCESS event."""
-        self.state_machine.transition(AgentSessionState.RESOLVED)
-        self.user_state.session_state = "resolved"
-        self.storage.save(self.user_state)
-
-        return SkillResult(
-            status=SkillResultStatus.SUCCESS,
-            response_text="感谢您的还款！您的账单已结清。如有其他问题，欢迎随时联系。",
-            new_session_state="resolved",
-            thinking="Payment successful, transitioned to RESOLVED.",
-        )
-
-    async def _handle_silence_timeout(self, event: Event) -> SkillResult:
-        """Handle SILENCE_TIMEOUT event."""
-        skill = self.skill_registry.get("re_engagement") or self.skill_registry.get(
-            "reengage"
-        )
-
-        if skill is None:
-            return SkillResult(
-                status=SkillResultStatus.SUCCESS,
-                response_text="您好，我们注意到您有一段时间没有回复了。如有任何疑问，请随时联系我们。",
-                thinking="No re-engagement skill found, using fallback message.",
-            )
-
-        skill_ctx = self._build_skill_context(event, None)
-        skill_result = await self.skill_executor.execute(skill, skill_ctx)
-        self._process_skill_result(skill_result)
-        return skill_result
-
-    def _record_message(
-        self, channel: str, direction: str, content: str
-    ) -> None:
+    def _record_message(self, channel: str, direction: str, content: str) -> None:
         """Record a message to conversation history."""
         self.user_state.conversation.add_message(
             Message(
@@ -243,43 +195,39 @@ class AgentSession:
             )
         )
 
-    def _build_skill_context(
-        self,
-        event: Event,
-        intent_result: IntentResult | None,
-    ) -> SkillContext:
-        """Build a SkillContext from event and intent."""
-        return SkillContext(
-            user_id=self.user_id,
-            user_profile=self.user_state.profile,
-            conversation_history=self.user_state.conversation.messages,
-            current_intent=intent_result.category.value
-            if intent_result
-            else event.type.value,
-            user_message=event.payload.get("message", ""),
-            session_state=self.state_machine.current.value,
-            available_tools=self.tool_registry.list_tools(),
-            bill_facts=event.payload.get("bill_facts", {}),
-        )
+    def _process_result(self, result: SkillResult, decision: Decision) -> None:
+        """Process skill result: update state, track intent history, save state."""
+        # Update intent history
+        if decision.intent:
+            self.user_state.intent_history.append(decision.intent.value)
+            self.user_state.conversation.current_intent = decision.intent.value
 
-    def _process_skill_result(self, skill_result: SkillResult) -> None:
-        """Process skill result: update state machine and save state."""
-        if skill_result.new_session_state:
-            state_mapping = {
-                "escalated": AgentSessionState.ESCALATED,
-                "stopped": AgentSessionState.STOPPED,
-                "crisis": AgentSessionState.CRISIS,
-                "disputed": AgentSessionState.DISPUTED,
-                "resolved": AgentSessionState.RESOLVED,
-                "paused": AgentSessionState.PAUSED,
-                "normal": AgentSessionState.NORMAL,
-                "pending_escalate": AgentSessionState.PENDING_ESCALATE,
+        # State transition
+        if result.new_session_state:
+            self.user_state.session_state = result.new_session_state
+        else:
+            # Auto-transition based on intent for one-way doors
+            intent_to_state = {
+                "STOP": "stopped",
+                "CRISIS": "crisis",
+                "COMPLAINT": "escalated",
+                "DISPUTE": "disputed",
             }
-            target_state = state_mapping.get(skill_result.new_session_state)
-            if target_state:
-                self.state_machine.transition(target_state)
-                self.user_state.session_state = skill_result.new_session_state
+            if decision.intent and decision.intent.value in intent_to_state:
+                self.user_state.session_state = intent_to_state[decision.intent.value]
 
-        # Save state synchronously for data integrity
-        if hasattr(self.storage, "save"):
+        # Update timestamps
+        self.last_interaction_at = datetime.now(UTC)
+        if result.status == "success" and result.response_text:
+            self.last_outreach_at = datetime.now(UTC)
+
+        # Save state
+        if self.storage and hasattr(self.storage, "save"):
             self.storage.save(self.user_state)
+
+    def _fallback_for_violation(self, reason: str) -> str:
+        """Return safe fallback message when audit blocks content."""
+        return (
+            "您好，关于您的账单问题，建议您通过官方客服热线咨询详情。"
+            "如有任何疑问，我们随时为您服务。"
+        )

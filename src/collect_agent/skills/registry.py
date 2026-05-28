@@ -1,8 +1,11 @@
-"""Skill registry for managing and discovering skills."""
+"""Skill registry — simplified, no triggers, no hard-coded selection.
+
+Skill selection is delegated to the LLM via Decider.
+Registry only stores and retrieves by name.
+"""
 
 from __future__ import annotations
 
-from collect_agent.core.models import UserProfile
 from collect_agent.skills.base import Skill
 
 
@@ -17,22 +20,6 @@ class SkillRegistry:
         if not skill.name:
             raise ValueError("Skill must have a name")
         self._skills[skill.name] = skill
-
-    def select_skill(
-        self,
-        intent: str,
-        event_type: str | None = None,
-        user_profile: UserProfile | None = None,
-    ) -> Skill | None:
-        """Select a skill based on intent and optional context.
-
-        Matches the intent against each skill's triggers.
-        Returns the first matching skill or None if no match.
-        """
-        for skill in self._skills.values():
-            if intent in skill.triggers:
-                return skill
-        return None
 
     def get(self, name: str) -> Skill | None:
         """Retrieve a skill by name."""

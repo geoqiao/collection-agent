@@ -68,3 +68,6 @@ class UserState(BaseModel):
     conversation: ConversationContext = Field(default_factory=ConversationContext)
     quota_usage: dict[str, Any] = Field(default_factory=dict)
     paused_until: datetime | None = None
+    intent_history: list[str] = Field(default_factory=list)
+    last_outreach_at: datetime | None = None
+    dnc: bool = False

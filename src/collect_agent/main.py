@@ -17,7 +17,7 @@ class CollectAgentSystem:
     ):
         self.store = store or MemoryStore()
         self.session_manager = SessionManager(
-            self.store,
+            store=self.store,
             quota_manager=quota_manager,
             compliance_checker=compliance_checker,
             llm_client=llm_client,

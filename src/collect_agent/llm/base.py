@@ -19,10 +19,4 @@ class LLMClient(ABC):
     ) -> LLMResponse:
         pass
 
-    @abstractmethod
-    async def detect_intent(self, user_message: str, context: dict) -> str:
-        pass
 
-    @abstractmethod
-    async def generate_strategy_response(self, strategy: dict, context: dict) -> str:
-        pass

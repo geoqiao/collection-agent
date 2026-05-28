@@ -6,11 +6,26 @@ Run: uv run python scripts/test_client.py
 # ruff: noqa: ASYNC250
 
 import asyncio
+import sys
 
 from collect_agent.core.constants import EventType
 from collect_agent.core.models import Event, UserProfile, UserState
 from collect_agent.main import CollectAgentSystem
 from collect_agent.skills.base import SkillResult
+
+
+def safe_input(prompt: str = "") -> str:
+    """Read line from stdin with explicit UTF-8 decoding.
+
+    Works around encoding issues when running under uv / subprocess.
+    """
+    if prompt:
+        print(prompt, end="", flush=True)
+    try:
+        raw = sys.stdin.buffer.readline()
+        return raw.decode("utf-8", errors="replace").strip()
+    except Exception:
+        return ""
 
 
 class TestClient:
@@ -139,14 +154,14 @@ async def menu() -> None:
         print("  0. 退出")
         print("-" * 60)
 
-        choice = input("选择操作: ").strip()
+        choice = safe_input("选择操作: ")
 
         if choice == "1":
-            uid = input("  用户ID (默认 test_001): ").strip() or "test_001"
-            name = input("  姓名 (默认 张三): ").strip() or "张三"
-            overdue = int(input("  逾期天数 (默认 5): ").strip() or "5")
-            amount = float(input("  金额 (默认 1000): ").strip() or "1000")
-            occ = input("  职业 (直接回车=无): ").strip() or None
+            uid = safe_input("  用户ID (默认 test_001): ") or "test_001"
+            name = safe_input("  姓名 (默认 张三): ") or "张三"
+            overdue = int(safe_input("  逾期天数 (默认 5): ") or "5")
+            amount = float(safe_input("  金额 (默认 1000): ") or "1000")
+            occ = safe_input("  职业 (直接回车=无): ") or None
             state = client.create_user(uid, name, overdue, amount, occ)
             client.print_divider("创建成功")
             client.print_user_summary(state)
@@ -167,19 +182,19 @@ async def menu() -> None:
                     )
 
         elif choice == "3":
-            uid = input("  用户ID: ").strip()
+            uid = safe_input("  用户ID: ")
             client.print_session_detail(uid)
 
         elif choice == "4":
-            uid = input("  用户ID: ").strip()
+            uid = safe_input("  用户ID: ")
             print(f"\n→ 触发催收: {uid}")
             result = await client.send_event(uid, EventType.SCHEDULED_OUTREACH)
             client.print_skill_result(result)
             client.print_session_detail(uid)
 
         elif choice == "5":
-            uid = input("  用户ID: ").strip()
-            msg = input("  用户消息: ").strip()
+            uid = safe_input("  用户ID: ")
+            msg = safe_input("  用户消息: ")
             print(f"\n→ 用户回复: {msg}")
             result = await client.send_event(
                 uid, EventType.USER_REPLIED, {"message": msg}
@@ -188,8 +203,8 @@ async def menu() -> None:
             client.print_session_detail(uid)
 
         elif choice == "6":
-            uid = input("  用户ID: ").strip()
-            amt = input("  支付金额 (默认 1000): ").strip() or "1000"
+            uid = safe_input("  用户ID: ")
+            amt = safe_input("  支付金额 (默认 1000): ") or "1000"
             print(f"\n→ 模拟支付: ¥{amt}")
             result = await client.send_event(
                 uid, EventType.USER_PAYMENT_SUCCESS, {"amount": float(amt)}
@@ -198,7 +213,7 @@ async def menu() -> None:
             client.print_session_detail(uid)
 
         elif choice == "7":
-            uid = input("  用户ID: ").strip()
+            uid = safe_input("  用户ID: ")
             print(f"\n→ 静默超时: {uid}")
             result = await client.send_event(
                 uid, EventType.SILENCE_TIMEOUT, {"tier": 0, "seconds": 600}
@@ -207,7 +222,7 @@ async def menu() -> None:
             client.print_session_detail(uid)
 
         elif choice == "8":
-            uid = input("  用户ID (默认 test_001): ").strip() or "test_001"
+            uid = safe_input("  用户ID (默认 test_001): ") or "test_001"
             print(f"\n→ 运行完整 Demo: {uid}")
 
             # Step 1: create user if not exists
@@ -223,14 +238,14 @@ async def menu() -> None:
             print(f"      → 回复: {result.response_text[:100] if result else 'N/A'}")
 
             # Step 3: user reply
-            msg = input("  [3] 模拟用户回复 (默认 '我会还的'): ").strip() or "我会还的"
+            msg = safe_input("  [3] 模拟用户回复 (默认 '我会还的'): ") or "我会还的"
             print(f"      → 用户: {msg}")
             result = await client.send_event(uid, EventType.USER_REPLIED, {"message": msg})
             print(f"      → 识别意图: {client.get_user(uid).conversation.current_intent}")
             print(f"      → 回复: {result.response_text[:100] if result else 'N/A'}")
 
             # Step 4: silence timeout
-            cont = input("  [4] 触发静默超时? (回车=是): ").strip()
+            cont = safe_input("  [4] 触发静默超时? (回车=是): ")
             if cont == "":
                 result = await client.send_event(
                     uid, EventType.SILENCE_TIMEOUT, {"tier": 0, "seconds": 600}
@@ -238,7 +253,7 @@ async def menu() -> None:
                 print(f"      → 回复: {result.response_text[:100] if result else 'N/A'}")
 
             # Step 5: payment
-            cont = input("  [5] 模拟支付? (回车=是): ").strip()
+            cont = safe_input("  [5] 模拟支付? (回车=是): ")
             if cont == "":
                 result = await client.send_event(
                     uid, EventType.USER_PAYMENT_SUCCESS, {"amount": 1000.0}

@@ -178,13 +178,3 @@ class SQLiteStore:
             paused_until=paused_until,
         )
 
-    def load_context_manager(self, user_id: str):
-        from collect_agent.context.manager import ContextManager
-
-        row = self._conn.execute(
-            "SELECT context FROM user_states WHERE user_id = ?", (user_id,)
-        ).fetchone()
-        if row is None or not row["context"]:
-            return None
-        data = json.loads(row["context"])
-        return ContextManager.from_dict(data)
