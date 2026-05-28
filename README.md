@@ -2,6 +2,20 @@
 
 AI-powered debt collection agent with multi-channel outreach, intent detection, and compliance-aware scheduling.
 
+## License
+
+This project is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+
+**Important**: This software is free for personal use, research, education, and non-commercial purposes. **Commercial use is strictly prohibited without prior written authorization from the author.**
+
+To request a commercial license, please contact:
+- Email: realvincentqiao@gmail.com
+- GitHub Issues
+
+## Disclaimer
+
+This is an experimental project for educational and research purposes. The author is not responsible for any misuse of this software.
+
 ## Install
 
 ```bash
