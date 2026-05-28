@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-import pytest
 from datetime import UTC, datetime, timedelta
+
+import pytest
 
 from collect_agent.core.constants import EventType
 from collect_agent.core.models import Event, UserProfile, UserState

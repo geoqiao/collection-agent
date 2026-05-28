@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collect_agent.tools.registry import ToolRegistry, get_registry, tool
 from collect_agent.tools.ops import (
     add_to_dnc,
     check_payment_status,
@@ -15,6 +14,7 @@ from collect_agent.tools.ops import (
     send_payment_link,
     welfare_alert,
 )
+from collect_agent.tools.registry import ToolRegistry, get_registry, tool
 
 __all__ = [
     "ToolRegistry",

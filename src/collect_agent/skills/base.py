@@ -34,7 +34,7 @@ class Skill:
     name: str = ""
     description: str = ""
     tools: list[str] = field(default_factory=list)
-    max_steps: int = 3
+    max_steps: int = 10
     content: str = ""  # Markdown body used as system prompt supplement
 
     def get_system_prompt(self) -> str:

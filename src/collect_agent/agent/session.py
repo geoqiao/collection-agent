@@ -17,7 +17,6 @@ from collect_agent.skills.registry import SkillRegistry
 from collect_agent.storage.memory_store import MemoryStore
 from collect_agent.storage.sqlite_store import SQLiteStore
 
-
 # Fixed templates for locked states
 _LOCKED_TEMPLATES: dict[str, str] = {
     "escalated": "非常抱歉给您带来了不好的体验。您的投诉我已记录并升级至专人处理，后续将由投诉专员与您联系。",

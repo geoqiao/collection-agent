@@ -140,7 +140,6 @@ async def add_to_dnc(
 
     # Add dnc field if not present
     if not hasattr(state, "dnc"):
-        from collect_agent.core.models import UserState
 
         # Monkey-patch for backward compat during migration
         object.__setattr__(state, "dnc", True)

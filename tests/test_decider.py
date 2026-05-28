@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 from collect_agent.core.context import Context
-from collect_agent.core.models import UserProfile, UserState
+from collect_agent.core.models import UserProfile
 from collect_agent.decider import Decider
 from collect_agent.intent.models import IntentCategory
 from collect_agent.skills.base import Skill

@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+
 import pytest
-from datetime import datetime, timedelta
 
 from collect_agent.core.models import UserProfile, UserState
-from collect_agent.storage.memory_store import MemoryStore
 from tests.conftest import MockStore
 
 

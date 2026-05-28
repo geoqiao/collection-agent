@@ -3,17 +3,14 @@
 from __future__ import annotations
 
 import pytest
-from pathlib import Path
 
 from collect_agent.core.context import Context
 from collect_agent.core.models import UserProfile, UserState
-from collect_agent.skills.base import Skill, SkillResult
+from collect_agent.skills.base import Skill
 from collect_agent.skills.executor import SkillExecutor
 from collect_agent.skills.loader import SkillLoader
-from collect_agent.skills.registry import SkillRegistry
-from collect_agent.tools.registry import ToolRegistry, get_registry
+from collect_agent.tools.registry import ToolRegistry
 from tests.conftest import ReActMockLLM
-
 
 # --- SkillLoader tests ---
 
@@ -99,7 +96,7 @@ Do this and that.
 def tool_registry():
     """Fresh tool registry for each test."""
     reg = ToolRegistry()
-    from collect_agent.tools.ops import query_bill, pause_collection
+    from collect_agent.tools.ops import pause_collection, query_bill
 
     # Manually register for test isolation
     reg.register(query_bill._tool_info)

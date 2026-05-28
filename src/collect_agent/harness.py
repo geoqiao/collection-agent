@@ -65,22 +65,20 @@ class Harness:
             EventType.SCHEDULED_OUTREACH,
             EventType.REMINDER_DUE,
             EventType.SILENCE_TIMEOUT,
-        }:
-            if self._compliance and not self._compliance.is_within_valid_hours():
-                return HarnessResult(
-                    block=True,
-                    reason="outside_valid_hours",
-                )
+        } and self._compliance and not self._compliance.is_within_valid_hours():
+            return HarnessResult(
+                block=True,
+                reason="outside_valid_hours",
+            )
 
         # 3. Quota (for outbound events)
         if event.type in {
             EventType.SCHEDULED_OUTREACH,
             EventType.REMINDER_DUE,
             EventType.SILENCE_TIMEOUT,
-        }:
-            if self._quota:
-                # TODO: implement per-channel quota check
-                pass
+        } and self._quota:
+            # TODO: implement per-channel quota check
+            pass
 
         # 4. STOP / CRISIS keyword fast-path (inbound only)
         if event.type == EventType.USER_REPLIED:

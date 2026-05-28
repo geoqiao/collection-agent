@@ -46,7 +46,7 @@ class SkillExecutor:
         observations = self._build_observation(context)
         messages = self._build_messages(skill, observations)
 
-        for step in range(skill.max_steps):
+        for _step in range(skill.max_steps):
             response = await self._llm.chat(
                 messages=messages,
                 temperature=0.3,
@@ -218,8 +218,6 @@ class SkillExecutor:
 
         # Inject store from state if needed
         # This is a simplified dependency injection for MVP
-        from collect_agent.storage.memory_store import MemoryStore
-        from collect_agent.storage.sqlite_store import SQLiteStore
 
         store = getattr(state, "_store", None)
         if store is None:

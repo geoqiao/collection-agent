@@ -14,7 +14,6 @@ import yaml
 
 from collect_agent.skills.base import Skill
 
-
 # Match YAML frontmatter between --- delimiters
 _FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n(.*)$", re.DOTALL)
 
@@ -61,7 +60,7 @@ class SkillLoader:
         name = meta.get("name", "")
         description = meta.get("description", "")
         tools = meta.get("tools", [])
-        max_steps = meta.get("max_steps", 3)
+        max_steps = meta.get("max_steps", 10)
 
         if not name or not description:
             return None

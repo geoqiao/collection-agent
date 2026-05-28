@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import pytest
-from datetime import datetime, timedelta
 
-from collect_agent.core.models import Event, EventType, Message, UserProfile, UserState
+from collect_agent.core.models import UserProfile, UserState
 from collect_agent.storage.memory_store import MemoryStore
 
 

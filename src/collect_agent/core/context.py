@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
 from typing import Any
 
-from collect_agent.core.models import Event, Message, UserProfile, UserState
+from collect_agent.core.models import Event, Message, UserProfile
 
 
 @dataclass

@@ -3,19 +3,17 @@
 from __future__ import annotations
 
 import pytest
-from datetime import UTC, datetime, timedelta
 
 from collect_agent.agent.session import AgentSession
 from collect_agent.compliance.checker import ComplianceChecker
 from collect_agent.core.constants import EventType
-from collect_agent.core.models import Event, Message, UserProfile, UserState
+from collect_agent.core.models import Event, UserProfile, UserState
 from collect_agent.decider import Decider
 from collect_agent.harness import Harness
-from collect_agent.intent.models import IntentCategory
 from collect_agent.skills.executor import SkillExecutor
 from collect_agent.skills.loader import SkillLoader
 from collect_agent.skills.registry import SkillRegistry
-from collect_agent.tools.registry import ToolRegistry, get_registry
+from collect_agent.tools.registry import get_registry
 from tests.conftest import MockStore, ReActMockLLM
 
 
