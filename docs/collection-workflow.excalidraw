@@ -1,0 +1,3103 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://excalidraw.com",
+  "elements": [
+    {
+      "x": 1094.16015625,
+      "y": 8,
+      "width": 140,
+      "height": 60,
+      "id": "khgq1tzx-k46u-y34s-hgrds2wm1pzo",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "用户逾期"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 1048.91015625,
+      "y": 118,
+      "width": 230.5,
+      "height": 60,
+      "id": "mrva1yzl-w9wx-jjz8-gbk8z3le6wed",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "加载画像/风险评级"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 1074.16015625,
+      "y": 228,
+      "width": 180,
+      "height": 60,
+      "id": "jplmm60m-5g4a-px72-f8yaesqpxque",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "选择渠道触达"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 1022.19140625,
+      "y": 338,
+      "width": 140,
+      "height": 140,
+      "id": "r1xuqvkp-zl9h-l2qq-ecrrvbpo69aj",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "频率检查"
+      },
+      "type": "diamond",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 969.19140625,
+      "y": 693,
+      "width": 140,
+      "height": 90,
+      "id": "kwelupqv-51bj-54rh-tcqol2zk1ici",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "跳过本次<br>记录原因"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 721.69140625,
+      "y": 558,
+      "width": 140,
+      "height": 60,
+      "id": "ri1613mo-qweo-kn9s-ora5557sdeer",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "执行触达"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 722.19140625,
+      "y": 668,
+      "width": 140,
+      "height": 140,
+      "id": "lrf2gzjp-izku-quuh-pcvbtzteoez6",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "送达检查"
+      },
+      "type": "diamond",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 462.80078125,
+      "y": 913,
+      "width": 188.890625,
+      "height": 90,
+      "id": "p0ynpv50-2isb-ud9r-wcul5pviwiwg",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "UNREACHABLE<br>触达失败"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 939.69140625,
+      "y": 888,
+      "width": 140,
+      "height": 140,
+      "id": "zodaqaq4-qdap-fze2-hj1nf6vr5nge",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "等待回复"
+      },
+      "type": "diamond",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 544.109375,
+      "y": 1108,
+      "width": 155.71875,
+      "height": 90,
+      "id": "mrvcsww5-0pf3-uyw9-xosatshw49yg",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "冷却期<br>1h/4h/24h"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 1199.19140625,
+      "y": 1123,
+      "width": 140,
+      "height": 60,
+      "id": "lphf99y5-rxob-ksx3-z5h9iq2pg7zm",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "意图识别"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 991.69140625,
+      "y": 1123,
+      "width": 140,
+      "height": 60,
+      "id": "58uw4h4v-1cat-f7cp-zgy0lqwx5f4u",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "升级触达"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 1378.0234375,
+      "y": 1668,
+      "width": 157.828125,
+      "height": 60,
+      "id": "bnx70wiv-8m7z-89p5-5htnkqnz5odd",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "愿意还款 A"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 1601.015625,
+      "y": 2248,
+      "width": 117.34375,
+      "height": 60,
+      "id": "mxf33fyp-2lsj-4478-7nvfp3pqijdx",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "协商 B"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 602.171875,
+      "y": 1263,
+      "width": 118.296875,
+      "height": 60,
+      "id": "fhdwepqb-qeoi-8n1s-n6rrv3ne1eqy",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "争议 D"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 293.62109375,
+      "y": 1263,
+      "width": 118,
+      "height": 60,
+      "id": "l7jk8koa-6ynu-92bu-25e7b1aftlao",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "回避 C"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 1863.921875,
+      "y": 1928,
+      "width": 116.53125,
+      "height": 60,
+      "id": "2jqd3dg3-jvcp-8ojz-9ak2gp2xde3n",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "拒绝 F"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 98.12109375,
+      "y": 1263,
+      "width": 140,
+      "height": 60,
+      "id": "bqy70zex-1378-gkjy-bzfksu2ahwyt",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "要求停止"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 1219.19140625,
+      "y": 1263,
+      "width": 100,
+      "height": 60,
+      "id": "m5946hon-efp4-bxqg-mmo3tc4bp3ix",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "危机"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 1957.1875,
+      "y": 1248,
+      "width": 188.890625,
+      "height": 90,
+      "id": "4ydamlr7-z2s6-zmrj-xvdledpsh35m",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "联系不上<br>UNREACHABLE"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 1341.6875,
+      "y": 1778,
+      "width": 230.5,
+      "height": 60,
+      "id": "era1lx7a-z9o9-fova-q77aqdxngchd",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "确认方式/发送链接"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 1387.4375,
+      "y": 1888,
+      "width": 140,
+      "height": 140,
+      "id": "5f81opvx-4qge-t4yw-cr7fehvnhg32",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "等待还款"
+      },
+      "type": "diamond",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 473.69921875,
+      "y": 3108,
+      "width": 100,
+      "height": 60,
+      "id": "hvx2x27l-j40d-uyzo-j075pdhntiqi",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "结清"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 1642.1875,
+      "y": 2108,
+      "width": 140,
+      "height": 60,
+      "id": "c9saekwc-ezlp-lii7-1lt3oq5z47j2",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "询问困难"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 1589.6875,
+      "y": 2388,
+      "width": 140,
+      "height": 60,
+      "id": "cl2ilkn6-ewgy-tqhk-neqo5462jcll",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "制定方案"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 1662.1875,
+      "y": 2498,
+      "width": 100,
+      "height": 60,
+      "id": "g5das4bp-2dgu-4mop-j3vydclgy1lv",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "审批"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 1642.1875,
+      "y": 2638,
+      "width": 140,
+      "height": 60,
+      "id": "69x83juj-qzgb-esz5-opjvxq8xv78v",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "执行计划"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 2181.08984375,
+      "y": 2778,
+      "width": 100,
+      "height": 60,
+      "id": "nmxme4en-k8nx-n8e8-950ep39ufz2d",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "升级"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 566.0703125,
+      "y": 1388,
+      "width": 190.5,
+      "height": 60,
+      "id": "gxbnp4wi-92ch-z2zt-jw9263hqd9ry",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "身份+账单核实"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 8,
+      "y": 1528,
+      "width": 140,
+      "height": 60,
+      "id": "y08u179i-t947-y9o3-p8s8a8b8ho8u",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "停止联系"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 536.19921875,
+      "y": 1528,
+      "width": 140,
+      "height": 60,
+      "id": "l0gvvb94-fewg-yxff-8ukqiepmpdr2",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "解释明细"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 536.19921875,
+      "y": 2998,
+      "width": 140,
+      "height": 60,
+      "id": "xyttxm2a-m38k-zvwz-a09l9j4v6ro8",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "争议工单"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 349.62109375,
+      "y": 1388,
+      "width": 140,
+      "height": 60,
+      "id": "lty22jb2-ftw4-70sq-95kxxm8fobdq",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "沉默追踪"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 1852.1875,
+      "y": 2108,
+      "width": 140,
+      "height": 60,
+      "id": "5b892gq2-hevq-ijfm-ksetdy03equx",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "强化告知"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 2303.07421875,
+      "y": 2888,
+      "width": 150.5,
+      "height": 60,
+      "id": "t0zkrzh2-i2o7-4wjn-xp0x54iyu27j",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "委外/法务"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 98.12109375,
+      "y": 1388,
+      "width": 140,
+      "height": 60,
+      "id": "hnvnjegp-ou0a-0trr-2ni82dxsl7i0",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "确认本人"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 776.19921875,
+      "y": 1528,
+      "width": 180.984375,
+      "height": 60,
+      "id": "kj1nj6m1-fjel-gpyl-714lxgolbohv",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "安全暂停30天"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 1199.19140625,
+      "y": 1388,
+      "width": 140,
+      "height": 60,
+      "id": "cnlkupec-s9g0-pyh2-cu8sxqk77my4",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "福利告警"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 1251.19921875,
+      "y": 1528,
+      "width": 140.984375,
+      "height": 60,
+      "id": "l1el5x21-skf0-0tuz-3mw7ntbu83wj",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "暂停30天"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 2046.35546875,
+      "y": 1388,
+      "width": 160,
+      "height": 60,
+      "id": "l0p59uxn-j5q3-jedx-zrjs037zzv6z",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "换渠道重试"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 2084.63671875,
+      "y": 2888,
+      "width": 168.4375,
+      "height": 60,
+      "id": "ek7myij6-nptt-4gkj-cvv45c49mfgq",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "OUTSOURCE"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 2203.58984375,
+      "y": 2998,
+      "width": 140,
+      "height": 60,
+      "id": "tni2q09b-w16k-z9ou-ysrd40heha4d",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "法务诉讼"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 2203.58984375,
+      "y": 3108,
+      "width": 140,
+      "height": 60,
+      "id": "0kr0lvy2-ut4s-wv09-49vh2xv2m2k8",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "坏账核销"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 549.59375,
+      "y": 3218,
+      "width": 100,
+      "height": 60,
+      "id": "6586of54-tlz8-kefz-66xf69bpxeq3",
+      "strokeWidth": 2,
+      "label": {
+        "fontSize": 20,
+        "groupIds": [],
+        "text": "归档"
+      },
+      "type": "rectangle",
+      "link": null,
+      "groupIds": []
+    },
+    {
+      "x": 1164.16,
+      "y": 68,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          4.167000000000002
+        ],
+        [
+          0,
+          46
+        ]
+      ],
+      "id": "START_INIT",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "khgq1tzx-k46u-y34s-hgrds2wm1pzo"
+      },
+      "end": {
+        "id": "mrva1yzl-w9wx-jjz8-gbk8z3le6wed"
+      }
+    },
+    {
+      "x": 1164.16,
+      "y": 178,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          4.167000000000002
+        ],
+        [
+          0,
+          46
+        ]
+      ],
+      "id": "INIT_OUTREACH",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "mrva1yzl-w9wx-jjz8-gbk8z3le6wed"
+      },
+      "end": {
+        "id": "jplmm60m-5g4a-px72-f8yaesqpxque"
+      }
+    },
+    {
+      "x": 1124.632,
+      "y": 288,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -5.490000000000009,
+          4.166999999999973
+        ],
+        [
+          -32.94100000000003,
+          46
+        ]
+      ],
+      "id": "OUTREACH_FREQ_CHECK",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "jplmm60m-5g4a-px72-f8yaesqpxque"
+      },
+      "end": {
+        "id": "r1xuqvkp-zl9h-l2qq-ecrrvbpo69aj"
+      }
+    },
+    {
+      "x": 1069.076,
+      "y": 455.385,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -4.9809999999999945,
+          10.436000000000035
+        ],
+        [
+          -29.88499999999999,
+          233.615
+        ]
+      ],
+      "id": "FREQ_CHECK_SKIP_OUT",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "r1xuqvkp-zl9h-l2qq-ecrrvbpo69aj"
+      },
+      "end": {
+        "id": "kwelupqv-51bj-54rh-tcqol2zk1ici"
+      }
+    },
+    {
+      "x": 1040.472,
+      "y": 426.78,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -41.46399999999994,
+          15.204000000000008
+        ],
+        [
+          -248.78099999999995,
+          127.22000000000003
+        ]
+      ],
+      "id": "FREQ_CHECK_EXEC_OUT",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "r1xuqvkp-zl9h-l2qq-ecrrvbpo69aj"
+      },
+      "end": {
+        "id": "ri1613mo-qweo-kn9s-ora5557sdeer"
+      }
+    },
+    {
+      "x": 791.691,
+      "y": 618,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          4.16700000000003
+        ],
+        [
+          0,
+          46
+        ]
+      ],
+      "id": "EXEC_OUT_DELIV_CHECK",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "ri1613mo-qweo-kn9s-ora5557sdeer"
+      },
+      "end": {
+        "id": "lrf2gzjp-izku-quuh-pcvbtzteoez6"
+      }
+    },
+    {
+      "x": 744.046,
+      "y": 760.355,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -31.133000000000038,
+          14.606999999999971
+        ],
+        [
+          -186.80000000000007,
+          148.64499999999998
+        ]
+      ],
+      "id": "DELIV_CHECK_UNREACHABLE",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "lrf2gzjp-izku-quuh-pcvbtzteoez6"
+      },
+      "end": {
+        "id": "p0ynpv50-2isb-ud9r-wcul5pviwiwg"
+      }
+    },
+    {
+      "x": 835.809,
+      "y": 763.882,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          23.897000000000048,
+          14.020000000000095
+        ],
+        [
+          157.33000000000004,
+          135.25900000000001
+        ]
+      ],
+      "id": "DELIV_CHECK_WAIT",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "lrf2gzjp-izku-quuh-pcvbtzteoez6"
+      },
+      "end": {
+        "id": "zodaqaq4-qdap-fze2-hj1nf6vr5nge"
+      }
+    },
+    {
+      "x": 557.246,
+      "y": 1003,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          10.83299999999997
+        ],
+        [
+          28.034999999999968,
+          101.81799999999998
+        ]
+      ],
+      "id": "UNREACHABLE_COOL_DOWN",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "p0ynpv50-2isb-ud9r-wcul5pviwiwg"
+      },
+      "end": {
+        "id": "mrvcsww5-0pf3-uyw9-xosatshw49yg"
+      }
+    },
+    {
+      "x": 656.234,
+      "y": 1108,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          5.075999999999908,
+          -6.666999999999916
+        ],
+        [
+          413.9519999999999,
+          -839.175
+        ]
+      ],
+      "id": "COOL_DOWN_OUTREACH",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "mrvcsww5-0pf3-uyw9-xosatshw49yg"
+      },
+      "end": {
+        "id": "jplmm60m-5g4a-px72-f8yaesqpxque"
+      }
+    },
+    {
+      "x": 1058.381,
+      "y": 978.811,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          35.13499999999999,
+          14.865000000000009
+        ],
+        [
+          210.80999999999995,
+          140.18899999999996
+        ]
+      ],
+      "id": "WAIT_CLASSIFY",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "zodaqaq4-qdap-fze2-hj1nf6vr5nge"
+      },
+      "end": {
+        "id": "lphf99y5-rxob-ksx3-z5h9iq2pg7zm"
+      }
+    },
+    {
+      "x": 1009.191,
+      "y": 1028,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          6.666999999999916
+        ],
+        [
+          31.868999999999915,
+          91.59699999999998
+        ]
+      ],
+      "id": "WAIT_FOLLOW",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "zodaqaq4-qdap-fze2-hj1nf6vr5nge"
+      },
+      "end": {
+        "id": "58uw4h4v-1cat-f7cp-zgy0lqwx5f4u"
+      }
+    },
+    {
+      "x": 1090.809,
+      "y": 1123,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          8.896999999999935,
+          -9.166999999999916
+        ],
+        [
+          25.221000000000004,
+          -664.005
+        ]
+      ],
+      "id": "FOLLOW_FREQ_CHECK",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "58uw4h4v-1cat-f7cp-zgy0lqwx5f4u"
+      },
+      "end": {
+        "id": "r1xuqvkp-zl9h-l2qq-ecrrvbpo69aj"
+      }
+    },
+    {
+      "x": 1339.191,
+      "y": 1182.211,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          16.29099999999994,
+          6.798000000000002
+        ],
+        [
+          108.07600000000002,
+          481.943
+        ]
+      ],
+      "id": "CLASSIFY_COOP",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "lphf99y5-rxob-ksx3-z5h9iq2pg7zm"
+      },
+      "end": {
+        "id": "bnx70wiv-8m7z-89p5-5htnkqnz5odd"
+      }
+    },
+    {
+      "x": 1339.191,
+      "y": 1167.497,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          44.66599999999994,
+          9.250999999999976
+        ],
+        [
+          295.597,
+          1077.303
+        ]
+      ],
+      "id": "CLASSIFY_NEGO",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "lphf99y5-rxob-ksx3-z5h9iq2pg7zm"
+      },
+      "end": {
+        "id": "mxf33fyp-2lsj-4478-7nvfp3pqijdx"
+      }
+    },
+    {
+      "x": 1199.191,
+      "y": 1161.061,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -89.64499999999998,
+          10.323000000000093
+        ],
+        [
+          -537.871,
+          97.93900000000008
+        ]
+      ],
+      "id": "CLASSIFY_DISPUTE",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "lphf99y5-rxob-ksx3-z5h9iq2pg7zm"
+      },
+      "end": {
+        "id": "fhdwepqb-qeoi-8n1s-n6rrv3ne1eqy"
+      }
+    },
+    {
+      "x": 1199.191,
+      "y": 1158.346,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -141.09500000000003,
+          10.776000000000067
+        ],
+        [
+          -846.57,
+          100.654
+        ]
+      ],
+      "id": "CLASSIFY_AVOID",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "lphf99y5-rxob-ksx3-z5h9iq2pg7zm"
+      },
+      "end": {
+        "id": "l7jk8koa-6ynu-92bu-25e7b1aftlao"
+      }
+    },
+    {
+      "x": 1339.191,
+      "y": 1160.504,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          97.16599999999994,
+          10.416000000000167
+        ],
+        [
+          582.9970000000001,
+          763.4960000000001
+        ]
+      ],
+      "id": "CLASSIFY_REFUSE",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "lphf99y5-rxob-ksx3-z5h9iq2pg7zm"
+      },
+      "end": {
+        "id": "2jqd3dg3-jvcp-8ojz-9ak2gp2xde3n"
+      }
+    },
+    {
+      "x": 1199.191,
+      "y": 1157.45,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -171.84500000000003,
+          10.924999999999955
+        ],
+        [
+          -1031.07,
+          101.54999999999995
+        ]
+      ],
+      "id": "CLASSIFY_STOP",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "lphf99y5-rxob-ksx3-z5h9iq2pg7zm"
+      },
+      "end": {
+        "id": "bqy70zex-1378-gkjy-bzfksu2ahwyt"
+      }
+    },
+    {
+      "x": 1269.191,
+      "y": 1183,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          6.666999999999916
+        ],
+        [
+          0,
+          76
+        ]
+      ],
+      "id": "CLASSIFY_CRISIS",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "lphf99y5-rxob-ksx3-z5h9iq2pg7zm"
+      },
+      "end": {
+        "id": "m5946hon-efp4-bxqg-mmo3tc4bp3ix"
+      }
+    },
+    {
+      "x": 1339.191,
+      "y": 1159.262,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          118.74099999999999,
+          10.623000000000047
+        ],
+        [
+          712.4419999999998,
+          84.73800000000006
+        ]
+      ],
+      "id": "CLASSIFY_UNR",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "lphf99y5-rxob-ksx3-z5h9iq2pg7zm"
+      },
+      "end": {
+        "id": "4ydamlr7-z2s6-zmrj-xvdledpsh35m"
+      }
+    },
+    {
+      "x": 1456.938,
+      "y": 1728,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          4.166999999999916
+        ],
+        [
+          0,
+          46
+        ]
+      ],
+      "id": "COOP_PAYMENT",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "bnx70wiv-8m7z-89p5-5htnkqnz5odd"
+      },
+      "end": {
+        "id": "era1lx7a-z9o9-fova-q77aqdxngchd"
+      }
+    },
+    {
+      "x": 1456.938,
+      "y": 1838,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          4.166999999999916
+        ],
+        [
+          0,
+          46
+        ]
+      ],
+      "id": "PAYMENT_PAY_WAIT",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "era1lx7a-z9o9-fova-q77aqdxngchd"
+      },
+      "end": {
+        "id": "5f81opvx-4qge-t4yw-cr7fehvnhg32"
+      }
+    },
+    {
+      "x": 1392.919,
+      "y": 1963.981,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -185.558,
+          17.33699999999999
+        ],
+        [
+          -923.1220000000001,
+          1161.8750000000002
+        ]
+      ],
+      "id": "PAY_WAIT_RESOLVED",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "5f81opvx-4qge-t4yw-cr7fehvnhg32"
+      },
+      "end": {
+        "id": "hvx2x27l-j40d-uyzo-j075pdhntiqi"
+      }
+    },
+    {
+      "x": 1505.856,
+      "y": 1979.081,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          34.388999999999896,
+          14.820000000000164
+        ],
+        [
+          206.3320000000001,
+          124.9190000000001
+        ]
+      ],
+      "id": "PAY_WAIT_DIFF",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "5f81opvx-4qge-t4yw-cr7fehvnhg32"
+      },
+      "end": {
+        "id": "c9saekwc-ezlp-lii7-1lt3oq5z47j2"
+      }
+    },
+    {
+      "x": 1712.188,
+      "y": 2168,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          6.666999999999916
+        ],
+        [
+          -27.600000000000136,
+          76.80000000000018
+        ]
+      ],
+      "id": "DIFF_NEGO",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "c9saekwc-ezlp-lii7-1lt3oq5z47j2"
+      },
+      "end": {
+        "id": "mxf33fyp-2lsj-4478-7nvfp3pqijdx"
+      }
+    },
+    {
+      "x": 1659.688,
+      "y": 2308,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          6.666999999999916
+        ],
+        [
+          0,
+          76
+        ]
+      ],
+      "id": "NEGO_PLAN",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "mxf33fyp-2lsj-4478-7nvfp3pqijdx"
+      },
+      "end": {
+        "id": "cl2ilkn6-ewgy-tqhk-neqo5462jcll"
+      }
+    },
+    {
+      "x": 1659.688,
+      "y": 2448,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          4.166999999999916
+        ],
+        [
+          21.100999999999885,
+          47.10699999999997
+        ]
+      ],
+      "id": "PLAN_APPROVAL",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "cl2ilkn6-ewgy-tqhk-neqo5462jcll"
+      },
+      "end": {
+        "id": "g5das4bp-2dgu-4mop-j3vydclgy1lv"
+      }
+    },
+    {
+      "x": 1712.188,
+      "y": 2558,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          6.666999999999916
+        ],
+        [
+          0,
+          76
+        ]
+      ],
+      "id": "APPROVAL_EXEC",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "g5das4bp-2dgu-4mop-j3vydclgy1lv"
+      },
+      "end": {
+        "id": "69x83juj-qzgb-esz5-opjvxq8xv78v"
+      }
+    },
+    {
+      "x": 1762.188,
+      "y": 2501.81,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          9.16599999999994,
+          -4.802000000000135
+        ],
+        [
+          -504.04200000000014,
+          -2235.894
+        ]
+      ],
+      "id": "APPROVAL_OUTREACH",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "g5das4bp-2dgu-4mop-j3vydclgy1lv"
+      },
+      "end": {
+        "id": "jplmm60m-5g4a-px72-f8yaesqpxque"
+      }
+    },
+    {
+      "x": 1642.188,
+      "y": 2671.519,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -220.43600000000015,
+          11.080000000000382
+        ],
+        [
+          -1172.351,
+          451.9680000000003
+        ]
+      ],
+      "id": "EXEC_RESOLVED",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "69x83juj-qzgb-esz5-opjvxq8xv78v"
+      },
+      "end": {
+        "id": "hvx2x27l-j40d-uyzo-j075pdhntiqi"
+      }
+    },
+    {
+      "x": 1782.188,
+      "y": 2677.443,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          74.81700000000001,
+          10.092999999999847
+        ],
+        [
+          448.90200000000004,
+          96.55699999999979
+        ]
+      ],
+      "id": "EXEC_ESC_INT",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "69x83juj-qzgb-esz5-opjvxq8xv78v"
+      },
+      "end": {
+        "id": "nmxme4en-k8nx-n8e8-950ep39ufz2d"
+      }
+    },
+    {
+      "x": 661.32,
+      "y": 1323,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          6.666999999999916
+        ],
+        [
+          0,
+          61
+        ]
+      ],
+      "id": "DISPUTE_VERIFY",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "fhdwepqb-qeoi-8n1s-n6rrv3ne1eqy"
+      },
+      "end": {
+        "id": "gxbnp4wi-92ch-z2zt-jw9263hqd9ry"
+      }
+    },
+    {
+      "x": 566.07,
+      "y": 1428.783,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -87.17800000000005,
+          9.870000000000118
+        ],
+        [
+          -504.85900000000004,
+          95.63900000000012
+        ]
+      ],
+      "id": "VERIFY_DNC",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "gxbnp4wi-92ch-z2zt-jw9263hqd9ry"
+      },
+      "end": {
+        "id": "y08u179i-t947-y9o3-p8s8a8b8ho8u"
+      }
+    },
+    {
+      "x": 637.697,
+      "y": 1448,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -5.25,
+          6.666999999999916
+        ],
+        [
+          -31.498000000000047,
+          76
+        ]
+      ],
+      "id": "VERIFY_EXPLAIN",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "gxbnp4wi-92ch-z2zt-jw9263hqd9ry"
+      },
+      "end": {
+        "id": "l0gvvb94-fewg-yxff-8ukqiepmpdr2"
+      }
+    },
+    {
+      "x": 676.199,
+      "y": 1563.594,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          134.31100000000004,
+          10.7349999999999
+        ],
+        [
+          792.8580000000001,
+          100.64099999999985
+        ]
+      ],
+      "id": "EXPLAIN_COOP",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "l0gvvb94-fewg-yxff-8ukqiepmpdr2"
+      },
+      "end": {
+        "id": "bnx70wiv-8m7z-89p5-5htnkqnz5odd"
+      }
+    },
+    {
+      "x": 606.199,
+      "y": 1588,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          6.666999999999916
+        ],
+        [
+          0,
+          1406
+        ]
+      ],
+      "id": "EXPLAIN_TICKET",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "l0gvvb94-fewg-yxff-8ukqiepmpdr2"
+      },
+      "end": {
+        "id": "xyttxm2a-m38k-zvwz-a09l9j4v6ro8"
+      }
+    },
+    {
+      "x": 756.57,
+      "y": 1425.746,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          127.582,
+          10.375999999999976
+        ],
+        [
+          731.003,
+          239.32499999999982
+        ]
+      ],
+      "id": "VERIFY_COOP",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "gxbnp4wi-92ch-z2zt-jw9263hqd9ry"
+      },
+      "end": {
+        "id": "bnx70wiv-8m7z-89p5-5htnkqnz5odd"
+      }
+    },
+    {
+      "x": 352.621,
+      "y": 1323,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          6.666999999999916
+        ],
+        [
+          27.363,
+          62.46199999999999
+        ]
+      ],
+      "id": "AVOID_SILENCE",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "l7jk8koa-6ynu-92bu-25e7b1aftlao"
+      },
+      "end": {
+        "id": "lty22jb2-ftw4-70sq-95kxxm8fobdq"
+      }
+    },
+    {
+      "x": 456.167,
+      "y": 1388,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          5.0750000000000455,
+          -4.166999999999916
+        ],
+        [
+          739.0400000000002,
+          -228.38200000000006
+        ]
+      ],
+      "id": "SILENCE_CLASSIFY",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "lty22jb2-ftw4-70sq-95kxxm8fobdq"
+      },
+      "end": {
+        "id": "lphf99y5-rxob-ksx3-z5h9iq2pg7zm"
+      }
+    },
+    {
+      "x": 1922.188,
+      "y": 1988,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          13.333000000000084
+        ],
+        [
+          0,
+          116
+        ]
+      ],
+      "id": "REFUSE_PRESSURE",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "2jqd3dg3-jvcp-8ojz-9ak2gp2xde3n"
+      },
+      "end": {
+        "id": "5b892gq2-hevq-ijfm-ksetdy03equx"
+      }
+    },
+    {
+      "x": 1854.688,
+      "y": 2168,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -15,
+          6.666999999999916
+        ],
+        [
+          -146.67200000000003,
+          77.78099999999995
+        ]
+      ],
+      "id": "PRESSURE_NEGO",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "5b892gq2-hevq-ijfm-ksetdy03equx"
+      },
+      "end": {
+        "id": "mxf33fyp-2lsj-4478-7nvfp3pqijdx"
+      }
+    },
+    {
+      "x": 1992.188,
+      "y": 2148.742,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64.35599999999977,
+          9.876999999999953
+        ],
+        [
+          386.13599999999997,
+          735.2579999999998
+        ]
+      ],
+      "id": "PRESSURE_ESC_EXT",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "5b892gq2-hevq-ijfm-ksetdy03equx"
+      },
+      "end": {
+        "id": "t0zkrzh2-i2o7-4wjn-xp0x54iyu27j"
+      }
+    },
+    {
+      "x": 168.121,
+      "y": 1323,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          6.666999999999916
+        ],
+        [
+          0,
+          61
+        ]
+      ],
+      "id": "STOP_DNC_CHECK",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "bqy70zex-1378-gkjy-bzfksu2ahwyt"
+      },
+      "end": {
+        "id": "hnvnjegp-ou0a-0trr-2ni82dxsl7i0"
+      }
+    },
+    {
+      "x": 144.498,
+      "y": 1448,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -5.25,
+          6.666999999999916
+        ],
+        [
+          -49.70899999999999,
+          76.42200000000003
+        ]
+      ],
+      "id": "DNC_CHECK_DNC",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "hnvnjegp-ou0a-0trr-2ni82dxsl7i0"
+      },
+      "end": {
+        "id": "y08u179i-t947-y9o3-p8s8a8b8ho8u"
+      }
+    },
+    {
+      "x": 238.121,
+      "y": 1426.259,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          87.22099999999998,
+          10.289999999999964
+        ],
+        [
+          580.134,
+          99.52600000000007
+        ]
+      ],
+      "id": "DNC_CHECK_SAFE_PAUSE",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "hnvnjegp-ou0a-0trr-2ni82dxsl7i0"
+      },
+      "end": {
+        "id": "kj1nj6m1-fjel-gpyl-714lxgolbohv"
+      }
+    },
+    {
+      "x": 1269.191,
+      "y": 1323,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          6.666999999999916
+        ],
+        [
+          0,
+          61
+        ]
+      ],
+      "id": "CRISIS_WELFARE",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "m5946hon-efp4-bxqg-mmo3tc4bp3ix"
+      },
+      "end": {
+        "id": "cnlkupec-s9g0-pyh2-cu8sxqk77my4"
+      }
+    },
+    {
+      "x": 1269.191,
+      "y": 1448,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          6.666999999999916
+        ],
+        [
+          27.59999999999991,
+          76.79999999999995
+        ]
+      ],
+      "id": "WELFARE_PAUSE",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "cnlkupec-s9g0-pyh2-cu8sxqk77my4"
+      },
+      "end": {
+        "id": "l1el5x21-skf0-0tuz-3mw7ntbu83wj"
+      }
+    },
+    {
+      "x": 2051.633,
+      "y": 1338,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          4.166999999999916
+        ],
+        [
+          30.743000000000393,
+          47.628999999999905
+        ]
+      ],
+      "id": "UNR_TRY_ALT",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "4ydamlr7-z2s6-zmrj-xvdledpsh35m"
+      },
+      "end": {
+        "id": "l0p59uxn-j5q3-jedx-zrjs037zzv6z"
+      }
+    },
+    {
+      "x": 2167.113,
+      "y": 1388,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          5.661000000000058,
+          -4.166999999999916
+        ],
+        [
+          -823.9329999999998,
+          -229.442
+        ]
+      ],
+      "id": "TRY_ALT_CLASSIFY",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "l0p59uxn-j5q3-jedx-zrjs037zzv6z"
+      },
+      "end": {
+        "id": "lphf99y5-rxob-ksx3-z5h9iq2pg7zm"
+      }
+    },
+    {
+      "x": 2126.355,
+      "y": 1448,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          6.666999999999916
+        ],
+        [
+          16.873000000000047,
+          1436.835
+        ]
+      ],
+      "id": "TRY_ALT_OUTSOURCE",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "l0p59uxn-j5q3-jedx-zrjs037zzv6z"
+      },
+      "end": {
+        "id": "ek7myij6-nptt-4gkj-cvv45c49mfgq"
+      }
+    },
+    {
+      "x": 2231.09,
+      "y": 2838,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          4.166999999999916
+        ],
+        [
+          -25.291000000000167,
+          47.35100000000011
+        ]
+      ],
+      "id": "ESC_INT_OUTSOURCE",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "nmxme4en-k8nx-n8e8-950ep39ufz2d"
+      },
+      "end": {
+        "id": "ek7myij6-nptt-4gkj-cvv45c49mfgq"
+      }
+    },
+    {
+      "x": 2310.287,
+      "y": 2948,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -9.448999999999614,
+          4.166999999999916
+        ],
+        [
+          -48.972999999999956,
+          46.240999999999985
+        ]
+      ],
+      "id": "ESC_EXT_LEGAL",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "t0zkrzh2-i2o7-4wjn-xp0x54iyu27j"
+      },
+      "end": {
+        "id": "tni2q09b-w16k-z9ou-ysrd40heha4d"
+      }
+    },
+    {
+      "x": 2084.637,
+      "y": 2920.532,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -290.8440000000003,
+          8.74499999999989
+        ],
+        [
+          -1614.7700000000002,
+          201.38799999999992
+        ]
+      ],
+      "id": "OUTSOURCE_RESOLVED",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "ek7myij6-nptt-4gkj-cvv45c49mfgq"
+      },
+      "end": {
+        "id": "hvx2x27l-j40d-uyzo-j075pdhntiqi"
+      }
+    },
+    {
+      "x": 2225.983,
+      "y": 2948,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          7.934999999999945,
+          4.166999999999916
+        ],
+        [
+          47.60699999999997,
+          46
+        ]
+      ],
+      "id": "OUTSOURCE_LEGAL",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "ek7myij6-nptt-4gkj-cvv45c49mfgq"
+      },
+      "end": {
+        "id": "tni2q09b-w16k-z9ou-ysrd40heha4d"
+      }
+    },
+    {
+      "x": 2203.59,
+      "y": 3030.046,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -301.9190000000001,
+          8.826000000000022
+        ],
+        [
+          -1733.582,
+          85.51900000000023
+        ]
+      ],
+      "id": "LEGAL_RESOLVED",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "tni2q09b-w16k-z9ou-ysrd40heha4d"
+      },
+      "end": {
+        "id": "hvx2x27l-j40d-uyzo-j075pdhntiqi"
+      }
+    },
+    {
+      "x": 2273.59,
+      "y": 3058,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          4.166999999999916
+        ],
+        [
+          0,
+          46
+        ]
+      ],
+      "id": "LEGAL_BAD",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "tni2q09b-w16k-z9ou-ysrd40heha4d"
+      },
+      "end": {
+        "id": "0kr0lvy2-ut4s-wv09-49vh2xv2m2k8"
+      }
+    },
+    {
+      "x": 879.549,
+      "y": 1528,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          2.856999999999971,
+          -6.666999999999916
+        ],
+        [
+          190.69299999999998,
+          -1250.687
+        ]
+      ],
+      "id": "SAFE_PAUSE_OUTREACH",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "kj1nj6m1-fjel-gpyl-714lxgolbohv"
+      },
+      "end": {
+        "id": "jplmm60m-5g4a-px72-f8yaesqpxque"
+      }
+    },
+    {
+      "x": 1344.191,
+      "y": 1528,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          5,
+          -6.666999999999916
+        ],
+        [
+          -86.16100000000006,
+          -1245.4189999999999
+        ]
+      ],
+      "id": "PAUSE_OUTREACH",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "l1el5x21-skf0-0tuz-3mw7ntbu83wj"
+      },
+      "end": {
+        "id": "jplmm60m-5g4a-px72-f8yaesqpxque"
+      }
+    },
+    {
+      "x": 606.199,
+      "y": 3058,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          4.166999999999916
+        ],
+        [
+          -34.17199999999991,
+          47.78099999999995
+        ]
+      ],
+      "id": "TICKET_RESOLVED",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "xyttxm2a-m38k-zvwz-a09l9j4v6ro8"
+      },
+      "end": {
+        "id": "hvx2x27l-j40d-uyzo-j075pdhntiqi"
+      }
+    },
+    {
+      "x": 78,
+      "y": 1588,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          6.666999999999916
+        ],
+        [
+          467.616,
+          1654.308
+        ]
+      ],
+      "id": "DNC_ARCHIVE",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "y08u179i-t947-y9o3-p8s8a8b8ho8u"
+      },
+      "end": {
+        "id": "6586of54-tlz8-kefz-66xf69bpxeq3"
+      }
+    },
+    {
+      "x": 523.699,
+      "y": 3168,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          4.166999999999916
+        ],
+        [
+          31.259000000000015,
+          47.65299999999979
+        ]
+      ],
+      "id": "RESOLVED_ARCHIVE",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "hvx2x27l-j40d-uyzo-j075pdhntiqi"
+      },
+      "end": {
+        "id": "6586of54-tlz8-kefz-66xf69bpxeq3"
+      }
+    },
+    {
+      "x": 2273.59,
+      "y": 3168,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          4.166999999999916
+        ],
+        [
+          -1619.998,
+          78.22600000000011
+        ]
+      ],
+      "id": "BAD_ARCHIVE",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "0kr0lvy2-ut4s-wv09-49vh2xv2m2k8"
+      },
+      "end": {
+        "id": "6586of54-tlz8-kefz-66xf69bpxeq3"
+      }
+    },
+    {
+      "x": 1039.191,
+      "y": 783,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          10.83299999999997
+        ],
+        [
+          -13.947000000000116,
+          116.14099999999996
+        ]
+      ],
+      "id": "SKIP_OUT_WAIT",
+      "strokeWidth": 2,
+      "type": "arrow",
+      "roundness": {
+        "type": 2
+      },
+      "groupIds": [],
+      "start": {
+        "id": "kwelupqv-51bj-54rh-tcqol2zk1ici"
+      },
+      "end": {
+        "id": "zodaqaq4-qdap-fze2-hj1nf6vr5nge"
+      }
+    },
+    {
+      "type": "text",
+      "id": "text_FREQ_EXEC",
+      "x": 988,
+      "y": 431,
+      "width": 28,
+      "height": 18,
+      "text": "通过",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_FREQ_SKIP",
+      "x": 1075,
+      "y": 480,
+      "width": 28,
+      "height": 18,
+      "text": "超限",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_DELIV_OK",
+      "x": 864,
+      "y": 769,
+      "width": 28,
+      "height": 18,
+      "text": "成功",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_DELIV_FAIL",
+      "x": 696,
+      "y": 768,
+      "width": 28,
+      "height": 18,
+      "text": "失败",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_WAIT_OK",
+      "x": 1095,
+      "y": 985,
+      "width": 28,
+      "height": 18,
+      "text": "收到",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_WAIT_TO",
+      "x": 994,
+      "y": 1052,
+      "width": 28,
+      "height": 18,
+      "text": "超时",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_PAY_OK",
+      "x": 1420,
+      "y": 2050,
+      "width": 28,
+      "height": 18,
+      "text": "已还",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_PAY_NO",
+      "x": 1490,
+      "y": 2040,
+      "width": 28,
+      "height": 18,
+      "text": "未还",
+      "fontSize": 13,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_VERIFY_DNC",
+      "x": 490,
+      "y": 1443,
+      "width": 42,
+      "height": 18,
+      "text": "非本人",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_VERIFY_EXPLAIN",
+      "x": 633,
+      "y": 1459,
+      "width": 56,
+      "height": 18,
+      "text": "金额不符",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_VERIFY_COOP",
+      "x": 866,
+      "y": 1462,
+      "width": 28,
+      "height": 18,
+      "text": "认可",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_DNC_CHECK_DNC",
+      "x": 137,
+      "y": 1459,
+      "width": 42,
+      "height": 18,
+      "text": "非本人",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_DNC_CHECK_SAFE_PAUSE",
+      "x": 325,
+      "y": 1441,
+      "width": 28,
+      "height": 18,
+      "text": "安全",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_CLASSIFY_COOP",
+      "x": 1355,
+      "y": 1255,
+      "width": 14,
+      "height": 18,
+      "text": "A",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_CLASSIFY_NEGO",
+      "x": 1384,
+      "y": 1329,
+      "width": 14,
+      "height": 18,
+      "text": "B",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_CLASSIFY_DISPUTE",
+      "x": 1119,
+      "y": 1176,
+      "width": 14,
+      "height": 18,
+      "text": "D",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_CLASSIFY_AVOID",
+      "x": 1072,
+      "y": 1173,
+      "width": 14,
+      "height": 18,
+      "text": "C",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_CLASSIFY_REFUSE",
+      "x": 1427,
+      "y": 1275,
+      "width": 14,
+      "height": 18,
+      "text": "F",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_CLASSIFY_STOP",
+      "x": 1045,
+      "y": 1173,
+      "width": 28,
+      "height": 18,
+      "text": "停止",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_CLASSIFY_CRISIS",
+      "x": 1269,
+      "y": 1194,
+      "width": 28,
+      "height": 18,
+      "text": "危机",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_CLASSIFY_UNR",
+      "x": 1446,
+      "y": 1172,
+      "width": 14,
+      "height": 18,
+      "text": "E",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_EXEC_RESOLVED",
+      "x": 1560,
+      "y": 2700,
+      "width": 28,
+      "height": 18,
+      "text": "成功",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_EXEC_ESC_INT",
+      "x": 1720,
+      "y": 2640,
+      "width": 28,
+      "height": 18,
+      "text": "逾期",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_APPROVAL_EXEC",
+      "x": 1690,
+      "y": 2530,
+      "width": 28,
+      "height": 18,
+      "text": "通过",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_APPROVAL_OUTREACH",
+      "x": 1750,
+      "y": 2400,
+      "width": 28,
+      "height": 18,
+      "text": "退回",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_PRESSURE_NEGO",
+      "x": 1790,
+      "y": 2130,
+      "width": 28,
+      "height": 18,
+      "text": "接受",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_PRESSURE_ESC_EXT",
+      "x": 1920,
+      "y": 2080,
+      "width": 28,
+      "height": 18,
+      "text": "拒绝",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_OUTSOURCE_RESOLVED",
+      "x": 1980,
+      "y": 2930,
+      "width": 28,
+      "height": 18,
+      "text": "成功",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_OUTSOURCE_LEGAL",
+      "x": 2150,
+      "y": 2920,
+      "width": 28,
+      "height": 18,
+      "text": "诉讼",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_LEGAL_RESOLVED",
+      "x": 2100,
+      "y": 3020,
+      "width": 28,
+      "height": 18,
+      "text": "回款",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    },
+    {
+      "type": "text",
+      "id": "text_LEGAL_BAD",
+      "x": 2240,
+      "y": 3030,
+      "width": 28,
+      "height": 18,
+      "text": "坏账",
+      "fontSize": 12,
+      "fontFamily": 1,
+      "textAlign": "left",
+      "verticalAlign": "top"
+    }
+  ],
+  "appState": {
+    "gridSize": null,
+    "viewBackgroundColor": "#ffffff"
+  },
+  "files": {}
+}
