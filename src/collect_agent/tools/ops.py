@@ -9,6 +9,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Any
 
+from collect_agent.core.models import ScheduledTask
 from collect_agent.tools.registry import tool
 
 
@@ -140,7 +141,6 @@ async def add_to_dnc(
 
     # Add dnc field if not present
     if not hasattr(state, "dnc"):
-
         # Monkey-patch for backward compat during migration
         object.__setattr__(state, "dnc", True)
     else:
@@ -262,6 +262,99 @@ async def record_promise(
         "promise_id": promise_id,
         "promised_date": promised_date,
         "promised_amount": promised_amount,
+        "status": "recorded",
+    }
+
+
+@tool(
+    name="schedule_task",
+    description="Schedule a future task (reminder, follow-up, silence timeout, etc.).",
+)
+async def schedule_task(
+    user_id: str,
+    task_type: str,
+    scheduled_at: str,
+    payload: dict[str, Any],
+    store: Any,
+) -> dict[str, Any]:
+    """Real side effect: create a ScheduledTask in the store."""
+    if not hasattr(store, "save_task"):
+        return {"error": "Store does not support task scheduling"}
+
+    task_id = f"task-{user_id}-{task_type}-{int(datetime.now().timestamp())}"
+    task = ScheduledTask(
+        task_id=task_id,
+        user_id=user_id,
+        task_type=task_type,
+        scheduled_at=datetime.fromisoformat(scheduled_at),
+        payload=payload,
+        status="pending",
+    )
+    store.save_task(task)
+
+    return {
+        "user_id": user_id,
+        "task_id": task_id,
+        "task_type": task_type,
+        "scheduled_at": scheduled_at,
+        "status": "scheduled",
+    }
+
+
+@tool(
+    name="cancel_task",
+    description="Cancel a previously scheduled task by task_id.",
+)
+async def cancel_task(
+    task_id: str,
+    store: Any,
+) -> dict[str, Any]:
+    """Real side effect: cancel a scheduled task."""
+    if not hasattr(store, "cancel_task"):
+        return {"error": "Store does not support task cancellation"}
+
+    ok = store.cancel_task(task_id)
+    return {
+        "task_id": task_id,
+        "status": "cancelled" if ok else "not_found",
+    }
+
+
+@tool(
+    name="record_willing_to_pay",
+    description="Record that the user is willing to pay and schedule a follow-up.",
+)
+async def record_willing_to_pay(
+    user_id: str,
+    follow_up_hours: int,
+    store: Any,
+) -> dict[str, Any]:
+    """Real side effect: set willing_to_pay_at and schedule a follow-up task."""
+    state = store.load(user_id)
+    if not state:
+        return {"error": "User not found"}
+
+    now = datetime.now()
+    state.willing_to_pay_at = now
+    store.save(state)
+
+    # Schedule follow-up task instead of direct timestamp write
+    if hasattr(store, "save_task"):
+        task_id = f"task-{user_id}-payment_follow_up-{int(now.timestamp())}"
+        task = ScheduledTask(
+            task_id=task_id,
+            user_id=user_id,
+            task_type="payment_follow_up",
+            scheduled_at=now + timedelta(hours=follow_up_hours),
+            payload={"trigger": "willing_to_pay"},
+            status="pending",
+        )
+        store.save_task(task)
+
+    return {
+        "user_id": user_id,
+        "willing_to_pay_at": now.isoformat(),
+        "follow_up_scheduled_hours": follow_up_hours,
         "status": "recorded",
     }
 

@@ -60,7 +60,7 @@ class SkillLoader:
         name = meta.get("name", "")
         description = meta.get("description", "")
         tools = meta.get("tools", [])
-        max_steps = meta.get("max_steps", 10)
+        max_steps = meta.get("max_steps", 1000)
 
         if not name or not description:
             return None

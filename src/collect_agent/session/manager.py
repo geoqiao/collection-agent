@@ -1,4 +1,9 @@
-"""Session manager — creates and manages AgentSession instances."""
+"""Session manager — creates and manages AgentSession instances.
+
+Architecture: shared heavy-weight dependencies, lightweight per-user sessions.
+AgentSession objects are created on-demand per event and are NOT cached
+in memory (unless enable_cache=True). All state lives in storage.
+"""
 
 from __future__ import annotations
 
@@ -17,7 +22,12 @@ from collect_agent.tools.registry import ToolRegistry, get_registry
 
 
 class SessionManager:
-    """Manages agent sessions per user."""
+    """Manages agent sessions per user.
+
+    Heavy-weight dependencies (LLM, skills, tools) are created once and shared.
+    AgentSession objects are lightweight wrappers created per event.
+    No in-memory session cache — state is always loaded from storage.
+    """
 
     def __init__(
         self,
@@ -32,10 +42,22 @@ class SessionManager:
         self._quota_manager = quota_manager
         self._compliance_checker = compliance_checker
         self._llm_client = llm_client or MockLLMClient()
+
+        # Heavy-weight dependencies — created once, shared across all sessions
         self._skill_registry = skill_registry or self._load_default_skills()
         self._tool_registry = tool_registry or get_registry()
-
-        self._sessions: dict[str, AgentSession] = {}
+        self._harness = Harness(
+            compliance_checker=self._compliance_checker,
+            quota_manager=self._quota_manager,
+        )
+        self._decider = Decider(
+            llm_client=self._llm_client,
+            skill_registry=self._skill_registry,
+        )
+        self._skill_executor = SkillExecutor(
+            llm_client=self._llm_client,
+            tool_registry=self._tool_registry,
+        )
 
     def _load_default_skills(self) -> SkillRegistry:
         """Load skills from Markdown files."""
@@ -46,9 +68,11 @@ class SessionManager:
         return registry
 
     def get_or_create(self, user_id: str) -> AgentSession:
-        if user_id in self._sessions:
-            return self._sessions[user_id]
+        """Create a lightweight AgentSession for the user.
 
+        State is loaded fresh from storage on every call.
+        Heavy-weight dependencies are injected from shared instances.
+        """
         state = self._store.load(user_id)
         if state is None:
             state = UserState(
@@ -57,37 +81,33 @@ class SessionManager:
             )
             self._store.save(state)
 
-        harness = Harness(
-            compliance_checker=self._compliance_checker,
-            quota_manager=self._quota_manager,
-        )
-        decider = Decider(
-            llm_client=self._llm_client,
-            skill_registry=self._skill_registry,
-        )
-        skill_executor = SkillExecutor(
-            llm_client=self._llm_client,
-            tool_registry=self._tool_registry,
-        )
+        # Ensure transient fields are present on older states
+        if state.intent_history is None:
+            state.intent_history = []
+        if state.silence_timeout_emitted is None:
+            state.silence_timeout_emitted = []
 
-        session = AgentSession(
+        return AgentSession(
             user_id=user_id,
             user_state=state,
             skill_registry=self._skill_registry,
-            skill_executor=skill_executor,
-            decider=decider,
-            harness=harness,
+            skill_executor=self._skill_executor,
+            decider=self._decider,
+            harness=self._harness,
             compliance_checker=self._compliance_checker,
             storage=self._store,
         )
-        self._sessions[user_id] = session
-        return session
 
-    def get(self, user_id: str) -> AgentSession | None:
-        return self._sessions.get(user_id)
+    def get(self, user_id: str) -> UserState | None:
+        """Return raw user state from storage (for inspection)."""
+        return self._store.load(user_id)
 
-    def remove(self, user_id: str) -> None:
-        if user_id in self._sessions:
-            session = self._sessions[user_id]
-            self._store.save(session.user_state)
-            del self._sessions[user_id]
+    def save(self, user_id: str) -> None:
+        """Explicitly save user state to storage."""
+        state = self._store.load(user_id)
+        if state is not None:
+            self._store.save(state)
+
+    @property
+    def store(self):
+        return self._store

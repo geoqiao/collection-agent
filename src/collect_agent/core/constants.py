@@ -18,6 +18,7 @@ class EventType(Enum):
     COMPLAINT = "complaint"
     QUOTA_EXHAUSTED = "quota_exhausted"
     COMPLIANCE_VIOLATION = "compliance_violation"
+    PAYMENT_FOLLOW_UP = "payment_follow_up"
 
 
 class ChannelType(Enum):
@@ -62,13 +63,14 @@ class AgentSessionState(Enum):
 
 
 class IntentCategory(Enum):
-    COOPERATION = "A"
-    NEGOTIATION = "B"
-    AVOIDANCE = "C"
-    DISPUTE = "D"
-    COMPLAINT = "E"
-    STOP = "STOP"
-    CRISIS = "CRISIS"
+    COOPERATION = "A"  # 愿意还款
+    NEGOTIATION = "B"  # 协商
+    AVOIDANCE = "C"  # 回避/沉默
+    DISPUTE = "D"  # 争议
+    COMPLAINT = "E"  # 投诉
+    STOP = "STOP"  # 要求停止联系
+    CRISIS = "CRISIS"  # 危机信号
+    UNREACHABLE = "F"  # 触达失败/联系不上
     INEFFECTIVE = "ineffective"
     UNKNOWN = "unknown"
 

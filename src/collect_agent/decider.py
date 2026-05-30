@@ -42,16 +42,17 @@ _SYSTEM_PROMPT_TEMPLATE = """你是专业的债务催收意图识别助手。
 - COOPERATION：愿意还款或询问还款方式 → 引导还款
 - NEGOTIATION：表示困难，希望延期或分期 → 共情，提供方案
 - AVOIDANCE：回避问题，不愿深入讨论 → 简短确认，不持续施压
-- DISPUTE：质疑账单真实性或金额 → 道歉，移交人工
+- DISPUTE：质疑账单真实性或金额 → 先核实身份和账单
 - COMPLAINT：表达不满，威胁投诉 → 暂停，安抚，移交
 - STOP：明确要求停止联系 → 确认退出
 - CRISIS：提及自杀、重病等 → 安慰，立即人工告警
+- UNREACHABLE：触达失败（电话无人接、短信发送失败、号码停机、用户拉黑等）→ 换渠道重试或标记失联
 
 # 可选 Skills
 {{skills_description}}
 
 # 思考流程（每轮必须执行）
-1. 当前 session_state 是什么？如果是 locked 状态（escalated/stopped/crisis/disputed），立即使用固定模板
+1. 当前 session_state 是什么？如果是 locked 状态（escalated/stopped/crisis），立即使用固定模板
 2. 读取最近 3 轮对话。用户情绪是否显著转变？
 3. 本轮核心意图是什么？基于所有信号综合判断，不是只看文本
 4. 该意图是否触发单向门（DISPUTE/COMPLAINT/STOP/CRISIS）？
@@ -63,7 +64,7 @@ _SYSTEM_PROMPT_TEMPLATE = """你是专业的债务催收意图识别助手。
 你必须以 JSON 格式输出。提示词中必须包含 "json" 字样以确保格式正确。
 
 输出字段：
-- intent: COOPERATION|NEGOTIATION|AVOIDANCE|DISPUTE|COMPLAINT|STOP|CRISIS
+- intent: COOPERATION|NEGOTIATION|AVOIDANCE|DISPUTE|COMPLAINT|STOP|CRISIS|UNREACHABLE
 - selected_skill: 从可选 Skills 中选择的 skill 名称
 - confidence: high|medium|low
 - escalation: true|false
@@ -166,6 +167,7 @@ def _map_intent(val: str) -> IntentCategory:
         "C": IntentCategory.AVOIDANCE,
         "D": IntentCategory.DISPUTE,
         "E": IntentCategory.COMPLAINT,
+        "F": IntentCategory.UNREACHABLE,
         "COOPERATION": IntentCategory.COOPERATION,
         "NEGOTIATION": IntentCategory.NEGOTIATION,
         "AVOIDANCE": IntentCategory.AVOIDANCE,
@@ -173,6 +175,7 @@ def _map_intent(val: str) -> IntentCategory:
         "COMPLAINT": IntentCategory.COMPLAINT,
         "STOP": IntentCategory.STOP,
         "CRISIS": IntentCategory.CRISIS,
+        "UNREACHABLE": IntentCategory.UNREACHABLE,
     }
     return mapping.get(val, IntentCategory.UNKNOWN)
 
@@ -186,5 +189,6 @@ def _fallback_skill(intent: IntentCategory) -> str:
         IntentCategory.COMPLAINT: "complaint",
         IntentCategory.STOP: "stop",
         IntentCategory.CRISIS: "crisis",
+        IntentCategory.UNREACHABLE: "reengage",
     }
     return mapping.get(intent, "troubleshoot")

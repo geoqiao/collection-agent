@@ -36,3 +36,12 @@ Thumbs.db
 
 # pi agent state
 .pi/
+
+# understand-anything
+.understand-anything/
+
+# ruff cache
+.ruff_cache/
+
+# claude
+.claude/

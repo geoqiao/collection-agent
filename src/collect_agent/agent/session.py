@@ -27,7 +27,10 @@ _LOCKED_TEMPLATES: dict[str, str] = {
 
 
 class AgentSession:
-    """Main agent session — Harness -> Decide -> Execute."""
+    """Main agent session — Harness -> Decide -> Execute.
+
+    Lightweight wrapper: all mutable state lives in UserState (persisted to store).
+    """
 
     def __init__(
         self,
@@ -48,13 +51,27 @@ class AgentSession:
         self.harness = harness
         self.compliance_checker = compliance_checker
         self.storage = storage
-        self.last_outreach_at: datetime | None = None
-        self.last_interaction_at: datetime | None = None
 
     # Backward compatibility alias
     @property
     def state(self) -> UserState:
         return self.user_state
+
+    @property
+    def last_outreach_at(self) -> datetime | None:
+        return self.user_state.last_outreach_at
+
+    @last_outreach_at.setter
+    def last_outreach_at(self, value: datetime | None) -> None:
+        self.user_state.last_outreach_at = value
+
+    @property
+    def last_interaction_at(self) -> datetime | None:
+        return self.user_state.last_interaction_at
+
+    @last_interaction_at.setter
+    def last_interaction_at(self, value: datetime | None) -> None:
+        self.user_state.last_interaction_at = value
 
     async def handle_event(self, event: Event) -> SkillResult | None:
         """Handle an incoming event and return a skill result."""
@@ -126,8 +143,10 @@ class AgentSession:
 
         # Last outreach
         last_outreach = None
-        if self.last_outreach_at:
-            hours = (datetime.now(UTC) - self.last_outreach_at).total_seconds() / 3600
+        if self.user_state.last_outreach_at:
+            hours = (
+                datetime.now(UTC) - self.user_state.last_outreach_at
+            ).total_seconds() / 3600
             last_outreach = OutreachResult(
                 hours_since=hours,
             )
@@ -147,7 +166,9 @@ class AgentSession:
         ]
 
         return Context(
-            user_message=event.payload.get("message") if event.type == EventType.USER_REPLIED else None,
+            user_message=event.payload.get("message")
+            if event.type == EventType.USER_REPLIED
+            else None,
             profile=profile,
             session_state=self.user_state.session_state,
             negotiation_round=conversation.negotiation_round,
@@ -166,7 +187,12 @@ class AgentSession:
             intent=intent,
             selected_skill=skill_name,
             confidence="high",
-            escalation=intent in (IntentCategory.CRISIS, IntentCategory.COMPLAINT, IntentCategory.DISPUTE),
+            escalation=intent
+            in (
+                IntentCategory.CRISIS,
+                IntentCategory.COMPLAINT,
+                IntentCategory.DISPUTE,
+            ),
             emotion="negative",
             reasoning=f"Harness forced: {reason}",
         )
@@ -181,6 +207,7 @@ class AgentSession:
             IntentCategory.COMPLAINT: "complaint",
             IntentCategory.STOP: "stop",
             IntentCategory.CRISIS: "crisis",
+            IntentCategory.UNREACHABLE: "reengage",
         }
         return mapping.get(intent, "troubleshoot")
 
@@ -220,9 +247,9 @@ class AgentSession:
                 self.user_state.session_state = intent_to_state[decision.intent.value]
 
         # Update timestamps
-        self.last_interaction_at = datetime.now(UTC)
+        self.user_state.last_interaction_at = datetime.now(UTC)
         if result.status == "success" and result.response_text:
-            self.last_outreach_at = datetime.now(UTC)
+            self.user_state.last_outreach_at = datetime.now(UTC)
 
         # Save state
         if self.storage and hasattr(self.storage, "save"):
@@ -238,10 +265,7 @@ class AgentSession:
         # Record the payment event
         self._record_message("chatbot", "inbound", f"[系统] 用户支付 ¥{amount}")
 
-        response_text = (
-            f"感谢您的还款！您的账单已结清。"
-            f"如有其他问题，欢迎随时联系。"
-        )
+        response_text = "感谢您的还款！您的账单已结清。如有其他问题，欢迎随时联系。"
 
         self._record_message("chatbot", "outbound", response_text)
 

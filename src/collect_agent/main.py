@@ -59,10 +59,14 @@ class CollectAgentSystem:
         self.router.route(event)
 
     def get_session(self, user_id: str):
-        return self.session_manager.get(user_id)
+        return self.session_manager.get_or_create(user_id)
 
     async def run_scheduled_outreach(self):
         await self.scheduler.scan_and_outreach()
 
     async def run_timeout_checks(self):
         await self.scheduler.check_silence_timeouts()
+
+    async def run_heartbeat(self, interval_seconds: int = 600):
+        """Run the unified heartbeat loop indefinitely."""
+        await self.scheduler.run_heartbeat(interval_seconds)

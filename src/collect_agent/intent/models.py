@@ -5,14 +5,15 @@ from enum import Enum
 
 
 class IntentCategory(Enum):
-    COOPERATION = "A"  # 合作
+    COOPERATION = "A"  # 愿意还款
     NEGOTIATION = "B"  # 协商
-    AVOIDANCE = "C"  # 回避
+    AVOIDANCE = "C"  # 回避/沉默
     DISPUTE = "D"  # 争议
     COMPLAINT = "E"  # 投诉/威胁
-    STOP = "STOP"
-    CRISIS = "CRISIS"
-    INEFFECTIVE = "ineffective"  # 无效联系
+    STOP = "STOP"  # 要求停止联系
+    CRISIS = "CRISIS"  # 危机信号
+    UNREACHABLE = "F"  # 触达失败/联系不上
+    INEFFECTIVE = "ineffective"
     UNKNOWN = "unknown"
 
 

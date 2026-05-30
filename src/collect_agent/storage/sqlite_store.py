@@ -8,6 +8,7 @@ from typing import Self
 from collect_agent.core.models import (
     ConversationContext,
     Message,
+    ScheduledTask,
     UserProfile,
     UserState,
 )
@@ -21,6 +22,7 @@ class SQLiteStore:
         self._init_db()
 
     def _init_db(self) -> None:
+        # user_states table
         self._conn.execute(
             """
             CREATE TABLE IF NOT EXISTS user_states (
@@ -41,12 +43,44 @@ class SQLiteStore:
             """
         )
         self._conn.commit()
-        # Migrate: add context column if missing
-        try:
-            self._conn.execute("SELECT context FROM user_states LIMIT 1")
-        except sqlite3.OperationalError:
-            self._conn.execute("ALTER TABLE user_states ADD COLUMN context TEXT")
-            self._conn.commit()
+
+        # Migrate: add columns if missing
+        existing_cols = {
+            r[1]
+            for r in self._conn.execute("PRAGMA table_info(user_states)").fetchall()
+        }
+        migrations = [
+            ("context", "TEXT"),
+            ("intent_history", "TEXT"),
+            ("last_outreach_at", "TEXT"),
+            ("last_interaction_at", "TEXT"),
+            ("dnc", "INTEGER DEFAULT 0"),
+            ("dispute_status", "TEXT"),
+            ("willing_to_pay_at", "TEXT"),
+            ("silence_timeout_emitted", "TEXT"),
+        ]
+        for col_name, col_type in migrations:
+            if col_name not in existing_cols:
+                self._conn.execute(
+                    f"ALTER TABLE user_states ADD COLUMN {col_name} {col_type}"
+                )
+                self._conn.commit()
+
+        # scheduled_tasks table
+        self._conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS scheduled_tasks (
+                task_id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                task_type TEXT NOT NULL,
+                scheduled_at TEXT NOT NULL,
+                payload TEXT,
+                status TEXT DEFAULT 'pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        self._conn.commit()
 
     def close(self) -> None:
         self._conn.close()
@@ -73,9 +107,22 @@ class SQLiteStore:
         )
         quota_usage_json = json.dumps(state.quota_usage, ensure_ascii=False)
         channel_states_json = json.dumps(state.channel_states, ensure_ascii=False)
+        intent_history_json = json.dumps(state.intent_history, ensure_ascii=False)
+        silence_timeout_emitted_json = json.dumps(
+            state.silence_timeout_emitted, ensure_ascii=False
+        )
 
         paused_until_str = (
             state.paused_until.isoformat() if state.paused_until else None
+        )
+        last_outreach_at_str = (
+            state.last_outreach_at.isoformat() if state.last_outreach_at else None
+        )
+        last_interaction_at_str = (
+            state.last_interaction_at.isoformat() if state.last_interaction_at else None
+        )
+        willing_to_pay_at_str = (
+            state.willing_to_pay_at.isoformat() if state.willing_to_pay_at else None
         )
         context_json = (
             json.dumps(context_manager.to_dict(), ensure_ascii=False)
@@ -87,8 +134,10 @@ class SQLiteStore:
             """
             INSERT INTO user_states (
                 user_id, name, phone, occupation, overdue_days, amount_due,
-                session_state, channel_states, conversation, quota_usage, paused_until, context, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                session_state, channel_states, conversation, quota_usage, paused_until,
+                context, updated_at, intent_history, last_outreach_at, last_interaction_at,
+                dnc, dispute_status, willing_to_pay_at, silence_timeout_emitted
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(user_id) DO UPDATE SET
                 name = excluded.name,
                 phone = excluded.phone,
@@ -101,7 +150,14 @@ class SQLiteStore:
                 quota_usage = excluded.quota_usage,
                 paused_until = excluded.paused_until,
                 context = excluded.context,
-                updated_at = excluded.updated_at
+                updated_at = excluded.updated_at,
+                intent_history = excluded.intent_history,
+                last_outreach_at = excluded.last_outreach_at,
+                last_interaction_at = excluded.last_interaction_at,
+                dnc = excluded.dnc,
+                dispute_status = excluded.dispute_status,
+                willing_to_pay_at = excluded.willing_to_pay_at,
+                silence_timeout_emitted = excluded.silence_timeout_emitted
             """,
             (
                 state.user_id,
@@ -117,6 +173,13 @@ class SQLiteStore:
                 paused_until_str,
                 context_json,
                 datetime.now().isoformat(),
+                intent_history_json,
+                last_outreach_at_str,
+                last_interaction_at_str,
+                1 if state.dnc else 0,
+                state.dispute_status,
+                willing_to_pay_at_str,
+                silence_timeout_emitted_json,
             ),
         )
         self._conn.commit()
@@ -139,6 +202,66 @@ class SQLiteStore:
         self._conn.execute("DELETE FROM user_states WHERE user_id = ?", (user_id,))
         self._conn.commit()
 
+    def save_task(self, task: ScheduledTask) -> None:
+        self._conn.execute(
+            """
+            INSERT INTO scheduled_tasks (
+                task_id, user_id, task_type, scheduled_at, payload, status, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(task_id) DO UPDATE SET
+                user_id = excluded.user_id,
+                task_type = excluded.task_type,
+                scheduled_at = excluded.scheduled_at,
+                payload = excluded.payload,
+                status = excluded.status
+            """,
+            (
+                task.task_id,
+                task.user_id,
+                task.task_type,
+                task.scheduled_at.isoformat(),
+                json.dumps(task.payload, ensure_ascii=False),
+                task.status,
+                datetime.now().isoformat(),
+            ),
+        )
+        self._conn.commit()
+
+    def load_pending_tasks(self, before: datetime | None = None) -> list[ScheduledTask]:
+        if before is None:
+            rows = self._conn.execute(
+                "SELECT * FROM scheduled_tasks WHERE status = 'pending' ORDER BY scheduled_at"
+            ).fetchall()
+        else:
+            rows = self._conn.execute(
+                "SELECT * FROM scheduled_tasks WHERE status = 'pending' AND scheduled_at <= ? ORDER BY scheduled_at",
+                (before.isoformat(),),
+            ).fetchall()
+        return [self._row_to_task(row) for row in rows]
+
+    def load_tasks_for_user(self, user_id: str) -> list[ScheduledTask]:
+        rows = self._conn.execute(
+            "SELECT * FROM scheduled_tasks WHERE user_id = ? ORDER BY scheduled_at",
+            (user_id,),
+        ).fetchall()
+        return [self._row_to_task(row) for row in rows]
+
+    def cancel_task(self, task_id: str) -> bool:
+        cursor = self._conn.execute(
+            "UPDATE scheduled_tasks SET status = 'cancelled' WHERE task_id = ?",
+            (task_id,),
+        )
+        self._conn.commit()
+        return cursor.rowcount > 0
+
+    def complete_task(self, task_id: str) -> bool:
+        cursor = self._conn.execute(
+            "UPDATE scheduled_tasks SET status = 'done' WHERE task_id = ?",
+            (task_id,),
+        )
+        self._conn.commit()
+        return cursor.rowcount > 0
+
     def _row_to_state(self, row: sqlite3.Row) -> UserState:
         conversation_data = json.loads(row["conversation"] or "{}")
         messages_data = conversation_data.get("messages", [])
@@ -157,9 +280,8 @@ class SQLiteStore:
             negotiation_round=conversation_data.get("negotiation_round", 0),
         )
 
-        paused_until = None
-        if row["paused_until"]:
-            paused_until = datetime.fromisoformat(row["paused_until"])
+        def _parse_dt(val):
+            return datetime.fromisoformat(val) if val else None
 
         return UserState(
             user_id=row["user_id"],
@@ -175,6 +297,22 @@ class SQLiteStore:
             channel_states=json.loads(row["channel_states"] or "{}"),
             conversation=conversation,
             quota_usage=json.loads(row["quota_usage"] or "{}"),
-            paused_until=paused_until,
+            paused_until=_parse_dt(row["paused_until"]),
+            intent_history=json.loads(row["intent_history"] or "[]"),
+            last_outreach_at=_parse_dt(row["last_outreach_at"]),
+            last_interaction_at=_parse_dt(row["last_interaction_at"]),
+            dnc=bool(row["dnc"]) if row["dnc"] is not None else False,
+            dispute_status=row["dispute_status"],
+            willing_to_pay_at=_parse_dt(row["willing_to_pay_at"]),
+            silence_timeout_emitted=json.loads(row["silence_timeout_emitted"] or "[]"),
         )
 
+    def _row_to_task(self, row: sqlite3.Row) -> ScheduledTask:
+        return ScheduledTask(
+            task_id=row["task_id"],
+            user_id=row["user_id"],
+            task_type=row["task_type"],
+            scheduled_at=datetime.fromisoformat(row["scheduled_at"]),
+            payload=json.loads(row["payload"] or "{}"),
+            status=row["status"],
+        )

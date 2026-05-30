@@ -41,6 +41,15 @@ class Event(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.now)
 
 
+class ScheduledTask(BaseModel):
+    task_id: str
+    user_id: str
+    task_type: str  # "payment_follow_up", "reminder", "silence_timeout"
+    scheduled_at: datetime
+    payload: dict[str, Any] = Field(default_factory=dict)
+    status: str = "pending"  # pending | done | cancelled
+
+
 class Message(BaseModel):
     channel: str
     direction: str  # "inbound" | "outbound"
@@ -70,4 +79,8 @@ class UserState(BaseModel):
     paused_until: datetime | None = None
     intent_history: list[str] = Field(default_factory=list)
     last_outreach_at: datetime | None = None
+    last_interaction_at: datetime | None = None
     dnc: bool = False
+    dispute_status: str | None = None
+    willing_to_pay_at: datetime | None = None
+    silence_timeout_emitted: list[int] = Field(default_factory=list)
